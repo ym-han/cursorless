@@ -1,10 +1,15 @@
-import { toPairs } from "lodash";
+import { keys, merge, toPairs } from "lodash";
 import * as vscode from "vscode";
-import { ActionType } from "../actions/actions.types";
 import { Graph } from "../typings/Types";
-import { actionKeymap, colorKeymap, KeyMap, scopeKeymap } from "./Keymaps";
+import {
+  actionKeymap,
+  colorKeymap,
+  Keymap,
+  scopeKeymap,
+  shapeKeymap,
+} from "./Keymaps";
 
-type SectionName = "actions" | "scopes" | "colors";
+type SectionName = "actions" | "scopes" | "colors" | "shapes";
 
 interface KeyHandler<T> {
   sectionName: SectionName;
@@ -17,7 +22,6 @@ interface KeyHandler<T> {
  */
 export default class KeyboardCommandsModal {
   private isModeOn = false;
-  private isActivated = false;
   private inputDisposable: vscode.Disposable | undefined;
   private mergedKeymap!: Record<string, KeyHandler<any>>;
 
@@ -39,15 +43,18 @@ export default class KeyboardCommandsModal {
         "cursorless.keyboard.modal.modeOff",
         this.modeOff
       ),
-      vscode.window.onDidChangeActiveTextEditor((textEditor) => {
-        if (!textEditor) {
-          return;
+      vscode.commands.registerCommand(
+        "cursorless.keyboard.modal.modeToggle",
+        this.modeToggle
+      ),
+      vscode.workspace.onDidChangeConfiguration((event) => {
+        if (
+          event.affectsConfiguration("cursorless.keyboard.modal.keybindings")
+        ) {
+          this.constructMergedKeymap();
         }
-        this.ensureState();
       })
     );
-
-    this.ensureState();
   }
 
   private constructMergedKeymap() {
@@ -66,23 +73,35 @@ export default class KeyboardCommandsModal {
         color: value,
       });
     });
+    this.handleSection("shapes", shapeKeymap, (value) => {
+      return this.graph.keyboardCommands.targeted.targetDecoratedMark({
+        shape: value,
+      });
+    });
   }
 
   private handleSection<T>(
     sectionName: SectionName,
-    keyMap: KeyMap<T>,
+    defaultKeyMap: Keymap<T>,
     handleValue: (value: T) => void
   ) {
+    const userOverrides: Keymap<T> =
+      vscode.workspace
+        .getConfiguration("cursorless.keyboard.modal.keybindings")
+        .get<Keymap<T>>(sectionName) ?? {};
+    const keyMap = merge({}, defaultKeyMap, userOverrides);
+
     for (const [key, value] of toPairs(keyMap)) {
-      if (key in this.mergedKeymap) {
+      const conflictingEntry = this.getConflictingKeyMapEntry(key);
+      if (conflictingEntry != null) {
         const { sectionName: conflictingSection, value: conflictingValue } =
-          this.mergedKeymap[key];
+          conflictingEntry;
 
         vscode.window.showErrorMessage(
-          `Duplicated keybindings: ${sectionName} ${value} and ${conflictingSection} ${conflictingValue} both want key '${key}'`
+          `Conflicting keybindings: \`${sectionName}.${value}\` and \`${conflictingSection}.${conflictingValue}\` both want key '${key}'`
         );
 
-        return;
+        continue;
       }
 
       const entry: KeyHandler<T> = {
@@ -95,69 +114,88 @@ export default class KeyboardCommandsModal {
     }
   }
 
-  private modeOn = () => {
-    this.isModeOn = true;
-    this.isActivated = true;
-
-    vscode.commands.executeCommand(
-      "setContext",
-      "cursorless.keyboard.modal.mode",
-      true
-    );
+  modeOn = async () => {
+    if (this.isModeOn) {
+      return;
+    }
 
     this.inputDisposable =
-      this.graph.keyboardCommands.keyboardHandler.pushListener(this);
+      this.graph.keyboardCommands.keyboardHandler.pushListener({
+        handleInput: this.handleInput,
+        displayOptions: {
+          cursorStyle: vscode.TextEditorCursorStyle.BlockOutline,
+          whenClauseContext: "cursorless.keyboard.modal.mode",
+          statusBarText: "Listening...",
+        },
+        handleCancelled: this.modeOff,
+      });
 
-    this.ensureState();
+    await this.graph.keyboardCommands.targeted.targetSelection();
+
+    // NB: Set this after pushing the listener in case binding "type" fails
+    // because someone else has bound it already (eg vim extension).
+    this.isModeOn = true;
   };
 
-  handleInput(text: string) {
-    this.mergedKeymap[text].handleValue();
-  }
+  modeOff = async () => {
+    if (!this.isModeOn) {
+      return;
+    }
 
-  private modeOff = () => {
     this.isModeOn = false;
-
-    vscode.commands.executeCommand(
-      "setContext",
-      "cursorless.keyboard.modal.mode",
-      false
-    );
 
     this.inputDisposable?.dispose();
     this.inputDisposable = undefined;
 
-    this.ensureState();
+    await this.graph.keyboardCommands.targeted.clearTarget();
   };
 
-  private ensureState = () => {
-    if (!this.isActivated) {
-      return;
+  modeToggle = () => {
+    if (this.isModeOn) {
+      this.modeOff();
+    } else {
+      this.modeOn();
     }
-
-    this.ensureCursorStyle();
   };
 
-  private ensureCursorStyle() {
-    if (!vscode.window.activeTextEditor) {
-      return;
+  async handleInput(text: string) {
+    let sequence = text;
+    let keyHandler: KeyHandler<any> | undefined = this.mergedKeymap[sequence];
+
+    while (keyHandler == null) {
+      if (!this.isPrefixOfKey(sequence)) {
+        const errorMessage = `Unknown key sequence "${sequence}"`;
+        vscode.window.showErrorMessage(errorMessage);
+        throw Error(errorMessage);
+      }
+
+      const nextKey =
+        await this.graph.keyboardCommands.keyboardHandler.awaitSingleKeypress({
+          cursorStyle: vscode.TextEditorCursorStyle.Underline,
+          whenClauseContext: "cursorless.keyboard.targeted.awaitingKeys",
+          statusBarText: "Finish sequence...",
+        });
+
+      if (nextKey == null) {
+        return;
+      }
+
+      sequence += nextKey;
+      keyHandler = this.mergedKeymap[sequence];
     }
 
-    const cursorStyle = this.isModeOn
-      ? vscode.TextEditorCursorStyle.LineThin
-      : vscode.TextEditorCursorStyle.Line;
-
-    const currentCursorStyle =
-      vscode.window.activeTextEditor.options.cursorStyle;
-
-    if (currentCursorStyle !== cursorStyle) {
-      vscode.window.activeTextEditor.options = {
-        cursorStyle: cursorStyle,
-      };
-    }
+    keyHandler.handleValue();
   }
 
-  private handleAction(action: ActionType) {
-    return this.graph.keyboardCommands.targeted.performActionOnTarget(action);
+  isPrefixOfKey(text: string): boolean {
+    return keys(this.mergedKeymap).some((key) => key.startsWith(text));
+  }
+
+  getConflictingKeyMapEntry(text: string): KeyHandler<any> | undefined {
+    const conflictingPair = toPairs(this.mergedKeymap).find(
+      ([key]) => text.startsWith(key) || key.startsWith(text)
+    );
+
+    return conflictingPair == null ? undefined : conflictingPair[1];
   }
 }
