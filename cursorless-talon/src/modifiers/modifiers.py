@@ -41,6 +41,7 @@ head_tail_swallowed_modifiers = [
     "<user.cursorless_containing_scope>",  # funk, state, class
     "<user.cursorless_ordinal_scope>",  # first past second word
     "<user.cursorless_relative_scope>",  # next funk
+    "<user.cursorless_scope_count>",  # two funks
     "<user.cursorless_surrounding_pair>",  # matching/pair [curly, round]
 ]
 
