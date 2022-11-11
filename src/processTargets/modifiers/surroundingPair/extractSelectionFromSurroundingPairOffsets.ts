@@ -2,9 +2,9 @@ import { Range, Selection, TextDocument } from "vscode";
 import { SurroundingPairOffsets } from "./types";
 
 export interface SurroundingPairInfo {
-  contentRange: Selection;
-  boundary: [Range, Range];
-  interiorRange: Range;
+	contentRange: Selection;
+	boundary: [Range, Range];
+	interiorRange: Range;
 }
 
 /**
@@ -17,45 +17,45 @@ export interface SurroundingPairInfo {
  * @returns A selection corresponding to the delimiter pair
  */
 export function extractSelectionFromSurroundingPairOffsets(
-  document: TextDocument,
-  baseOffset: number,
-  surroundingPairOffsets: SurroundingPairOffsets,
+	document: TextDocument,
+	baseOffset: number,
+	surroundingPairOffsets: SurroundingPairOffsets,
 ): SurroundingPairInfo {
-  const interior = new Range(
-    document.positionAt(baseOffset + surroundingPairOffsets.leftDelimiter.end),
-    document.positionAt(
-      baseOffset + surroundingPairOffsets.rightDelimiter.start,
-    ),
-  );
-  const boundary: [Range, Range] = [
-    new Range(
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.leftDelimiter.start,
-      ),
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.leftDelimiter.end,
-      ),
-    ),
-    new Range(
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.rightDelimiter.start,
-      ),
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.rightDelimiter.end,
-      ),
-    ),
-  ];
+	const interior = new Range(
+		document.positionAt(baseOffset + surroundingPairOffsets.leftDelimiter.end),
+		document.positionAt(
+			baseOffset + surroundingPairOffsets.rightDelimiter.start,
+		),
+	);
+	const boundary: [Range, Range] = [
+		new Range(
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.leftDelimiter.start,
+			),
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.leftDelimiter.end,
+			),
+		),
+		new Range(
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.rightDelimiter.start,
+			),
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.rightDelimiter.end,
+			),
+		),
+	];
 
-  return {
-    contentRange: new Selection(
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.leftDelimiter.start,
-      ),
-      document.positionAt(
-        baseOffset + surroundingPairOffsets.rightDelimiter.end,
-      ),
-    ),
-    boundary,
-    interiorRange: interior,
-  };
+	return {
+		contentRange: new Selection(
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.leftDelimiter.start,
+			),
+			document.positionAt(
+				baseOffset + surroundingPairOffsets.rightDelimiter.end,
+			),
+		),
+		boundary,
+		interiorRange: interior,
+	};
 }

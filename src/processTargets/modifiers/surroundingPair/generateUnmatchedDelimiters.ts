@@ -1,9 +1,9 @@
 import { range } from "lodash";
 import { SimpleSurroundingPairName } from "../../../typings/targetDescriptor.types";
 import {
-  DelimiterOccurrence,
-  DelimiterSide,
-  PossibleDelimiterOccurrence,
+	DelimiterOccurrence,
+	DelimiterSide,
+	PossibleDelimiterOccurrence,
 } from "./types";
 
 /**
@@ -20,19 +20,19 @@ import {
  * @returns The first acceptable unmatched delimiter, if one is found otherwise null
  */
 export function findUnmatchedDelimiter(
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  initialIndex: number,
-  acceptableDelimiters: SimpleSurroundingPairName[],
-  lookForward: boolean,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	initialIndex: number,
+	acceptableDelimiters: SimpleSurroundingPairName[],
+	lookForward: boolean,
 ): DelimiterOccurrence | null {
-  const generatorResult = generateUnmatchedDelimiters(
-    delimiterOccurrences,
-    initialIndex,
-    () => acceptableDelimiters,
-    lookForward,
-  ).next();
+	const generatorResult = generateUnmatchedDelimiters(
+		delimiterOccurrences,
+		initialIndex,
+		() => acceptableDelimiters,
+		lookForward,
+	).next();
 
-  return generatorResult.done ? null : generatorResult.value;
+	return generatorResult.done ? null : generatorResult.value;
 }
 
 /**
@@ -59,81 +59,81 @@ export function findUnmatchedDelimiter(
  * @yields Occurrences of unmatched delimiters
  */
 export function* generateUnmatchedDelimiters(
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  initialIndex: number,
-  getCurrentAcceptableDelimiters: () => SimpleSurroundingPairName[],
-  lookForward: boolean,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	initialIndex: number,
+	getCurrentAcceptableDelimiters: () => SimpleSurroundingPairName[],
+	lookForward: boolean,
 ): Generator<DelimiterOccurrence, void, never> {
-  /**
-   * This map tells us whether to increment or decrement our delimiter count
-   * depending on which side delimiter we see. If we're looking forward, we
-   * increment whenever we see a left delimiter, and decrement if we see a right
-   * delimiter. If we're scanning backwards, we increment whenever we see a
-   * right delimiter, and decrement if we see a left delimiter.
-   *
-   * We always decrement our count if side is `unknown`, (eg for a "`").
-   * Otherwise we would just keep incrementing forever
-   */
-  const delimiterIncrements: Record<DelimiterSide, -1 | 1> = lookForward
-    ? {
-        left: 1,
-        right: -1,
-        unknown: -1,
-      }
-    : {
-        left: -1,
-        right: 1,
-        unknown: -1,
-      };
+	/**
+	 * This map tells us whether to increment or decrement our delimiter count
+	 * depending on which side delimiter we see. If we're looking forward, we
+	 * increment whenever we see a left delimiter, and decrement if we see a right
+	 * delimiter. If we're scanning backwards, we increment whenever we see a
+	 * right delimiter, and decrement if we see a left delimiter.
+	 *
+	 * We always decrement our count if side is `unknown`, (eg for a "`").
+	 * Otherwise we would just keep incrementing forever
+	 */
+	const delimiterIncrements: Record<DelimiterSide, -1 | 1> = lookForward
+		? {
+				left: 1,
+				right: -1,
+				unknown: -1,
+		  }
+		: {
+				left: -1,
+				right: 1,
+				unknown: -1,
+		  };
 
-  /**
-   * Maps from each delimiter name to a balance indicating how many left and
-   * right delimiters of the given type we've seen. If this number drops to
-   * -1 for any delimiter, we yield it.
-   */
-  const delimiterBalances: Partial<Record<SimpleSurroundingPairName, number>> =
-    {};
+	/**
+	 * Maps from each delimiter name to a balance indicating how many left and
+	 * right delimiters of the given type we've seen. If this number drops to
+	 * -1 for any delimiter, we yield it.
+	 */
+	const delimiterBalances: Partial<Record<SimpleSurroundingPairName, number>> =
+		{};
 
-  /**
-   * The current list of acceptable delimiters in the ongoing scan segment. Each
-   * time we yield, this list might change depending on what the other direction
-   * found.
-   */
-  let currentAcceptableDelimiters = getCurrentAcceptableDelimiters();
+	/**
+	 * The current list of acceptable delimiters in the ongoing scan segment. Each
+	 * time we yield, this list might change depending on what the other direction
+	 * found.
+	 */
+	let currentAcceptableDelimiters = getCurrentAcceptableDelimiters();
 
-  const indices = lookForward
-    ? range(initialIndex, delimiterOccurrences.length, 1)
-    : range(initialIndex, -1, -1);
+	const indices = lookForward
+		? range(initialIndex, delimiterOccurrences.length, 1)
+		: range(initialIndex, -1, -1);
 
-  for (const index of indices) {
-    const delimiterOccurrence = delimiterOccurrences[index];
-    const { delimiterInfo } = delimiterOccurrence;
-    const delimiterName = delimiterInfo?.delimiter;
+	for (const index of indices) {
+		const delimiterOccurrence = delimiterOccurrences[index];
+		const { delimiterInfo } = delimiterOccurrence;
+		const delimiterName = delimiterInfo?.delimiter;
 
-    if (
-      delimiterName == null ||
-      !currentAcceptableDelimiters.includes(delimiterName)
-    ) {
-      continue;
-    }
+		if (
+			delimiterName == null ||
+			!currentAcceptableDelimiters.includes(delimiterName)
+		) {
+			continue;
+		}
 
-    const increment = delimiterIncrements[delimiterInfo!.side];
-    const newDelimiterBalance =
-      (delimiterBalances[delimiterName] ?? 0) + increment;
+		const increment = delimiterIncrements[delimiterInfo!.side];
+		const newDelimiterBalance =
+			(delimiterBalances[delimiterName] ?? 0) + increment;
 
-    if (newDelimiterBalance === -1) {
-      yield delimiterOccurrence as DelimiterOccurrence;
+		if (newDelimiterBalance === -1) {
+			yield delimiterOccurrence as DelimiterOccurrence;
 
-      // Refresh the list of acceptable delimiters because it may have changed
-      // depending on what the scan in the other direction found
-      currentAcceptableDelimiters = getCurrentAcceptableDelimiters();
+			// Refresh the list of acceptable delimiters because it may have changed
+			// depending on what the scan in the other direction found
+			currentAcceptableDelimiters = getCurrentAcceptableDelimiters();
 
-      // We reset the delimiter balance for the given delimiter to 0 because
-      // if we are continuing, it means that the scan in the opposite direction
-      // yielded an appropriate opposite matching delimiter.
-      delimiterBalances[delimiterName] = 0;
-    } else {
-      delimiterBalances[delimiterName] = newDelimiterBalance;
-    }
-  }
+			// We reset the delimiter balance for the given delimiter to 0 because
+			// if we are continuing, it means that the scan in the opposite direction
+			// yielded an appropriate opposite matching delimiter.
+			delimiterBalances[delimiterName] = 0;
+		} else {
+			delimiterBalances[delimiterName] = newDelimiterBalance;
+		}
+	}
 }

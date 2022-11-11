@@ -13,38 +13,38 @@ import { isString } from "../../../util/type";
  * @returns A list of information about all possible left / right delimiter instances
  */
 export function getIndividualDelimiters(
-  delimiters: SimpleSurroundingPairName[],
+	delimiters: SimpleSurroundingPairName[],
 ): IndividualDelimiter[] {
-  return delimiters.flatMap((delimiter) => {
-    const [leftDelimiter, rightDelimiter] = delimiterToText[delimiter];
+	return delimiters.flatMap((delimiter) => {
+		const [leftDelimiter, rightDelimiter] = delimiterToText[delimiter];
 
-    // Allow for the fact that a delimiter might have multiple ways to indicate
-    // its opening / closing
-    const leftDelimiters = isString(leftDelimiter)
-      ? [leftDelimiter]
-      : leftDelimiter;
-    const rightDelimiters = isString(rightDelimiter)
-      ? [rightDelimiter]
-      : rightDelimiter;
+		// Allow for the fact that a delimiter might have multiple ways to indicate
+		// its opening / closing
+		const leftDelimiters = isString(leftDelimiter)
+			? [leftDelimiter]
+			: leftDelimiter;
+		const rightDelimiters = isString(rightDelimiter)
+			? [rightDelimiter]
+			: rightDelimiter;
 
-    const allDelimiterTexts = uniq(concat(leftDelimiters, rightDelimiters));
+		const allDelimiterTexts = uniq(concat(leftDelimiters, rightDelimiters));
 
-    return allDelimiterTexts.map((text) => {
-      const isLeft = leftDelimiters.includes(text);
-      const isRight = rightDelimiters.includes(text);
+		return allDelimiterTexts.map((text) => {
+			const isLeft = leftDelimiters.includes(text);
+			const isRight = rightDelimiters.includes(text);
 
-      return {
-        text,
-        // If delimiter text is the same for left and right, we say it's side
-        // is "unknown", so must be determined from context.
-        side:
-          isLeft && !isRight
-            ? "left"
-            : isRight && !isLeft
-            ? "right"
-            : "unknown",
-        delimiter,
-      };
-    });
-  });
+			return {
+				text,
+				// If delimiter text is the same for left and right, we say it's side
+				// is "unknown", so must be determined from context.
+				side:
+					isLeft && !isRight
+						? "left"
+						: isRight && !isLeft
+						? "right"
+						: "unknown",
+				delimiter,
+			};
+		});
+	});
 }

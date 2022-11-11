@@ -5,26 +5,26 @@ type Primitive = string | number | symbol;
 type GenericObject = Record<Primitive, unknown>;
 
 type Join<
-  L extends Primitive | undefined,
-  R extends Primitive | undefined,
+	L extends Primitive | undefined,
+	R extends Primitive | undefined,
 > = L extends string | number
-  ? R extends string | number
-    ? `${L}.${R}`
-    : L
-  : R extends string | number
-  ? R
-  : undefined;
+	? R extends string | number
+		? `${L}.${R}`
+		: L
+	: R extends string | number
+	? R
+	: undefined;
 
 type Union<
-  L extends unknown | undefined,
-  R extends unknown | undefined,
+	L extends unknown | undefined,
+	R extends unknown | undefined,
 > = L extends undefined
-  ? R extends undefined
-    ? undefined
-    : R
-  : R extends undefined
-  ? L
-  : L | R;
+	? R extends undefined
+		? undefined
+		: R
+	: R extends undefined
+	? L
+	: L | R;
 
 /**
  * Get all the possible paths of an object
@@ -33,13 +33,13 @@ type Union<
  * // 'a' | 'a.b' | 'a.b.c'
  */
 export type Paths<
-  T extends GenericObject,
-  Prev extends Primitive | undefined = undefined,
-  Path extends Primitive | undefined = undefined,
+	T extends GenericObject,
+	Prev extends Primitive | undefined = undefined,
+	Path extends Primitive | undefined = undefined,
 > = {
-  [K in keyof T]: T[K] extends GenericObject
-    ? Paths<T[K], Union<Prev, Path>, Join<Path, K>>
-    : Union<Union<Prev, Path>, Join<Path, K>>;
+	[K in keyof T]: T[K] extends GenericObject
+		? Paths<T[K], Union<Prev, Path>, Join<Path, K>>
+		: Union<Union<Prev, Path>, Join<Path, K>>;
 }[keyof T];
 
 /**
@@ -49,14 +49,14 @@ export type Paths<
  * // { c: string }
  */
 export type GetFieldType<
-  T extends GenericObject,
-  Path extends string, // Or, if you prefer, NestedPaths<T>
+	T extends GenericObject,
+	Path extends string, // Or, if you prefer, NestedPaths<T>
 > = {
-  [K in Path]: K extends keyof T
-    ? T[K]
-    : K extends `${infer P}.${infer S}`
-    ? T[P] extends GenericObject
-      ? GetFieldType<T[P], S>
-      : never
-    : never;
+	[K in Path]: K extends keyof T
+		? T[K]
+		: K extends `${infer P}.${infer S}`
+		? T[P] extends GenericObject
+			? GetFieldType<T[P], S>
+			: never
+		: never;
 }[Path];

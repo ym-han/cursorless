@@ -11,9 +11,9 @@ import { isReversed } from "../../util/selectionUtils";
  * @returns A target that can be used for a `that` mark
  */
 export const selectionToThatTarget = (selection: SelectionWithEditor) =>
-  new UntypedTarget({
-    editor: selection.editor,
-    isReversed: isReversed(selection.selection),
-    contentRange: selection.selection,
-    hasExplicitRange: !selection.selection.isEmpty,
-  });
+	new UntypedTarget({
+		editor: selection.editor,
+		isReversed: isReversed(selection.selection),
+		contentRange: selection.selection,
+		hasExplicitRange: !selection.selection.isEmpty,
+	});

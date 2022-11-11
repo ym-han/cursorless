@@ -1,7 +1,7 @@
 interface Substitution {
-  randomId: string;
-  to: string;
-  isQuoted: boolean;
+	randomId: string;
+	to: string;
+	isQuoted: boolean;
 }
 
 /**
@@ -15,48 +15,48 @@ interface Substitution {
  * desired.
  */
 export default class Substituter {
-  private substitutions: Substitution[] = [];
+	private substitutions: Substitution[] = [];
 
-  /**
-   * Get a random id that can be put into your text body that will then be
-   * replaced by {@link to} when you call {@link makeSubstitutions}.
-   * @param to The string that you'd like to end up in the final document after
-   * replacements
-   * @param isQuoted Use this variable to indicate that in the final text the
-   * variable will end up quoted. This occurs if you use the replacement string
-   * as a stand alone string in a json document and then you serialize it
-   * @returns A unique random id that can be put into the document that will
-   * then be substituted later
-   */
-  addSubstitution(to: string, isQuoted: boolean = false) {
-    const randomId = makeid(10);
+	/**
+	 * Get a random id that can be put into your text body that will then be
+	 * replaced by {@link to} when you call {@link makeSubstitutions}.
+	 * @param to The string that you'd like to end up in the final document after
+	 * replacements
+	 * @param isQuoted Use this variable to indicate that in the final text the
+	 * variable will end up quoted. This occurs if you use the replacement string
+	 * as a stand alone string in a json document and then you serialize it
+	 * @returns A unique random id that can be put into the document that will
+	 * then be substituted later
+	 */
+	addSubstitution(to: string, isQuoted: boolean = false) {
+		const randomId = makeid(10);
 
-    this.substitutions.push({
-      to,
-      randomId,
-      isQuoted,
-    });
+		this.substitutions.push({
+			to,
+			randomId,
+			isQuoted,
+		});
 
-    return randomId;
-  }
+		return randomId;
+	}
 
-  /**
-   * Performs substitutions on {@link text}, replacing the random ids generated
-   * by {@link addSubstitution} with the values passed in for `to`.
-   * @param text The text to perform substitutions on
-   * @returns The text with variable substituted for the original values you
-   * desired
-   */
-  makeSubstitutions(text: string) {
-    this.substitutions.forEach(({ to, randomId, isQuoted }) => {
-      const from = isQuoted ? `"${randomId}"` : randomId;
-      // NB: We use split / join instead of replace because the latter doesn't
-      // handle dollar signs well
-      text = text.split(from).join(to);
-    });
+	/**
+	 * Performs substitutions on {@link text}, replacing the random ids generated
+	 * by {@link addSubstitution} with the values passed in for `to`.
+	 * @param text The text to perform substitutions on
+	 * @returns The text with variable substituted for the original values you
+	 * desired
+	 */
+	makeSubstitutions(text: string) {
+		this.substitutions.forEach(({ to, randomId, isQuoted }) => {
+			const from = isQuoted ? `"${randomId}"` : randomId;
+			// NB: We use split / join instead of replace because the latter doesn't
+			// handle dollar signs well
+			text = text.split(from).join(to);
+		});
 
-    return text;
-  }
+		return text;
+	}
 }
 
 /**
@@ -68,12 +68,12 @@ export default class Substituter {
  * @returns A string of random digits of length {@param length}
  */
 function makeid(length: number) {
-  let result = "";
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
+	let result = "";
+	const characters =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	const charactersLength = characters.length;
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
 }

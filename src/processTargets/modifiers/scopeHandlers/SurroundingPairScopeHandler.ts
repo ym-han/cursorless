@@ -1,31 +1,31 @@
 import { Position, TextEditor } from "vscode";
 import {
-  Direction,
-  SurroundingPairScopeType,
+	Direction,
+	SurroundingPairScopeType,
 } from "../../../typings/targetDescriptor.types";
 import BaseScopeHandler from "./BaseScopeHandler";
 import { TargetScope } from "./scope.types";
 import { ScopeIteratorRequirements } from "./scopeHandler.types";
 
 export default class SurroundingPairScopeHandler extends BaseScopeHandler {
-  public readonly iterationScopeType;
+	public readonly iterationScopeType;
 
-  protected isHierarchical = true;
+	protected isHierarchical = true;
 
-  constructor(
-    public readonly scopeType: SurroundingPairScopeType,
-    _languageId: string,
-  ) {
-    super();
-    this.iterationScopeType = this.scopeType;
-  }
+	constructor(
+		public readonly scopeType: SurroundingPairScopeType,
+		_languageId: string,
+	) {
+		super();
+		this.iterationScopeType = this.scopeType;
+	}
 
-  generateScopeCandidates(
-    _editor: TextEditor,
-    _position: Position,
-    _direction: Direction,
-    _hints?: ScopeIteratorRequirements | undefined,
-  ): Iterable<TargetScope> {
-    throw new Error("Method not implemented.");
-  }
+	generateScopeCandidates(
+		_editor: TextEditor,
+		_position: Position,
+		_direction: Direction,
+		_hints?: ScopeIteratorRequirements | undefined,
+	): Iterable<TargetScope> {
+		throw new Error("Method not implemented.");
+	}
 }

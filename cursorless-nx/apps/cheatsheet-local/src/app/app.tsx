@@ -12,11 +12,11 @@ import { environment } from '../environments/environment';
  * boundaries and use @cursorless/cheatsheet
  */
 const cheatsheetData: CheatsheetInfo = environment.production
-  ? (document as unknown as { cheatsheetData: CheatsheetInfo }).cheatsheetData
-  : require('libs/cheatsheet/src/lib/data/sampleSpokenFormInfos/defaults.json');
+	? (document as unknown as { cheatsheetData: CheatsheetInfo }).cheatsheetData
+	: require('libs/cheatsheet/src/lib/data/sampleSpokenFormInfos/defaults.json');
 
 export function App() {
-  return <CheatsheetPage cheatsheetInfo={cheatsheetData} />;
+	return <CheatsheetPage cheatsheetInfo={cheatsheetData} />;
 }
 
 export default App;

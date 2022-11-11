@@ -1,7 +1,7 @@
 import { NotebookCell, TextDocument, window } from "vscode";
 import {
-  getNotebookFromCellDocumentLegacy,
-  isVscodeLegacyNotebookVersion,
+	getNotebookFromCellDocumentLegacy,
+	isVscodeLegacyNotebookVersion,
 } from "./notebookLegacy";
 
 /**
@@ -12,27 +12,27 @@ import {
  * given cell
  */
 export function getNotebookFromCellDocument(document: TextDocument) {
-  if (isVscodeLegacyNotebookVersion()) {
-    return getNotebookFromCellDocumentLegacy(document);
-  }
+	if (isVscodeLegacyNotebookVersion()) {
+		return getNotebookFromCellDocumentLegacy(document);
+	}
 
-  // FIXME: All these type casts are necessary because we've pinned VSCode
-  // version type defs.  Can remove them once we are using more recent type defs
-  const { notebookEditor } =
-    ((window as any).visibleNotebookEditors as any[])
-      .flatMap((notebookEditor: any) =>
-        (
-          (
-            notebookEditor.document ?? notebookEditor.notebook
-          ).getCells() as NotebookCell[]
-        ).map((cell) => ({
-          notebookEditor,
-          cell,
-        })),
-      )
-      .find(
-        ({ cell }) => cell.document.uri.toString() === document.uri.toString(),
-      ) ?? {};
+	// FIXME: All these type casts are necessary because we've pinned VSCode
+	// version type defs.  Can remove them once we are using more recent type defs
+	const { notebookEditor } =
+		((window as any).visibleNotebookEditors as any[])
+			.flatMap((notebookEditor: any) =>
+				(
+					(
+						notebookEditor.document ?? notebookEditor.notebook
+					).getCells() as NotebookCell[]
+				).map((cell) => ({
+					notebookEditor,
+					cell,
+				})),
+			)
+			.find(
+				({ cell }) => cell.document.uri.toString() === document.uri.toString(),
+			) ?? {};
 
-  return notebookEditor;
+	return notebookEditor;
 }

@@ -3,8 +3,8 @@
  * value
  */
 interface IteratorInfo<T> {
-  iterator: Iterator<T>;
-  value: T;
+	iterator: Iterator<T>;
+	value: T;
 }
 
 /**
@@ -17,19 +17,19 @@ interface IteratorInfo<T> {
  * value
  */
 export function getInitialIteratorInfos<T>(
-  iterators: Iterator<T>[],
+	iterators: Iterator<T>[],
 ): IteratorInfo<T>[] {
-  return iterators.flatMap((iterator) => {
-    const { value, done } = iterator.next();
-    return done
-      ? []
-      : [
-          {
-            iterator,
-            value,
-          },
-        ];
-  });
+	return iterators.flatMap((iterator) => {
+		const { value, done } = iterator.next();
+		return done
+			? []
+			: [
+					{
+						iterator,
+						value,
+					},
+			  ];
+	});
 }
 
 /**
@@ -43,22 +43,22 @@ export function getInitialIteratorInfos<T>(
  * {@link criterion} are removed
  */
 export function advanceIteratorsUntil<T>(
-  iteratorInfos: IteratorInfo<T>[],
-  criterion: (arg: T) => boolean,
+	iteratorInfos: IteratorInfo<T>[],
+	criterion: (arg: T) => boolean,
 ): IteratorInfo<T>[] {
-  return iteratorInfos.flatMap((iteratorInfo) => {
-    const { iterator } = iteratorInfo;
-    let { value } = iteratorInfo;
+	return iteratorInfos.flatMap((iteratorInfo) => {
+		const { iterator } = iteratorInfo;
+		let { value } = iteratorInfo;
 
-    let done: boolean | undefined = false;
-    while (!criterion(value) && !done) {
-      ({ value, done } = iterator.next());
-    }
+		let done: boolean | undefined = false;
+		while (!criterion(value) && !done) {
+			({ value, done } = iterator.next());
+		}
 
-    if (done) {
-      return [];
-    }
+		if (done) {
+			return [];
+		}
 
-    return [{ iterator, value }];
-  });
+		return [{ iterator, value }];
+	});
 }

@@ -9,5 +9,5 @@ import { Offsets } from "./types";
  * @returns `true` if {@link offsets1} weakly contains {@link offsets2}
  */
 export function weaklyContains(offsets1: Offsets, offsets2: Offsets) {
-  return offsets1.start <= offsets2.start && offsets1.end >= offsets2.end;
+	return offsets1.start <= offsets2.start && offsets1.end >= offsets2.end;
 }

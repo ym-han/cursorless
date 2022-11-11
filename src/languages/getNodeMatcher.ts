@@ -2,9 +2,9 @@ import { SyntaxNode } from "web-tree-sitter";
 import { notSupported } from "../util/nodeMatchers";
 import { selectionWithEditorFromRange } from "../util/selectionUtils";
 import {
-  NodeMatcher,
-  NodeMatcherValue,
-  SelectionWithEditor,
+	NodeMatcher,
+	NodeMatcherValue,
+	SelectionWithEditor,
 } from "../typings/Types";
 import { SimpleScopeTypeType } from "../typings/targetDescriptor.types";
 import cpp from "./cpp";
@@ -27,95 +27,95 @@ import { UnsupportedLanguageError } from "../errors";
 import { SupportedLanguageId } from "../libs/cursorless-engine/languages/constants";
 
 export function getNodeMatcher(
-  languageId: string,
-  scopeTypeType: SimpleScopeTypeType,
-  includeSiblings: boolean,
+	languageId: string,
+	scopeTypeType: SimpleScopeTypeType,
+	includeSiblings: boolean,
 ): NodeMatcher {
-  const matchers = languageMatchers[languageId as SupportedLanguageId];
+	const matchers = languageMatchers[languageId as SupportedLanguageId];
 
-  if (matchers == null) {
-    throw new UnsupportedLanguageError(languageId);
-  }
+	if (matchers == null) {
+		throw new UnsupportedLanguageError(languageId);
+	}
 
-  const matcher = matchers[scopeTypeType];
+	const matcher = matchers[scopeTypeType];
 
-  if (matcher == null) {
-    return notSupported;
-  }
+	if (matcher == null) {
+		return notSupported;
+	}
 
-  if (includeSiblings) {
-    return matcherIncludeSiblings(matcher);
-  }
+	if (includeSiblings) {
+		return matcherIncludeSiblings(matcher);
+	}
 
-  return matcher;
+	return matcher;
 }
 
 const languageMatchers: Record<
-  SupportedLanguageId,
-  Record<SimpleScopeTypeType, NodeMatcher>
+	SupportedLanguageId,
+	Record<SimpleScopeTypeType, NodeMatcher>
 > = {
-  c: cpp,
-  cpp,
-  css: scss,
-  csharp,
-  clojure,
-  go,
-  html,
-  java,
-  javascript: typescript,
-  javascriptreact: typescript,
-  json,
-  jsonc: json,
-  latex,
-  markdown,
-  php,
-  python,
-  ruby,
-  scala,
-  scss,
-  rust,
-  typescript,
-  typescriptreact: typescript,
-  xml: html,
+	c: cpp,
+	cpp,
+	css: scss,
+	csharp,
+	clojure,
+	go,
+	html,
+	java,
+	javascript: typescript,
+	javascriptreact: typescript,
+	json,
+	jsonc: json,
+	latex,
+	markdown,
+	php,
+	python,
+	ruby,
+	scala,
+	scss,
+	rust,
+	typescript,
+	typescriptreact: typescript,
+	xml: html,
 };
 
 function matcherIncludeSiblings(matcher: NodeMatcher): NodeMatcher {
-  return (
-    selection: SelectionWithEditor,
-    node: SyntaxNode,
-  ): NodeMatcherValue[] | null => {
-    let matches = matcher(selection, node);
-    if (matches == null) {
-      return null;
-    }
-    matches = matches.flatMap((match) =>
-      iterateNearestIterableAncestor(
-        match.node,
-        selectionWithEditorFromRange(selection, match.selection.selection),
-        matcher,
-      ),
-    ) as NodeMatcherValue[];
-    if (matches.length > 0) {
-      return matches;
-    }
-    return null;
-  };
+	return (
+		selection: SelectionWithEditor,
+		node: SyntaxNode,
+	): NodeMatcherValue[] | null => {
+		let matches = matcher(selection, node);
+		if (matches == null) {
+			return null;
+		}
+		matches = matches.flatMap((match) =>
+			iterateNearestIterableAncestor(
+				match.node,
+				selectionWithEditorFromRange(selection, match.selection.selection),
+				matcher,
+			),
+		) as NodeMatcherValue[];
+		if (matches.length > 0) {
+			return matches;
+		}
+		return null;
+	};
 }
 
 function iterateNearestIterableAncestor(
-  node: SyntaxNode,
-  selection: SelectionWithEditor,
-  nodeMatcher: NodeMatcher,
+	node: SyntaxNode,
+	selection: SelectionWithEditor,
+	nodeMatcher: NodeMatcher,
 ) {
-  let parent: SyntaxNode | null = node.parent;
-  while (parent != null) {
-    const matches = parent!.namedChildren
-      .flatMap((sibling) => nodeMatcher(selection, sibling))
-      .filter((match) => match != null) as NodeMatcherValue[];
-    if (matches.length > 0) {
-      return matches;
-    }
-    parent = parent.parent;
-  }
-  return [];
+	let parent: SyntaxNode | null = node.parent;
+	while (parent != null) {
+		const matches = parent!.namedChildren
+			.flatMap((sibling) => nodeMatcher(selection, sibling))
+			.filter((match) => match != null) as NodeMatcherValue[];
+		if (matches.length > 0) {
+			return matches;
+		}
+		parent = parent.parent;
+	}
+	return [];
 }

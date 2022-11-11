@@ -7,5 +7,5 @@ import { range } from "lodash";
  * @returns The new array
  */
 export function repeat<T>(array: T[], n: number) {
-  return range(n).flatMap(() => array);
+	return range(n).flatMap(() => array);
 }

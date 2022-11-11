@@ -7,10 +7,10 @@ import { reorderFields } from "./reorderFields";
 export const upgrade = flow(upgradeCommand, reorderFields);
 
 function upgradeCommand(fixture: TestCaseFixture) {
-  fixture.command = flow(
-    canonicalizeAndValidateCommand,
-    cleanUpTestCaseCommand,
-  )(fixture.command);
+	fixture.command = flow(
+		canonicalizeAndValidateCommand,
+		cleanUpTestCaseCommand,
+	)(fixture.command);
 
-  return fixture;
+	return fixture;
 }

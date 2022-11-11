@@ -2,31 +2,31 @@ import { SyntaxNode } from "web-tree-sitter";
 import { SimpleScopeTypeType } from "../typings/targetDescriptor.types";
 import { NodeMatcherAlternative, SelectionWithEditor } from "../typings/Types";
 import {
-  createPatternMatchers,
-  leadingMatcher,
-  trailingMatcher,
+	createPatternMatchers,
+	leadingMatcher,
+	trailingMatcher,
 } from "../util/nodeMatchers";
 import { getNodeRange } from "../util/nodeSelectors";
 
 const nodeMatchers: Partial<
-  Record<SimpleScopeTypeType, NodeMatcherAlternative>
+	Record<SimpleScopeTypeType, NodeMatcherAlternative>
 > = {
-  map: "object",
-  list: "array",
-  string: "string",
-  collectionKey: trailingMatcher(["pair[key]"], [":"]),
-  value: leadingMatcher(["*[value]"], [":"]),
+	map: "object",
+	list: "array",
+	string: "string",
+	collectionKey: trailingMatcher(["pair[key]"], [":"]),
+	value: leadingMatcher(["*[value]"], [":"]),
 };
 
 export const patternMatchers = createPatternMatchers(nodeMatchers);
 
 export function stringTextFragmentExtractor(
-  node: SyntaxNode,
-  _selection: SelectionWithEditor,
+	node: SyntaxNode,
+	_selection: SelectionWithEditor,
 ) {
-  if (node.type === "string_content") {
-    return getNodeRange(node);
-  }
+	if (node.type === "string_content") {
+		return getNodeRange(node);
+	}
 
-  return null;
+	return null;
 }

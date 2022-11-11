@@ -2,10 +2,10 @@ import { uniqWith, zip } from "lodash";
 import { Range } from "vscode";
 import { Target } from "../typings/target.types";
 import {
-  Modifier,
-  PrimitiveTargetDescriptor,
-  RangeTargetDescriptor,
-  TargetDescriptor,
+	Modifier,
+	PrimitiveTargetDescriptor,
+	RangeTargetDescriptor,
+	TargetDescriptor,
 } from "../typings/targetDescriptor.types";
 import { ProcessedTargetsContext } from "../typings/Types";
 import getMarkStage from "./getMarkStage";
@@ -28,130 +28,130 @@ import { PlainTarget, PositionTarget } from "./targets";
  * the target
  */
 export default function (
-  context: ProcessedTargetsContext,
-  targets: TargetDescriptor[],
+	context: ProcessedTargetsContext,
+	targets: TargetDescriptor[],
 ): Target[][] {
-  return targets.map((target) => uniqTargets(processTarget(context, target)));
+	return targets.map((target) => uniqTargets(processTarget(context, target)));
 }
 
 function processTarget(
-  context: ProcessedTargetsContext,
-  target: TargetDescriptor,
+	context: ProcessedTargetsContext,
+	target: TargetDescriptor,
 ): Target[] {
-  switch (target.type) {
-    case "list":
-      return target.elements.flatMap((element) =>
-        processTarget(context, element),
-      );
-    case "range":
-      return processRangeTarget(context, target);
-    case "primitive":
-      return processPrimitiveTarget(context, target);
-  }
+	switch (target.type) {
+		case "list":
+			return target.elements.flatMap((element) =>
+				processTarget(context, element),
+			);
+		case "range":
+			return processRangeTarget(context, target);
+		case "primitive":
+			return processPrimitiveTarget(context, target);
+	}
 }
 
 function processRangeTarget(
-  context: ProcessedTargetsContext,
-  targetDesc: RangeTargetDescriptor,
+	context: ProcessedTargetsContext,
+	targetDesc: RangeTargetDescriptor,
 ): Target[] {
-  const anchorTargets = processPrimitiveTarget(context, targetDesc.anchor);
-  const activeTargets = processPrimitiveTarget(context, targetDesc.active);
+	const anchorTargets = processPrimitiveTarget(context, targetDesc.anchor);
+	const activeTargets = processPrimitiveTarget(context, targetDesc.active);
 
-  return zip(anchorTargets, activeTargets).flatMap(
-    ([anchorTarget, activeTarget]) => {
-      if (anchorTarget == null || activeTarget == null) {
-        throw new Error("AnchorTargets and activeTargets lengths don't match");
-      }
+	return zip(anchorTargets, activeTargets).flatMap(
+		([anchorTarget, activeTarget]) => {
+			if (anchorTarget == null || activeTarget == null) {
+				throw new Error("AnchorTargets and activeTargets lengths don't match");
+			}
 
-      switch (targetDesc.rangeType) {
-        case "continuous":
-          return [
-            targetsToContinuousTarget(
-              anchorTarget,
-              activeTarget,
-              targetDesc.excludeAnchor,
-              targetDesc.excludeActive,
-            ),
-          ];
-        case "vertical":
-          return targetsToVerticalTarget(
-            anchorTarget,
-            activeTarget,
-            targetDesc.excludeAnchor,
-            targetDesc.excludeActive,
-          );
-      }
-    },
-  );
+			switch (targetDesc.rangeType) {
+				case "continuous":
+					return [
+						targetsToContinuousTarget(
+							anchorTarget,
+							activeTarget,
+							targetDesc.excludeAnchor,
+							targetDesc.excludeActive,
+						),
+					];
+				case "vertical":
+					return targetsToVerticalTarget(
+						anchorTarget,
+						activeTarget,
+						targetDesc.excludeAnchor,
+						targetDesc.excludeActive,
+					);
+			}
+		},
+	);
 }
 
 export function targetsToContinuousTarget(
-  anchorTarget: Target,
-  activeTarget: Target,
-  excludeAnchor: boolean = false,
-  excludeActive: boolean = false,
+	anchorTarget: Target,
+	activeTarget: Target,
+	excludeAnchor: boolean = false,
+	excludeActive: boolean = false,
 ): Target {
-  ensureSingleEditor(anchorTarget, activeTarget);
+	ensureSingleEditor(anchorTarget, activeTarget);
 
-  const isReversed = calcIsReversed(anchorTarget, activeTarget);
-  const startTarget = isReversed ? activeTarget : anchorTarget;
-  const endTarget = isReversed ? anchorTarget : activeTarget;
-  const excludeStart = isReversed ? excludeActive : excludeAnchor;
-  const excludeEnd = isReversed ? excludeAnchor : excludeActive;
+	const isReversed = calcIsReversed(anchorTarget, activeTarget);
+	const startTarget = isReversed ? activeTarget : anchorTarget;
+	const endTarget = isReversed ? anchorTarget : activeTarget;
+	const excludeStart = isReversed ? excludeActive : excludeAnchor;
+	const excludeEnd = isReversed ? excludeAnchor : excludeActive;
 
-  return startTarget.createContinuousRangeTarget(
-    isReversed,
-    endTarget,
-    !excludeStart,
-    !excludeEnd,
-  );
+	return startTarget.createContinuousRangeTarget(
+		isReversed,
+		endTarget,
+		!excludeStart,
+		!excludeEnd,
+	);
 }
 
 function targetsToVerticalTarget(
-  anchorTarget: Target,
-  activeTarget: Target,
-  excludeAnchor: boolean,
-  excludeActive: boolean,
+	anchorTarget: Target,
+	activeTarget: Target,
+	excludeAnchor: boolean,
+	excludeActive: boolean,
 ): Target[] {
-  ensureSingleEditor(anchorTarget, activeTarget);
+	ensureSingleEditor(anchorTarget, activeTarget);
 
-  const isReversed = calcIsReversed(anchorTarget, activeTarget);
-  const delta = isReversed ? -1 : 1;
+	const isReversed = calcIsReversed(anchorTarget, activeTarget);
+	const delta = isReversed ? -1 : 1;
 
-  const anchorPosition = isReversed
-    ? anchorTarget.contentRange.start
-    : anchorTarget.contentRange.end;
-  const anchorLine = anchorPosition.line + (excludeAnchor ? delta : 0);
-  const activePosition = isReversed
-    ? activeTarget.contentRange.start
-    : activeTarget.contentRange.end;
-  const activeLine = activePosition.line - (excludeActive ? delta : 0);
+	const anchorPosition = isReversed
+		? anchorTarget.contentRange.start
+		: anchorTarget.contentRange.end;
+	const anchorLine = anchorPosition.line + (excludeAnchor ? delta : 0);
+	const activePosition = isReversed
+		? activeTarget.contentRange.start
+		: activeTarget.contentRange.end;
+	const activeLine = activePosition.line - (excludeActive ? delta : 0);
 
-  const results: Target[] = [];
-  for (let i = anchorLine; true; i += delta) {
-    const contentRange = new Range(
-      i,
-      anchorTarget.contentRange.start.character,
-      i,
-      anchorTarget.contentRange.end.character,
-    );
+	const results: Target[] = [];
+	for (let i = anchorLine; true; i += delta) {
+		const contentRange = new Range(
+			i,
+			anchorTarget.contentRange.start.character,
+			i,
+			anchorTarget.contentRange.end.character,
+		);
 
-    if (anchorTarget instanceof PositionTarget) {
-      results.push(anchorTarget.withContentRange(contentRange));
-    } else {
-      results.push(
-        new PlainTarget({
-          editor: anchorTarget.editor,
-          isReversed: anchorTarget.isReversed,
-          contentRange,
-        }),
-      );
-    }
+		if (anchorTarget instanceof PositionTarget) {
+			results.push(anchorTarget.withContentRange(contentRange));
+		} else {
+			results.push(
+				new PlainTarget({
+					editor: anchorTarget.editor,
+					isReversed: anchorTarget.isReversed,
+					contentRange,
+				}),
+			);
+		}
 
-    if (i === activeLine) {
-      return results;
-    }
-  }
+		if (i === activeLine) {
+			return results;
+		}
+	}
 }
 
 /**
@@ -176,68 +176,68 @@ function targetsToVerticalTarget(
  * @returns The output of running the modifier pipeline on the output from the mark
  */
 function processPrimitiveTarget(
-  context: ProcessedTargetsContext,
-  targetDescriptor: PrimitiveTargetDescriptor,
+	context: ProcessedTargetsContext,
+	targetDescriptor: PrimitiveTargetDescriptor,
 ): Target[] {
-  // First, get the targets output by the mark
-  const markStage = getMarkStage(targetDescriptor.mark);
-  const markOutputTargets = markStage.run(context);
+	// First, get the targets output by the mark
+	const markStage = getMarkStage(targetDescriptor.mark);
+	const markOutputTargets = markStage.run(context);
 
-  const positionModifierStages =
-    targetDescriptor.positionModifier == null
-      ? []
-      : [getModifierStage(targetDescriptor.positionModifier)];
+	const positionModifierStages =
+		targetDescriptor.positionModifier == null
+			? []
+			: [getModifierStage(targetDescriptor.positionModifier)];
 
-  /**
-   * The modifier pipeline that will be applied to construct our final targets
-   */
-  const modifierStages = [
-    ...getModifierStagesFromTargetModifiers(targetDescriptor.modifiers),
-    ...context.actionPrePositionStages,
-    ...positionModifierStages,
-    ...context.actionFinalStages,
-  ];
+	/**
+	 * The modifier pipeline that will be applied to construct our final targets
+	 */
+	const modifierStages = [
+		...getModifierStagesFromTargetModifiers(targetDescriptor.modifiers),
+		...context.actionPrePositionStages,
+		...positionModifierStages,
+		...context.actionFinalStages,
+	];
 
-  // Run all targets through the modifier stages
-  return processModifierStages(context, modifierStages, markOutputTargets);
+	// Run all targets through the modifier stages
+	return processModifierStages(context, modifierStages, markOutputTargets);
 }
 
 /** Convert a list of target modifiers to modifier stages */
 export function getModifierStagesFromTargetModifiers(
-  targetModifiers: Modifier[],
+	targetModifiers: Modifier[],
 ) {
-  // Reverse target modifiers because they are returned in reverse order from
-  // the api, to match the order in which they are spoken.
-  return targetModifiers.map(getModifierStage).reverse();
+	// Reverse target modifiers because they are returned in reverse order from
+	// the api, to match the order in which they are spoken.
+	return targetModifiers.map(getModifierStage).reverse();
 }
 
 /** Run all targets through the modifier stages */
 export function processModifierStages(
-  context: ProcessedTargetsContext,
-  modifierStages: ModifierStage[],
-  targets: Target[],
+	context: ProcessedTargetsContext,
+	modifierStages: ModifierStage[],
+	targets: Target[],
 ) {
-  // First we apply each stage in sequence, letting each stage see the targets
-  // one-by-one and concatenating the results before passing them on to the
-  // next stage.
-  modifierStages.forEach((stage) => {
-    targets = targets.flatMap((target) => stage.run(context, target));
-  });
+	// First we apply each stage in sequence, letting each stage see the targets
+	// one-by-one and concatenating the results before passing them on to the
+	// next stage.
+	modifierStages.forEach((stage) => {
+		targets = targets.flatMap((target) => stage.run(context, target));
+	});
 
-  // Then return the output from the final stage
-  return targets;
+	// Then return the output from the final stage
+	return targets;
 }
 
 function calcIsReversed(anchor: Target, active: Target) {
-  return anchor.contentRange.start.isAfter(active.contentRange.start);
+	return anchor.contentRange.start.isAfter(active.contentRange.start);
 }
 
 function uniqTargets(array: Target[]): Target[] {
-  return uniqWith(array, (a, b) => a.isEqual(b));
+	return uniqWith(array, (a, b) => a.isEqual(b));
 }
 
 function ensureSingleEditor(anchorTarget: Target, activeTarget: Target) {
-  if (anchorTarget.editor !== activeTarget.editor) {
-    throw new Error("Cannot form range between targets in different editors");
-  }
+	if (anchorTarget.editor !== activeTarget.editor) {
+		throw new Error("Cannot form range between targets in different editors");
+	}
 }

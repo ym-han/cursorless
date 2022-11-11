@@ -5,81 +5,81 @@ import { Graph, Token } from "../typings/Types";
 import { HatStyleName } from "./hatStyles";
 
 export interface ReadOnlyHatMap {
-  getEntries(): [string, Token][];
-  getToken(hatStyle: HatStyleName, character: string): Token;
+	getEntries(): [string, Token][];
+	getToken(hatStyle: HatStyleName, character: string): Token;
 }
 
 export class IndividualHatMap implements ReadOnlyHatMap {
-  private isExpired: boolean = false;
-  private documentTokenLists: Map<string, Token[]> = new Map();
-  private deregisterFunctions: (() => void)[] = [];
+	private isExpired: boolean = false;
+	private documentTokenLists: Map<string, Token[]> = new Map();
+	private deregisterFunctions: (() => void)[] = [];
 
-  private map: {
-    [decoratedCharacter: string]: Token;
-  } = {};
+	private map: {
+		[decoratedCharacter: string]: Token;
+	} = {};
 
-  constructor(private graph: Graph) {}
+	constructor(private graph: Graph) {}
 
-  private getDocumentTokenList(document: TextDocument) {
-    const key = document.uri.toString();
-    let currentValue = this.documentTokenLists.get(key);
+	private getDocumentTokenList(document: TextDocument) {
+		const key = document.uri.toString();
+		let currentValue = this.documentTokenLists.get(key);
 
-    if (currentValue == null) {
-      currentValue = [];
-      this.documentTokenLists.set(key, currentValue);
-      this.deregisterFunctions.push(
-        this.graph.rangeUpdater.registerRangeInfoList(document, currentValue),
-      );
-    }
+		if (currentValue == null) {
+			currentValue = [];
+			this.documentTokenLists.set(key, currentValue);
+			this.deregisterFunctions.push(
+				this.graph.rangeUpdater.registerRangeInfoList(document, currentValue),
+			);
+		}
 
-    return currentValue;
-  }
+		return currentValue;
+	}
 
-  clone() {
-    const ret = new IndividualHatMap(this.graph);
+	clone() {
+		const ret = new IndividualHatMap(this.graph);
 
-    this.getEntries().forEach(([key, token]) => {
-      ret.addTokenByKey(key, { ...token });
-    });
+		this.getEntries().forEach(([key, token]) => {
+			ret.addTokenByKey(key, { ...token });
+		});
 
-    return ret;
-  }
+		return ret;
+	}
 
-  getEntries() {
-    this.checkExpired();
-    return Object.entries(this.map);
-  }
+	getEntries() {
+		this.checkExpired();
+		return Object.entries(this.map);
+	}
 
-  private addTokenByKey(key: string, token: Token) {
-    this.map[key] = token;
-    this.getDocumentTokenList(token.editor.document).push(token);
-  }
+	private addTokenByKey(key: string, token: Token) {
+		this.map[key] = token;
+		this.getDocumentTokenList(token.editor.document).push(token);
+	}
 
-  addToken(hatStyle: HatStyleName, character: string, token: Token) {
-    this.addTokenByKey(getKey(hatStyle, character), token);
-  }
+	addToken(hatStyle: HatStyleName, character: string, token: Token) {
+		this.addTokenByKey(getKey(hatStyle, character), token);
+	}
 
-  getToken(hatStyle: HatStyleName, character: string) {
-    this.checkExpired();
-    return this.map[
-      getKey(hatStyle, tokenGraphemeSplitter().normalizeGrapheme(character))
-    ];
-  }
+	getToken(hatStyle: HatStyleName, character: string) {
+		this.checkExpired();
+		return this.map[
+			getKey(hatStyle, tokenGraphemeSplitter().normalizeGrapheme(character))
+		];
+	}
 
-  clear() {
-    this.map = {};
-    this.documentTokenLists = new Map();
-    this.deregisterFunctions.forEach((func) => func());
-  }
+	clear() {
+		this.map = {};
+		this.documentTokenLists = new Map();
+		this.deregisterFunctions.forEach((func) => func());
+	}
 
-  checkExpired() {
-    if (this.isExpired) {
-      throw Error("Map snapshot has expired");
-    }
-  }
+	checkExpired() {
+		if (this.isExpired) {
+			throw Error("Map snapshot has expired");
+		}
+	}
 
-  dispose() {
-    this.isExpired = true;
-    this.deregisterFunctions.forEach((func) => func());
-  }
+	dispose() {
+		this.isExpired = true;
+		this.deregisterFunctions.forEach((func) => func());
+	}
 }

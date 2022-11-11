@@ -1,10 +1,10 @@
 import {
-  SupportedLanguageId,
-  supportedLanguageIds,
+	SupportedLanguageId,
+	supportedLanguageIds,
 } from "../libs/cursorless-engine/languages/constants";
 
 export function isLanguageSupported(
-  languageId: string,
+	languageId: string,
 ): languageId is SupportedLanguageId {
-  return languageId in supportedLanguageIds;
+	return languageId in supportedLanguageIds;
 }

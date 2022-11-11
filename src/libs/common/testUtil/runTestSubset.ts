@@ -12,5 +12,5 @@ export const TEST_SUBSET_GREP_STRING = "snippets";
  * @returns `true` if we are using the run test subset launch config
  */
 export function runTestSubset() {
-  return process.env.CURSORLESS_RUN_TEST_SUBSET === "true";
+	return process.env.CURSORLESS_RUN_TEST_SUBSET === "true";
 }

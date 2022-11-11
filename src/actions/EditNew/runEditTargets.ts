@@ -18,85 +18,85 @@ import { EditTarget, State } from "./EditNew.types";
  * @returns An updated `state` object
  */
 export async function runEditTargets(
-  graph: Graph,
-  editor: TextEditor,
-  state: State,
+	graph: Graph,
+	editor: TextEditor,
+	state: State,
 ): Promise<State> {
-  const editTargets: EditTarget[] = state.targets
-    .map((target, index) => {
-      const context = target.getEditNewContext();
-      if (context.type === "edit") {
-        return {
-          target,
-          index,
-        };
-      }
-    })
-    .filter((target): target is EditTarget => !!target);
+	const editTargets: EditTarget[] = state.targets
+		.map((target, index) => {
+			const context = target.getEditNewContext();
+			if (context.type === "edit") {
+				return {
+					target,
+					index,
+				};
+			}
+		})
+		.filter((target): target is EditTarget => !!target);
 
-  if (editTargets.length === 0) {
-    return state;
-  }
+	if (editTargets.length === 0) {
+		return state;
+	}
 
-  const edits = editTargets.map((target) =>
-    target.target.constructChangeEdit(""),
-  );
+	const edits = editTargets.map((target) =>
+		target.target.constructChangeEdit(""),
+	);
 
-  const thatSelections = {
-    selections: state.thatRanges.map(toSelection),
-  };
+	const thatSelections = {
+		selections: state.thatRanges.map(toSelection),
+	};
 
-  // We need to remove undefined cursor locations.  Note that these undefined
-  // locations will be the locations where our edit targets will go.  The only
-  // cursor positions defined at this point will have come from command targets
-  // before.
-  const cursorInfos = state.cursorRanges
-    .map((range, index) => ({ range, index }))
-    .filter(({ range }) => range != null);
+	// We need to remove undefined cursor locations.  Note that these undefined
+	// locations will be the locations where our edit targets will go.  The only
+	// cursor positions defined at this point will have come from command targets
+	// before.
+	const cursorInfos = state.cursorRanges
+		.map((range, index) => ({ range, index }))
+		.filter(({ range }) => range != null);
 
-  const cursorIndices = cursorInfos.map(({ index }) => index);
+	const cursorIndices = cursorInfos.map(({ index }) => index);
 
-  const cursorSelections = {
-    selections: cursorInfos.map(({ range }) => toSelection(range!)),
-  };
+	const cursorSelections = {
+		selections: cursorInfos.map(({ range }) => toSelection(range!)),
+	};
 
-  const editSelections = {
-    selections: edits.map((edit) => toSelection(edit.range)),
-    rangeBehavior: DecorationRangeBehavior.OpenOpen,
-  };
+	const editSelections = {
+		selections: edits.map((edit) => toSelection(edit.range)),
+		rangeBehavior: DecorationRangeBehavior.OpenOpen,
+	};
 
-  const [
-    updatedThatSelections,
-    updatedCursorSelections,
-    updatedEditSelections,
-  ]: Selection[][] = await performEditsAndUpdateSelectionsWithBehavior(
-    graph.rangeUpdater,
-    editor,
-    edits,
-    [thatSelections, cursorSelections, editSelections],
-  );
+	const [
+		updatedThatSelections,
+		updatedCursorSelections,
+		updatedEditSelections,
+	]: Selection[][] = await performEditsAndUpdateSelectionsWithBehavior(
+		graph.rangeUpdater,
+		editor,
+		edits,
+		[thatSelections, cursorSelections, editSelections],
+	);
 
-  const updatedCursorRanges = [...state.cursorRanges];
+	const updatedCursorRanges = [...state.cursorRanges];
 
-  // Update the cursor positions for the command targets
-  zip(cursorIndices, updatedCursorSelections).forEach(([index, selection]) => {
-    updatedCursorRanges[index!] = selection;
-  });
+	// Update the cursor positions for the command targets
+	zip(cursorIndices, updatedCursorSelections).forEach(([index, selection]) => {
+		updatedCursorRanges[index!] = selection;
+	});
 
-  // Add cursor positions for our edit targets.
-  editTargets.forEach((delimiterTarget, index) => {
-    const edit = edits[index];
-    const range = edit.updateRange(updatedEditSelections[index]);
-    updatedCursorRanges[delimiterTarget.index] = range;
-  });
+	// Add cursor positions for our edit targets.
+	editTargets.forEach((delimiterTarget, index) => {
+		const edit = edits[index];
+		const range = edit.updateRange(updatedEditSelections[index]);
+		updatedCursorRanges[delimiterTarget.index] = range;
+	});
 
-  return {
-    targets: state.targets,
-    thatRanges: updatedThatSelections,
-    cursorRanges: updatedCursorRanges,
-  };
+	return {
+		targets: state.targets,
+		thatRanges: updatedThatSelections,
+		cursorRanges: updatedCursorRanges,
+	};
 }
 
 function toSelection(range: Range) {
-  return new Selection(range.start, range.end);
+	return new Selection(range.start, range.end);
 }

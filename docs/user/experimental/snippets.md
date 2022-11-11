@@ -135,21 +135,21 @@ is an example:
 
 ```json
 {
-  "tryCatchStatement": {
-    "definitions": [
-      {
-        "scope": {
-          "langIds": [
-            "typescript",
-            "typescriptreact",
-            "javascript",
-            "javascriptreact"
-          ]
-        },
-        "body": ["try {", "\t$body", "} catch (err) {", "\t$exceptBody", "}"]
-      }
-    ]
-  }
+	"tryCatchStatement": {
+		"definitions": [
+			{
+				"scope": {
+					"langIds": [
+						"typescript",
+						"typescriptreact",
+						"javascript",
+						"javascriptreact"
+					]
+				},
+				"body": ["try {", "\t$body", "} catch (err) {", "\t$exceptBody", "}"]
+			}
+		]
+	}
 }
 ```
 

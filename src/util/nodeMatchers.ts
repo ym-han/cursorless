@@ -1,42 +1,42 @@
 import { SyntaxNode } from "web-tree-sitter";
 import { SimpleScopeTypeType } from "../typings/targetDescriptor.types";
 import {
-  NodeFinder,
-  NodeMatcher,
-  NodeMatcherAlternative,
-  SelectionExtractor,
-  SelectionWithEditor,
+	NodeFinder,
+	NodeMatcher,
+	NodeMatcherAlternative,
+	SelectionExtractor,
+	SelectionWithEditor,
 } from "../typings/Types";
 import {
-  ancestorChainNodeFinder,
-  argumentNodeFinder,
-  chainedNodeFinder,
-  patternFinder,
-  typedNodeFinder,
+	ancestorChainNodeFinder,
+	argumentNodeFinder,
+	chainedNodeFinder,
+	patternFinder,
+	typedNodeFinder,
 } from "./nodeFinders";
 import {
-  argumentSelectionExtractor,
-  selectWithLeadingDelimiter,
-  selectWithTrailingDelimiter,
-  simpleSelectionExtractor,
-  unwrapSelectionExtractor,
+	argumentSelectionExtractor,
+	selectWithLeadingDelimiter,
+	selectWithTrailingDelimiter,
+	simpleSelectionExtractor,
+	unwrapSelectionExtractor,
 } from "./nodeSelectors";
 
 export function matcher(
-  finder: NodeFinder,
-  selector: SelectionExtractor = simpleSelectionExtractor,
+	finder: NodeFinder,
+	selector: SelectionExtractor = simpleSelectionExtractor,
 ): NodeMatcher {
-  return function (selection: SelectionWithEditor, node: SyntaxNode) {
-    const targetNode = finder(node, selection.selection);
-    return targetNode != null
-      ? [
-          {
-            node: targetNode,
-            selection: selector(selection.editor, targetNode),
-          },
-        ]
-      : null;
-  };
+	return function (selection: SelectionWithEditor, node: SyntaxNode) {
+		const targetNode = finder(node, selection.selection);
+		return targetNode != null
+			? [
+					{
+						node: targetNode,
+						selection: selector(selection.editor, targetNode),
+					},
+			  ]
+			: null;
+	};
 }
 
 /**
@@ -48,25 +48,25 @@ export function matcher(
  * @returns A matcher which is a chain of the input node finders
  */
 export function chainedMatcher(
-  finders: NodeFinder[],
-  selector: SelectionExtractor = simpleSelectionExtractor,
+	finders: NodeFinder[],
+	selector: SelectionExtractor = simpleSelectionExtractor,
 ): NodeMatcher {
-  const nodeFinder = chainedNodeFinder(...finders);
+	const nodeFinder = chainedNodeFinder(...finders);
 
-  return function (selection: SelectionWithEditor, initialNode: SyntaxNode) {
-    const returnNode = nodeFinder(initialNode);
+	return function (selection: SelectionWithEditor, initialNode: SyntaxNode) {
+		const returnNode = nodeFinder(initialNode);
 
-    if (returnNode == null) {
-      return null;
-    }
+		if (returnNode == null) {
+			return null;
+		}
 
-    return [
-      {
-        node: returnNode,
-        selection: selector(selection.editor, returnNode),
-      },
-    ];
-  };
+		return [
+			{
+				node: returnNode,
+				selection: selector(selection.editor, returnNode),
+			},
+		];
+	};
 }
 
 /**
@@ -87,33 +87,33 @@ export function chainedMatcher(
  * @returns A node finder which is a chain of the input node finders
  */
 export function ancestorChainNodeMatcher(
-  nodeFinders: NodeFinder[],
-  nodeToReturn: number = 0,
-  selector: SelectionExtractor = simpleSelectionExtractor,
+	nodeFinders: NodeFinder[],
+	nodeToReturn: number = 0,
+	selector: SelectionExtractor = simpleSelectionExtractor,
 ) {
-  return matcher(
-    ancestorChainNodeFinder(nodeToReturn, ...nodeFinders),
-    selector,
-  );
+	return matcher(
+		ancestorChainNodeFinder(nodeToReturn, ...nodeFinders),
+		selector,
+	);
 }
 
 export function typeMatcher(...typeNames: string[]) {
-  return matcher(typedNodeFinder(...typeNames));
+	return matcher(typedNodeFinder(...typeNames));
 }
 
 export function patternMatcher(...patterns: string[]): NodeMatcher {
-  return matcher(patternFinder(...patterns));
+	return matcher(patternFinder(...patterns));
 }
 
 export function argumentMatcher(...parentTypes: string[]): NodeMatcher {
-  return matcher(
-    argumentNodeFinder(...parentTypes),
-    argumentSelectionExtractor(),
-  );
+	return matcher(
+		argumentNodeFinder(...parentTypes),
+		argumentSelectionExtractor(),
+	);
 }
 
 export function conditionMatcher(...patterns: string[]): NodeMatcher {
-  return matcher(patternFinder(...patterns), unwrapSelectionExtractor);
+	return matcher(patternFinder(...patterns), unwrapSelectionExtractor);
 }
 
 /**
@@ -123,13 +123,13 @@ export function conditionMatcher(...patterns: string[]): NodeMatcher {
  * @returns A node matcher
  */
 export function leadingMatcher(
-  patterns: string[],
-  delimiters: string[] = [],
+	patterns: string[],
+	delimiters: string[] = [],
 ): NodeMatcher {
-  return matcher(
-    patternFinder(...patterns),
-    selectWithLeadingDelimiter(...delimiters),
-  );
+	return matcher(
+		patternFinder(...patterns),
+		selectWithLeadingDelimiter(...delimiters),
+	);
 }
 
 /**
@@ -139,13 +139,13 @@ export function leadingMatcher(
  * @returns A node matcher
  */
 export function trailingMatcher(
-  patterns: string[],
-  delimiters: string[] = [],
+	patterns: string[],
+	delimiters: string[] = [],
 ): NodeMatcher {
-  return matcher(
-    patternFinder(...patterns),
-    selectWithTrailingDelimiter(...delimiters),
-  );
+	return matcher(
+		patternFinder(...patterns),
+		selectWithTrailingDelimiter(...delimiters),
+	);
 }
 
 /**
@@ -156,35 +156,35 @@ export function trailingMatcher(
  * @returns A NodeMatcher that tries the given matchers in sequence
  */
 export function cascadingMatcher(...matchers: NodeMatcher[]): NodeMatcher {
-  return (selection: SelectionWithEditor, node: SyntaxNode) => {
-    for (const matcher of matchers) {
-      const match = matcher(selection, node);
-      if (match != null) {
-        return match;
-      }
-    }
+	return (selection: SelectionWithEditor, node: SyntaxNode) => {
+		for (const matcher of matchers) {
+			const match = matcher(selection, node);
+			if (match != null) {
+				return match;
+			}
+		}
 
-    return null;
-  };
+		return null;
+	};
 }
 
 export const notSupported: NodeMatcher = (
-  _selection: SelectionWithEditor,
-  _node: SyntaxNode,
+	_selection: SelectionWithEditor,
+	_node: SyntaxNode,
 ) => {
-  throw new Error("Node type not supported");
+	throw new Error("Node type not supported");
 };
 
 export function createPatternMatchers(
-  nodeMatchers: Partial<Record<SimpleScopeTypeType, NodeMatcherAlternative>>,
+	nodeMatchers: Partial<Record<SimpleScopeTypeType, NodeMatcherAlternative>>,
 ): Record<SimpleScopeTypeType, NodeMatcher> {
-  Object.keys(nodeMatchers).forEach((scopeType: SimpleScopeTypeType) => {
-    const matcher = nodeMatchers[scopeType];
-    if (Array.isArray(matcher)) {
-      nodeMatchers[scopeType] = patternMatcher(...matcher);
-    } else if (typeof matcher === "string") {
-      nodeMatchers[scopeType] = patternMatcher(matcher);
-    }
-  });
-  return nodeMatchers as Record<SimpleScopeTypeType, NodeMatcher>;
+	Object.keys(nodeMatchers).forEach((scopeType: SimpleScopeTypeType) => {
+		const matcher = nodeMatchers[scopeType];
+		if (Array.isArray(matcher)) {
+			nodeMatchers[scopeType] = patternMatcher(...matcher);
+		} else if (typeof matcher === "string") {
+			nodeMatchers[scopeType] = patternMatcher(matcher);
+		}
+	});
+	return nodeMatchers as Record<SimpleScopeTypeType, NodeMatcher>;
 }

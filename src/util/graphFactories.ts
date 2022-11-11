@@ -13,28 +13,28 @@ import { Graph } from "../typings/Types";
 import { FactoryMap } from "./makeGraph";
 
 type ConstructorMap<T> = {
-  [P in keyof T]: new (t: T) => T[P];
+	[P in keyof T]: new (t: T) => T[P];
 };
 
 const graphConstructors: Partial<ConstructorMap<Graph>> = {
-  actions: Actions,
-  editStyles: EditStyles,
-  hatTokenMap: HatTokenMap,
-  decorations: Decorations,
-  fontMeasurements: FontMeasurements,
-  snippets: Snippets,
-  rangeUpdater: RangeUpdater,
-  debug: Debug,
-  testCaseRecorder: TestCaseRecorder,
-  cheatsheet: Cheatsheet,
-  statusBarItem: StatusBarItem,
+	actions: Actions,
+	editStyles: EditStyles,
+	hatTokenMap: HatTokenMap,
+	decorations: Decorations,
+	fontMeasurements: FontMeasurements,
+	snippets: Snippets,
+	rangeUpdater: RangeUpdater,
+	debug: Debug,
+	testCaseRecorder: TestCaseRecorder,
+	cheatsheet: Cheatsheet,
+	statusBarItem: StatusBarItem,
 };
 
 const graphFactories: Partial<FactoryMap<Graph>> = Object.fromEntries(
-  Object.entries(graphConstructors).map(([key, constructor]) => [
-    key,
-    (graph: Graph) => new constructor(graph),
-  ]),
+	Object.entries(graphConstructors).map(([key, constructor]) => [
+		key,
+		(graph: Graph) => new constructor(graph),
+	]),
 );
 
 export default graphFactories;

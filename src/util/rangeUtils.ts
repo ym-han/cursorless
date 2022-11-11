@@ -1,13 +1,13 @@
 import { Position, Range, TextDocument, TextEditor } from "vscode";
 
 export function isAtEndOfLine(editor: TextEditor, position: Position) {
-  const endLine = editor.document.lineAt(position);
+	const endLine = editor.document.lineAt(position);
 
-  return position.isEqual(endLine.range.end);
+	return position.isEqual(endLine.range.end);
 }
 
 export function isAtStartOfLine(position: Position) {
-  return position.character === 0;
+	return position.character === 0;
 }
 
 /**
@@ -19,21 +19,21 @@ export function isAtStartOfLine(position: Position) {
  * @returns The expanded range
  */
 export function expandToFullLine(editor: TextEditor, range: Range) {
-  return new Range(
-    new Position(range.start.line, 0),
-    editor.document.lineAt(range.end).range.end,
-  );
+	return new Range(
+		new Position(range.start.line, 0),
+		editor.document.lineAt(range.end).range.end,
+	);
 }
 
 export function makeEmptyRange(position: Position) {
-  return new Range(position, position);
+	return new Range(position, position);
 }
 
 export function getRangeLength(editor: TextEditor, range: Range) {
-  return range.isEmpty
-    ? 0
-    : editor.document.offsetAt(range.end) -
-        editor.document.offsetAt(range.start);
+	return range.isEmpty
+		? 0
+		: editor.document.offsetAt(range.end) -
+				editor.document.offsetAt(range.start);
 }
 
 /**
@@ -48,13 +48,13 @@ export function getRangeLength(editor: TextEditor, range: Range) {
  * {@link rangeOrPosition} without it touching either boundary
  */
 export function strictlyContains(
-  range1: Range,
-  rangeOrPosition: Range | Position,
+	range1: Range,
+	rangeOrPosition: Range | Position,
 ): boolean {
-  const start =
-    "start" in rangeOrPosition ? rangeOrPosition.start : rangeOrPosition;
-  const end = "end" in rangeOrPosition ? rangeOrPosition.end : rangeOrPosition;
-  return range1.start.isBefore(start) && range1.end.isAfter(end);
+	const start =
+		"start" in rangeOrPosition ? rangeOrPosition.start : rangeOrPosition;
+	const end = "end" in rangeOrPosition ? rangeOrPosition.end : rangeOrPosition;
+	return range1.start.isBefore(start) && range1.end.isAfter(end);
 }
 
 /**
@@ -64,8 +64,8 @@ export function strictlyContains(
  * @returns A range corresponding to the entire document contents
  */
 export function getDocumentRange(document: TextDocument) {
-  return new Range(
-    new Position(0, 0),
-    document.lineAt(document.lineCount - 1).range.end,
-  );
+	return new Range(
+		new Position(0, 0),
+		document.lineAt(document.lineCount - 1).range.end,
+	);
 }

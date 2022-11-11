@@ -4,10 +4,10 @@ import { ProcessedTargetsContext } from "../../typings/Types";
 import getModifierStage from "../getModifierStage";
 
 export class OutOfRangeError extends Error {
-  constructor() {
-    super("Scope index out of range");
-    this.name = "OutOfRangeError";
-  }
+	constructor() {
+		super("Scope index out of range");
+		this.name = "OutOfRangeError";
+	}
 }
 
 /**
@@ -20,35 +20,35 @@ export class OutOfRangeError extends Error {
  * end of the range
  */
 export function createRangeTargetFromIndices(
-  isReversed: boolean,
-  targets: Target[],
-  startIndex: number,
-  endIndex: number,
+	isReversed: boolean,
+	targets: Target[],
+	startIndex: number,
+	endIndex: number,
 ): Target {
-  if (startIndex < 0 || endIndex >= targets.length) {
-    throw new OutOfRangeError();
-  }
+	if (startIndex < 0 || endIndex >= targets.length) {
+		throw new OutOfRangeError();
+	}
 
-  if (startIndex === endIndex) {
-    return targets[startIndex];
-  }
+	if (startIndex === endIndex) {
+		return targets[startIndex];
+	}
 
-  return targets[startIndex].createContinuousRangeTarget(
-    isReversed,
-    targets[endIndex],
-    true,
-    true,
-  );
+	return targets[startIndex].createContinuousRangeTarget(
+		isReversed,
+		targets[endIndex],
+		true,
+		true,
+	);
 }
 
 export function getEveryScopeTargets(
-  context: ProcessedTargetsContext,
-  target: Target,
-  scopeType: ScopeType,
+	context: ProcessedTargetsContext,
+	target: Target,
+	scopeType: ScopeType,
 ): Target[] {
-  const containingStage = getModifierStage({
-    type: "everyScope",
-    scopeType,
-  });
-  return containingStage.run(context, target);
+	const containingStage = getModifierStage({
+		type: "everyScope",
+		scopeType,
+	});
+	return containingStage.run(context, target);
 }

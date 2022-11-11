@@ -2,8 +2,8 @@ import type { Range, TextEditor } from "vscode";
 import { NoContainingScopeError } from "../../errors";
 import type { Target } from "../../typings/target.types";
 import type {
-  Direction,
-  RelativeScopeModifier,
+	Direction,
+	RelativeScopeModifier,
 } from "../../typings/targetDescriptor.types";
 import type { ProcessedTargetsContext } from "../../typings/Types";
 import type { ModifierStage } from "../PipelineStages.types";
@@ -41,67 +41,67 @@ import { TooFewScopesError } from "./TooFewScopesError";
  *    direction is backward.
  */
 export class RelativeInclusiveScopeStage implements ModifierStage {
-  constructor(private modifier: RelativeScopeModifier) {}
+	constructor(private modifier: RelativeScopeModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    const scopeHandler = getScopeHandler(
-      this.modifier.scopeType,
-      target.editor.document.languageId,
-    );
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		const scopeHandler = getScopeHandler(
+			this.modifier.scopeType,
+			target.editor.document.languageId,
+		);
 
-    if (scopeHandler == null) {
-      return runLegacy(this.modifier, context, target);
-    }
+		if (scopeHandler == null) {
+			return runLegacy(this.modifier, context, target);
+		}
 
-    const { isReversed, editor, contentRange: inputRange } = target;
-    const { scopeType, length: desiredScopeCount, direction } = this.modifier;
+		const { isReversed, editor, contentRange: inputRange } = target;
+		const { scopeType, length: desiredScopeCount, direction } = this.modifier;
 
-    // FIXME: Figure out how to just continue iteration rather than starting
-    // over after getting offset 0 scopes
-    const offset0Scopes = getOffset0Scopes(
-      scopeHandler,
-      direction,
-      editor,
-      inputRange,
-    );
+		// FIXME: Figure out how to just continue iteration rather than starting
+		// over after getting offset 0 scopes
+		const offset0Scopes = getOffset0Scopes(
+			scopeHandler,
+			direction,
+			editor,
+			inputRange,
+		);
 
-    const offset0ScopeCount = offset0Scopes.length;
+		const offset0ScopeCount = offset0Scopes.length;
 
-    if (offset0ScopeCount === 0) {
-      throw new NoContainingScopeError(scopeType.type);
-    }
+		if (offset0ScopeCount === 0) {
+			throw new NoContainingScopeError(scopeType.type);
+		}
 
-    if (offset0ScopeCount > desiredScopeCount) {
-      throw new TooFewScopesError(
-        desiredScopeCount,
-        offset0ScopeCount,
-        scopeType.type,
-      );
-    }
+		if (offset0ScopeCount > desiredScopeCount) {
+			throw new TooFewScopesError(
+				desiredScopeCount,
+				offset0ScopeCount,
+				scopeType.type,
+			);
+		}
 
-    const proximalScope =
-      direction === "forward" ? offset0Scopes[0] : offset0Scopes.at(-1)!;
+		const proximalScope =
+			direction === "forward" ? offset0Scopes[0] : offset0Scopes.at(-1)!;
 
-    const initialPosition =
-      direction === "forward"
-        ? offset0Scopes.at(-1)!.domain.end
-        : offset0Scopes[0].domain.start;
+		const initialPosition =
+			direction === "forward"
+				? offset0Scopes.at(-1)!.domain.end
+				: offset0Scopes[0].domain.start;
 
-    const distalScope =
-      desiredScopeCount > offset0ScopeCount
-        ? getScopeRelativeToPosition(
-            scopeHandler,
-            editor,
-            initialPosition,
-            desiredScopeCount - offset0ScopeCount,
-            direction,
-          )
-        : direction === "forward"
-        ? offset0Scopes.at(-1)!
-        : offset0Scopes[0];
+		const distalScope =
+			desiredScopeCount > offset0ScopeCount
+				? getScopeRelativeToPosition(
+						scopeHandler,
+						editor,
+						initialPosition,
+						desiredScopeCount - offset0ScopeCount,
+						direction,
+				  )
+				: direction === "forward"
+				? offset0Scopes.at(-1)!
+				: offset0Scopes[0];
 
-    return [constructScopeRangeTarget(isReversed, proximalScope, distalScope)];
-  }
+		return [constructScopeRangeTarget(isReversed, proximalScope, distalScope)];
+	}
 }
 
 /**
@@ -117,24 +117,24 @@ export class RelativeInclusiveScopeStage implements ModifierStage {
  * "intersecting" with the input target
  */
 function getOffset0Scopes(
-  scopeHandler: ScopeHandler,
-  direction: Direction,
-  editor: TextEditor,
-  range: Range,
+	scopeHandler: ScopeHandler,
+	direction: Direction,
+	editor: TextEditor,
+	range: Range,
 ): TargetScope[] {
-  if (range.isEmpty) {
-    // First try scope in correct direction, falling back to opposite direction
-    const containingScope =
-      getContainingScope(scopeHandler, editor, range.start, direction) ??
-      getContainingScope(
-        scopeHandler,
-        editor,
-        range.start,
-        direction === "forward" ? "backward" : "forward",
-      );
+	if (range.isEmpty) {
+		// First try scope in correct direction, falling back to opposite direction
+		const containingScope =
+			getContainingScope(scopeHandler, editor, range.start, direction) ??
+			getContainingScope(
+				scopeHandler,
+				editor,
+				range.start,
+				direction === "forward" ? "backward" : "forward",
+			);
 
-    return containingScope == null ? [] : [containingScope];
-  }
+		return containingScope == null ? [] : [containingScope];
+	}
 
-  return getScopesOverlappingRange(scopeHandler, editor, range);
+	return getScopesOverlappingRange(scopeHandler, editor, range);
 }

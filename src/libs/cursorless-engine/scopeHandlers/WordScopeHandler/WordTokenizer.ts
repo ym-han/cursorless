@@ -10,19 +10,19 @@ const CAMEL_REGEX = /\p{Lu}?\p{Ll}+|\p{Lu}+(?!\p{Ll})|\p{N}+/gu;
  * for the unit tests in subtoken.test.ts.
  */
 export default class WordTokenizer {
-  private wordRegex: RegExp;
+	private wordRegex: RegExp;
 
-  constructor(languageId: string) {
-    this.wordRegex = getMatcher(languageId).wordMatcher;
-  }
+	constructor(languageId: string) {
+		this.wordRegex = getMatcher(languageId).wordMatcher;
+	}
 
-  public splitIdentifier(text: string) {
-    // First try to split on non letter characters
-    const wordMatches = matchText(text, this.wordRegex);
+	public splitIdentifier(text: string) {
+		// First try to split on non letter characters
+		const wordMatches = matchText(text, this.wordRegex);
 
-    return wordMatches.length > 1
-      ? wordMatches
-      : // Secondly try split on camel case
-        matchText(text, CAMEL_REGEX);
-  }
+		return wordMatches.length > 1
+			? wordMatches
+			: // Secondly try split on camel case
+			  matchText(text, CAMEL_REGEX);
+	}
 }

@@ -1,5 +1,5 @@
 export const extensionDependencies = [
-  "pokey.parse-tree",
-  "ms-toolsai.jupyter",
-  "scalameta.metals",
+	"pokey.parse-tree",
+	"ms-toolsai.jupyter",
+	"scalameta.metals",
 ];

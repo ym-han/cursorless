@@ -1,10 +1,10 @@
 import { SurroundingPairDirection } from "../../../typings/targetDescriptor.types";
 import { findUnmatchedDelimiter } from "./generateUnmatchedDelimiters";
 import {
-  DelimiterOccurrence,
-  DelimiterSide,
-  IndividualDelimiter,
-  PossibleDelimiterOccurrence,
+	DelimiterOccurrence,
+	DelimiterSide,
+	IndividualDelimiter,
+	PossibleDelimiterOccurrence,
 } from "./types";
 
 /**
@@ -24,43 +24,43 @@ import {
  * @returns The opposite delimiter, if found; otherwise `null`
  */
 export function findOppositeDelimiter(
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  index: number,
-  delimiterInfo: IndividualDelimiter,
-  forceDirection: "left" | "right" | undefined,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	index: number,
+	delimiterInfo: IndividualDelimiter,
+	forceDirection: "left" | "right" | undefined,
 ): DelimiterOccurrence | null {
-  const { side, delimiter } = delimiterInfo;
+	const { side, delimiter } = delimiterInfo;
 
-  for (const direction of getDirections(side, forceDirection)) {
-    const unmatchedDelimiter = findUnmatchedDelimiter(
-      delimiterOccurrences,
-      direction === "right" ? index + 1 : index - 1,
-      [delimiter],
-      direction === "right",
-    );
+	for (const direction of getDirections(side, forceDirection)) {
+		const unmatchedDelimiter = findUnmatchedDelimiter(
+			delimiterOccurrences,
+			direction === "right" ? index + 1 : index - 1,
+			[delimiter],
+			direction === "right",
+		);
 
-    if (unmatchedDelimiter != null) {
-      return unmatchedDelimiter;
-    }
-  }
+		if (unmatchedDelimiter != null) {
+			return unmatchedDelimiter;
+		}
+	}
 
-  return null;
+	return null;
 }
 
 function getDirections(
-  side: DelimiterSide,
-  forceDirection: SurroundingPairDirection | undefined,
+	side: DelimiterSide,
+	forceDirection: SurroundingPairDirection | undefined,
 ): SurroundingPairDirection[] {
-  if (forceDirection != null) {
-    return [forceDirection];
-  }
+	if (forceDirection != null) {
+		return [forceDirection];
+	}
 
-  switch (side) {
-    case "left":
-      return ["right"];
-    case "right":
-      return ["left"];
-    case "unknown":
-      return ["right", "left"];
-  }
+	switch (side) {
+		case "left":
+			return ["right"];
+		case "right":
+			return ["left"];
+		case "unknown":
+			return ["right", "left"];
+	}
 }

@@ -1,3 +1,3 @@
 function helloWorld() {
-  const value = "value";
+	const value = "value";
 }

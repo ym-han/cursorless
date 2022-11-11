@@ -5,7 +5,7 @@ import * as path from "path";
 import { runAllTestsInDir } from "../util/runAllTestsInDir";
 
 export function run(): Promise<void> {
-  return runAllTestsInDir(
-    path.resolve(__dirname, "../../libs/cursorless-engine"),
-  );
+	return runAllTestsInDir(
+		path.resolve(__dirname, "../../libs/cursorless-engine"),
+	);
 }

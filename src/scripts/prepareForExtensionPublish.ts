@@ -13,49 +13,49 @@ const execAsync = promisify(exec);
  * 2. Writes a file called `build-info.json` for provenance
  */
 async function main() {
-  const { major, minor } = semver.parse(process.env.npm_package_version)!;
+	const { major, minor } = semver.parse(process.env.npm_package_version)!;
 
-  const commitCount = await runCommand("git rev-list --count HEAD");
+	const commitCount = await runCommand("git rev-list --count HEAD");
 
-  const newVersion = `${major}.${minor}.${commitCount}`;
+	const newVersion = `${major}.${minor}.${commitCount}`;
 
-  await runCommand(`npm --no-git-tag-version version ${newVersion}`);
+	await runCommand(`npm --no-git-tag-version version ${newVersion}`);
 
-  // These are automatically set for Github actions
-  // See https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
-  const repository = process.env["GITHUB_REPOSITORY"];
-  const runId = process.env["GITHUB_RUN_ID"];
-  const githubBaseUrl = process.env["GITHUB_SERVER_URL"];
+	// These are automatically set for Github actions
+	// See https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
+	const repository = process.env["GITHUB_REPOSITORY"];
+	const runId = process.env["GITHUB_RUN_ID"];
+	const githubBaseUrl = process.env["GITHUB_SERVER_URL"];
 
-  if (repository == null) {
-    throw new Error("Missing environment variable GITHUB_REPOSITORY");
-  }
+	if (repository == null) {
+		throw new Error("Missing environment variable GITHUB_REPOSITORY");
+	}
 
-  if (runId == null) {
-    throw new Error("Missing environment variable GITHUB_RUN_ID");
-  }
+	if (runId == null) {
+		throw new Error("Missing environment variable GITHUB_RUN_ID");
+	}
 
-  if (githubBaseUrl == null) {
-    throw new Error("Missing environment variable GITHUB_SERVER_URL");
-  }
+	if (githubBaseUrl == null) {
+		throw new Error("Missing environment variable GITHUB_SERVER_URL");
+	}
 
-  await writeFile(
-    "build-info.json",
-    JSON.stringify({
-      gitSha: (await runCommand("git rev-parse HEAD")).trim(),
-      buildUrl: `${githubBaseUrl}/${repository}/actions/runs/${runId}`,
-    }),
-  );
+	await writeFile(
+		"build-info.json",
+		JSON.stringify({
+			gitSha: (await runCommand("git rev-parse HEAD")).trim(),
+			buildUrl: `${githubBaseUrl}/${repository}/actions/runs/${runId}`,
+		}),
+	);
 }
 
 async function runCommand(command: string) {
-  const { stdout, stderr } = await execAsync(command);
+	const { stdout, stderr } = await execAsync(command);
 
-  if (stderr) {
-    throw new Error(stderr);
-  }
+	if (stderr) {
+		throw new Error(stderr);
+	}
 
-  return stdout;
+	return stdout;
 }
 
 main();

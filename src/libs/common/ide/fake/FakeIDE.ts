@@ -1,9 +1,9 @@
 import { pull } from "lodash";
 import type {
-  Disposable,
-  IDE,
-  RunMode,
-  WorkspaceFolder,
+	Disposable,
+	IDE,
+	RunMode,
+	WorkspaceFolder,
 } from "../types/ide.types";
 import FakeClipboard from "./FakeClipboard";
 import FakeConfiguration from "./FakeConfiguration";
@@ -11,43 +11,43 @@ import FakeGlobalState from "./FakeGlobalState";
 import FakeMessages from "./FakeMessages";
 
 export default class FakeIDE implements IDE {
-  configuration: FakeConfiguration;
-  messages: FakeMessages;
-  globalState: FakeGlobalState;
-  clipboard: FakeClipboard;
-  private disposables: Disposable[] = [];
+	configuration: FakeConfiguration;
+	messages: FakeMessages;
+	globalState: FakeGlobalState;
+	clipboard: FakeClipboard;
+	private disposables: Disposable[] = [];
 
-  constructor() {
-    this.configuration = new FakeConfiguration();
-    this.messages = new FakeMessages();
-    this.globalState = new FakeGlobalState();
-    this.clipboard = new FakeClipboard();
-  }
+	constructor() {
+		this.configuration = new FakeConfiguration();
+		this.messages = new FakeMessages();
+		this.globalState = new FakeGlobalState();
+		this.clipboard = new FakeClipboard();
+	}
 
-  private assetsRoot_: string | undefined;
+	private assetsRoot_: string | undefined;
 
-  mockAssetsRoot(_assetsRoot: string) {
-    this.assetsRoot_ = _assetsRoot;
-  }
+	mockAssetsRoot(_assetsRoot: string) {
+		this.assetsRoot_ = _assetsRoot;
+	}
 
-  get assetsRoot(): string {
-    if (this.assetsRoot_ == null) {
-      throw Error("Field `assetsRoot` has not yet been mocked");
-    }
+	get assetsRoot(): string {
+		if (this.assetsRoot_ == null) {
+			throw Error("Field `assetsRoot` has not yet been mocked");
+		}
 
-    return this.assetsRoot_;
-  }
+		return this.assetsRoot_;
+	}
 
-  runMode: RunMode = "test";
-  workspaceFolders: readonly WorkspaceFolder[] | undefined = undefined;
+	runMode: RunMode = "test";
+	workspaceFolders: readonly WorkspaceFolder[] | undefined = undefined;
 
-  disposeOnExit(...disposables: Disposable[]): () => void {
-    this.disposables.push(...disposables);
+	disposeOnExit(...disposables: Disposable[]): () => void {
+		this.disposables.push(...disposables);
 
-    return () => pull(this.disposables, ...disposables);
-  }
+		return () => pull(this.disposables, ...disposables);
+	}
 
-  exit(): void {
-    this.disposables.forEach((disposable) => disposable.dispose());
-  }
+	exit(): void {
+		this.disposables.forEach((disposable) => disposable.dispose());
+	}
 }

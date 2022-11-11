@@ -8,20 +8,20 @@ import { SourceStage, ThatStage } from "./marks/ThatStage";
 import { MarkStage } from "./PipelineStages.types";
 
 export default (mark: Mark): MarkStage => {
-  switch (mark.type) {
-    case "cursor":
-      return new CursorStage(mark);
-    case "that":
-      return new ThatStage(mark);
-    case "source":
-      return new SourceStage(mark);
-    case "decoratedSymbol":
-      return new DecoratedSymbolStage(mark);
-    case "lineNumber":
-      return new LineNumberStage(mark);
-    case "range":
-      return new RangeMarkStage(mark);
-    case "nothing":
-      return new NothingStage(mark);
-  }
+	switch (mark.type) {
+		case "cursor":
+			return new CursorStage(mark);
+		case "that":
+			return new ThatStage(mark);
+		case "source":
+			return new SourceStage(mark);
+		case "decoratedSymbol":
+			return new DecoratedSymbolStage(mark);
+		case "lineNumber":
+			return new LineNumberStage(mark);
+		case "range":
+			return new RangeMarkStage(mark);
+		case "nothing":
+			return new NothingStage(mark);
+	}
 };

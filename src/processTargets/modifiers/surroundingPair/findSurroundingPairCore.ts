@@ -1,14 +1,14 @@
 import { sortedIndexBy } from "lodash";
 import {
-  SimpleSurroundingPairName,
-  SurroundingPairScopeType,
+	SimpleSurroundingPairName,
+	SurroundingPairScopeType,
 } from "../../../typings/targetDescriptor.types";
 import { findDelimiterPairAdjacentToSelection } from "./findDelimiterPairAdjacentToSelection";
 import { findDelimiterPairContainingSelection } from "./findDelimiterPairContainingSelection";
 import {
-  SurroundingPairOffsets,
-  Offsets,
-  PossibleDelimiterOccurrence,
+	SurroundingPairOffsets,
+	Offsets,
+	PossibleDelimiterOccurrence,
 } from "./types";
 
 /**
@@ -33,46 +33,46 @@ import {
  * @returns
  */
 export function findSurroundingPairCore(
-  scopeType: SurroundingPairScopeType,
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  acceptableDelimiters: SimpleSurroundingPairName[],
-  selectionOffsets: Offsets,
-  bailOnUnmatchedAdjacent: boolean = false,
+	scopeType: SurroundingPairScopeType,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	acceptableDelimiters: SimpleSurroundingPairName[],
+	selectionOffsets: Offsets,
+	bailOnUnmatchedAdjacent: boolean = false,
 ): SurroundingPairOffsets | null {
-  /**
-   * The initial index from which to start both of our searches.  We set this
-   * index to the index of the first delimiter whose end offset is greater than
-   * or equal to the end offset of the selection.
-   */
-  const initialIndex = sortedIndexBy<{
-    offsets: Offsets;
-  }>(
-    delimiterOccurrences,
-    {
-      offsets: selectionOffsets,
-    },
-    "offsets.end",
-  );
+	/**
+	 * The initial index from which to start both of our searches.  We set this
+	 * index to the index of the first delimiter whose end offset is greater than
+	 * or equal to the end offset of the selection.
+	 */
+	const initialIndex = sortedIndexBy<{
+		offsets: Offsets;
+	}>(
+		delimiterOccurrences,
+		{
+			offsets: selectionOffsets,
+		},
+		"offsets.end",
+	);
 
-  // First look for delimiter pair where one delimiter contains the selection.
-  const delimiterPairAdjacentToSelection: SurroundingPairOffsets | null =
-    findDelimiterPairAdjacentToSelection(
-      initialIndex,
-      delimiterOccurrences,
-      selectionOffsets,
-      scopeType,
-      bailOnUnmatchedAdjacent,
-    );
+	// First look for delimiter pair where one delimiter contains the selection.
+	const delimiterPairAdjacentToSelection: SurroundingPairOffsets | null =
+		findDelimiterPairAdjacentToSelection(
+			initialIndex,
+			delimiterOccurrences,
+			selectionOffsets,
+			scopeType,
+			bailOnUnmatchedAdjacent,
+		);
 
-  if (delimiterPairAdjacentToSelection != null) {
-    return delimiterPairAdjacentToSelection;
-  }
+	if (delimiterPairAdjacentToSelection != null) {
+		return delimiterPairAdjacentToSelection;
+	}
 
-  // Then look for the smallest delimiter pair containing the selection.
-  return findDelimiterPairContainingSelection(
-    initialIndex,
-    delimiterOccurrences,
-    acceptableDelimiters,
-    selectionOffsets,
-  );
+	// Then look for the smallest delimiter pair containing the selection.
+	return findDelimiterPairContainingSelection(
+		initialIndex,
+		delimiterOccurrences,
+		acceptableDelimiters,
+		selectionOffsets,
+	);
 }

@@ -12,7 +12,7 @@ let ide_: IDE | undefined;
  * @param ide The ide to inject
  */
 export function injectIde(ide: IDE | undefined) {
-  ide_ = ide;
+	ide_ = ide;
 }
 
 /**
@@ -22,9 +22,9 @@ export function injectIde(ide: IDE | undefined) {
  * @returns The IDE object
  */
 export default function ide(): IDE {
-  if (ide_ == null) {
-    throw Error("Tried to access ide before it was injected");
-  }
+	if (ide_ == null) {
+		throw Error("Tried to access ide before it was injected");
+	}
 
-  return ide_;
+	return ide_;
 }

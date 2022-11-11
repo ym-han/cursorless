@@ -16,63 +16,63 @@ import { OutOfRangeError } from "./targetSequenceUtils";
  * first scope if input range is empty and is at start of that scope.
  */
 export default class RelativeExclusiveScopeStage implements ModifierStage {
-  constructor(private modifier: RelativeScopeModifier) {}
+	constructor(private modifier: RelativeScopeModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    const scopeHandler = getScopeHandler(
-      this.modifier.scopeType,
-      target.editor.document.languageId,
-    );
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		const scopeHandler = getScopeHandler(
+			this.modifier.scopeType,
+			target.editor.document.languageId,
+		);
 
-    if (scopeHandler == null) {
-      return runLegacy(this.modifier, context, target);
-    }
+		if (scopeHandler == null) {
+			return runLegacy(this.modifier, context, target);
+		}
 
-    const { isReversed, editor, contentRange: inputRange } = target;
-    const { length: desiredScopeCount, direction, offset } = this.modifier;
+		const { isReversed, editor, contentRange: inputRange } = target;
+		const { length: desiredScopeCount, direction, offset } = this.modifier;
 
-    const initialPosition =
-      direction === "forward" ? inputRange.end : inputRange.start;
+		const initialPosition =
+			direction === "forward" ? inputRange.end : inputRange.start;
 
-    // If inputRange is empty, then we skip past any scopes that start at
-    // inputRange.  Otherwise just disallow any scopes that start strictly
-    // before the end of input range (strictly after for "backward").
-    const containment: ContainmentPolicy | undefined = inputRange.isEmpty
-      ? "disallowed"
-      : "disallowedIfStrict";
+		// If inputRange is empty, then we skip past any scopes that start at
+		// inputRange.  Otherwise just disallow any scopes that start strictly
+		// before the end of input range (strictly after for "backward").
+		const containment: ContainmentPolicy | undefined = inputRange.isEmpty
+			? "disallowed"
+			: "disallowedIfStrict";
 
-    let scopeCount = 0;
-    let proximalScope: TargetScope | undefined;
-    for (const scope of scopeHandler.generateScopes(
-      editor,
-      initialPosition,
-      direction,
-      { containment },
-    )) {
-      scopeCount += 1;
+		let scopeCount = 0;
+		let proximalScope: TargetScope | undefined;
+		for (const scope of scopeHandler.generateScopes(
+			editor,
+			initialPosition,
+			direction,
+			{ containment },
+		)) {
+			scopeCount += 1;
 
-      if (scopeCount < offset) {
-        // Skip until we hit `offset`
-        continue;
-      }
+			if (scopeCount < offset) {
+				// Skip until we hit `offset`
+				continue;
+			}
 
-      if (scopeCount === offset) {
-        // When we hit offset, that becomes proximal scope
-        if (desiredScopeCount === 1) {
-          // Just yield it if we only want 1 scope
-          return [scope.getTarget(isReversed)];
-        }
+			if (scopeCount === offset) {
+				// When we hit offset, that becomes proximal scope
+				if (desiredScopeCount === 1) {
+					// Just yield it if we only want 1 scope
+					return [scope.getTarget(isReversed)];
+				}
 
-        proximalScope = scope;
-        continue;
-      }
+				proximalScope = scope;
+				continue;
+			}
 
-      if (scopeCount === offset + desiredScopeCount - 1) {
-        // Then make a range when we get the desired number of scopes
-        return [constructScopeRangeTarget(isReversed, proximalScope!, scope)];
-      }
-    }
+			if (scopeCount === offset + desiredScopeCount - 1) {
+				// Then make a range when we get the desired number of scopes
+				return [constructScopeRangeTarget(isReversed, proximalScope!, scope)];
+			}
+		}
 
-    throw new OutOfRangeError();
-  }
+		throw new OutOfRangeError();
+	}
 }

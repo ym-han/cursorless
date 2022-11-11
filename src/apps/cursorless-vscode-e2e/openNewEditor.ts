@@ -2,56 +2,56 @@ import { getParseTreeApi } from "@cursorless/vscode-common";
 import * as vscode from "vscode";
 
 export async function openNewEditor(
-  content: string,
-  language: string = "plaintext",
+	content: string,
+	language: string = "plaintext",
 ) {
-  await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+	await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
-  const document = await vscode.workspace.openTextDocument({
-    language,
-    content,
-  });
+	const document = await vscode.workspace.openTextDocument({
+		language,
+		content,
+	});
 
-  await (await getParseTreeApi()).loadLanguage(language);
+	await (await getParseTreeApi()).loadLanguage(language);
 
-  const editor = await vscode.window.showTextDocument(document);
+	const editor = await vscode.window.showTextDocument(document);
 
-  const eol = content.includes("\r\n")
-    ? vscode.EndOfLine.CRLF
-    : vscode.EndOfLine.LF;
-  if (eol !== editor.document.eol) {
-    await editor.edit((editBuilder) => editBuilder.setEndOfLine(eol));
-  }
+	const eol = content.includes("\r\n")
+		? vscode.EndOfLine.CRLF
+		: vscode.EndOfLine.LF;
+	if (eol !== editor.document.eol) {
+		await editor.edit((editBuilder) => editBuilder.setEndOfLine(eol));
+	}
 
-  return editor;
+	return editor;
 }
 
 export async function reuseEditor(
-  editor: vscode.TextEditor,
-  content: string,
-  language: string = "plaintext",
+	editor: vscode.TextEditor,
+	content: string,
+	language: string = "plaintext",
 ) {
-  if (editor.document.languageId !== language) {
-    await vscode.languages.setTextDocumentLanguage(editor.document, language);
-    await (await getParseTreeApi()).loadLanguage(language);
-  }
+	if (editor.document.languageId !== language) {
+		await vscode.languages.setTextDocumentLanguage(editor.document, language);
+		await (await getParseTreeApi()).loadLanguage(language);
+	}
 
-  await editor.edit((editBuilder) => {
-    editBuilder.replace(
-      new vscode.Range(
-        editor.document.lineAt(0).range.start,
-        editor.document.lineAt(editor.document.lineCount - 1).range.end,
-      ),
-      content,
-    );
+	await editor.edit((editBuilder) => {
+		editBuilder.replace(
+			new vscode.Range(
+				editor.document.lineAt(0).range.start,
+				editor.document.lineAt(editor.document.lineCount - 1).range.end,
+			),
+			content,
+		);
 
-    const eol = content.includes("\r\n")
-      ? vscode.EndOfLine.CRLF
-      : vscode.EndOfLine.LF;
-    if (eol !== editor.document.eol) {
-      editBuilder.setEndOfLine(eol);
-    }
-  });
+		const eol = content.includes("\r\n")
+			? vscode.EndOfLine.CRLF
+			: vscode.EndOfLine.LF;
+		if (eol !== editor.document.eol) {
+			editBuilder.setEndOfLine(eol);
+		}
+	});
 }
 
 /**
@@ -62,26 +62,26 @@ export async function reuseEditor(
  * @returns notebook
  */
 export async function openNewNotebookEditor(
-  cellContents: string[],
-  language: string = "plaintext",
+	cellContents: string[],
+	language: string = "plaintext",
 ) {
-  await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+	await vscode.commands.executeCommand("workbench.action.closeAllEditors");
 
-  const document = await vscode.workspace.openNotebookDocument(
-    "jupyter-notebook",
-    new vscode.NotebookData(
-      cellContents.map(
-        (contents) =>
-          new vscode.NotebookCellData(
-            vscode.NotebookCellKind.Code,
-            contents,
-            language,
-          ),
-      ),
-    ),
-  );
+	const document = await vscode.workspace.openNotebookDocument(
+		"jupyter-notebook",
+		new vscode.NotebookData(
+			cellContents.map(
+				(contents) =>
+					new vscode.NotebookCellData(
+						vscode.NotebookCellKind.Code,
+						contents,
+						language,
+					),
+			),
+		),
+	);
 
-  await (await getParseTreeApi()).loadLanguage(language);
+	await (await getParseTreeApi()).loadLanguage(language);
 
-  return document;
+	return document;
 }

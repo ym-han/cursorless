@@ -1,8 +1,8 @@
 import { getSurroundingPairOffsets } from "./getSurroundingPairOffsets";
 import {
-  SurroundingPairOffsets,
-  PossibleDelimiterOccurrence,
-  Offsets,
+	SurroundingPairOffsets,
+	PossibleDelimiterOccurrence,
+	Offsets,
 } from "./types";
 import { generateUnmatchedDelimiters } from "./generateUnmatchedDelimiters";
 import { SimpleSurroundingPairName } from "../../../typings/targetDescriptor.types";
@@ -36,60 +36,60 @@ import { SimpleSurroundingPairName } from "../../../typings/targetDescriptor.typ
  * null if none is found
  */
 export function findDelimiterPairContainingSelection(
-  initialIndex: number,
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  acceptableDelimiters: SimpleSurroundingPairName[],
-  selectionOffsets: Offsets,
+	initialIndex: number,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	acceptableDelimiters: SimpleSurroundingPairName[],
+	selectionOffsets: Offsets,
 ): SurroundingPairOffsets | null {
-  // Accept any delimiter when scanning right
-  const acceptableRightDelimiters = acceptableDelimiters;
+	// Accept any delimiter when scanning right
+	const acceptableRightDelimiters = acceptableDelimiters;
 
-  // When scanning left, we'll populate this list with just the delimiter we
-  // found on our rightward pass.
-  let acceptableLeftDelimiters: SimpleSurroundingPairName[] = [];
+	// When scanning left, we'll populate this list with just the delimiter we
+	// found on our rightward pass.
+	let acceptableLeftDelimiters: SimpleSurroundingPairName[] = [];
 
-  const rightDelimiterGenerator = generateUnmatchedDelimiters(
-    delimiterOccurrences,
-    initialIndex,
-    () => acceptableRightDelimiters,
-    true,
-  );
+	const rightDelimiterGenerator = generateUnmatchedDelimiters(
+		delimiterOccurrences,
+		initialIndex,
+		() => acceptableRightDelimiters,
+		true,
+	);
 
-  // Start just to the left of the delimiter we start from in our rightward
-  // pass
-  const leftDelimiterGenerator = generateUnmatchedDelimiters(
-    delimiterOccurrences,
-    initialIndex - 1,
-    () => acceptableLeftDelimiters,
-    false,
-  );
+	// Start just to the left of the delimiter we start from in our rightward
+	// pass
+	const leftDelimiterGenerator = generateUnmatchedDelimiters(
+		delimiterOccurrences,
+		initialIndex - 1,
+		() => acceptableLeftDelimiters,
+		false,
+	);
 
-  while (true) {
-    // Scan right until we find an acceptable unmatched closing delimiter
-    const rightNext = rightDelimiterGenerator.next();
-    if (rightNext.done) {
-      return null;
-    }
-    const rightDelimiterOccurrence = rightNext.value!;
+	while (true) {
+		// Scan right until we find an acceptable unmatched closing delimiter
+		const rightNext = rightDelimiterGenerator.next();
+		if (rightNext.done) {
+			return null;
+		}
+		const rightDelimiterOccurrence = rightNext.value!;
 
-    // Then scan left until we find an unmatched delimiter matching the
-    // delimiter we found in our rightward pass.
-    acceptableLeftDelimiters = [
-      rightDelimiterOccurrence.delimiterInfo.delimiter,
-    ];
-    const leftNext = leftDelimiterGenerator.next();
-    if (leftNext.done) {
-      return null;
-    }
-    const leftDelimiterOccurrence = leftNext.value!;
+		// Then scan left until we find an unmatched delimiter matching the
+		// delimiter we found in our rightward pass.
+		acceptableLeftDelimiters = [
+			rightDelimiterOccurrence.delimiterInfo.delimiter,
+		];
+		const leftNext = leftDelimiterGenerator.next();
+		if (leftNext.done) {
+			return null;
+		}
+		const leftDelimiterOccurrence = leftNext.value!;
 
-    // If left delimiter is left of our selection, we return it.  Otherwise
-    // loop back and continue scanning outwards.
-    if (leftDelimiterOccurrence.offsets.start <= selectionOffsets.start) {
-      return getSurroundingPairOffsets(
-        leftDelimiterOccurrence,
-        rightDelimiterOccurrence,
-      );
-    }
-  }
+		// If left delimiter is left of our selection, we return it.  Otherwise
+		// loop back and continue scanning outwards.
+		if (leftDelimiterOccurrence.offsets.start <= selectionOffsets.start) {
+			return getSurroundingPairOffsets(
+				leftDelimiterOccurrence,
+				rightDelimiterOccurrence,
+			);
+		}
+	}
 }

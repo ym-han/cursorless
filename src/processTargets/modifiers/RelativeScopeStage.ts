@@ -13,15 +13,15 @@ import { RelativeInclusiveScopeStage } from "./RelativeInclusiveScopeStage";
  * {@link RelativeExclusiveScopeStage} if not.
  */
 export default class RelativeScopeStage implements ModifierStage {
-  private modiferStage: ModifierStage;
-  constructor(private modifier: RelativeScopeModifier) {
-    this.modiferStage =
-      this.modifier.offset === 0
-        ? new RelativeInclusiveScopeStage(modifier)
-        : new RelativeExclusiveScopeStage(modifier);
-  }
+	private modiferStage: ModifierStage;
+	constructor(private modifier: RelativeScopeModifier) {
+		this.modiferStage =
+			this.modifier.offset === 0
+				? new RelativeInclusiveScopeStage(modifier)
+				: new RelativeExclusiveScopeStage(modifier);
+	}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    return this.modiferStage.run(context, target);
-  }
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		return this.modiferStage.run(context, target);
+	}
 }

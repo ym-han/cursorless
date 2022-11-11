@@ -11,29 +11,29 @@ import type { Target } from "../../../typings/target.types";
  * from anywhere within the parameter.
  */
 export interface TargetScope {
-  /**
-   * The text editor containing {@link domain}.
-   */
-  readonly editor: TextEditor;
+	/**
+	 * The text editor containing {@link domain}.
+	 */
+	readonly editor: TextEditor;
 
-  /**
-   * The domain within which this scope is considered the canonical instance of
-   * this scope type.  For example, if the scope type represents a `key` in a
-   * key-value pair, then the pair would be the `domain`, so that "take key"
-   * works from anywhere within the given pair.
-   *
-   * Most scopes will have a domain that is just the content range or removal
-   * range of the scope.
-   *
-   * For an iteration scope, indicates the domain within which this iteration scope is considered the canonical
-   * iteration scope for the given scope type.  For example, if the scope type
-   * is function, then the domain might be a class, so that "take every funk"
-   * works from anywhere within the given class.
-   */
-  readonly domain: Range;
+	/**
+	 * The domain within which this scope is considered the canonical instance of
+	 * this scope type.  For example, if the scope type represents a `key` in a
+	 * key-value pair, then the pair would be the `domain`, so that "take key"
+	 * works from anywhere within the given pair.
+	 *
+	 * Most scopes will have a domain that is just the content range or removal
+	 * range of the scope.
+	 *
+	 * For an iteration scope, indicates the domain within which this iteration scope is considered the canonical
+	 * iteration scope for the given scope type.  For example, if the scope type
+	 * is function, then the domain might be a class, so that "take every funk"
+	 * works from anywhere within the given class.
+	 */
+	readonly domain: Range;
 
-  /**
-   * The target corresponding to this scope.
-   */
-  getTarget(isReversed: boolean): Target;
+	/**
+	 * The target corresponding to this scope.
+	 */
+	getTarget(isReversed: boolean): Target;
 }

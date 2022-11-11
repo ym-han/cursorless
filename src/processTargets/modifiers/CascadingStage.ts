@@ -9,27 +9,27 @@ import { ModifierStage } from "../PipelineStages.types";
  * error, returning the output from the first modifier not throwing an error.
  */
 export default class CascadingStage implements ModifierStage {
-  private nestedStages_?: ModifierStage[];
+	private nestedStages_?: ModifierStage[];
 
-  constructor(private modifier: CascadingModifier) {}
+	constructor(private modifier: CascadingModifier) {}
 
-  private get nestedStages() {
-    if (this.nestedStages_ == null) {
-      this.nestedStages_ = this.modifier.modifiers.map(getModifierStage);
-    }
+	private get nestedStages() {
+		if (this.nestedStages_ == null) {
+			this.nestedStages_ = this.modifier.modifiers.map(getModifierStage);
+		}
 
-    return this.nestedStages_;
-  }
+		return this.nestedStages_;
+	}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    for (const nestedStage of this.nestedStages) {
-      try {
-        return nestedStage.run(context, target);
-      } catch (error) {
-        continue;
-      }
-    }
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		for (const nestedStage of this.nestedStages) {
+			try {
+				return nestedStage.run(context, target);
+			} catch (error) {
+				continue;
+			}
+		}
 
-    throw new Error("No modifier could be applied");
-  }
+		throw new Error("No modifier could be applied");
+	}
 }

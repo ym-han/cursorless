@@ -2,22 +2,22 @@ import { Range, Selection, TextEditor } from "vscode";
 import { SyntaxNode } from "web-tree-sitter";
 import { SimpleScopeTypeType } from "../typings/targetDescriptor.types";
 import {
-  NodeFinder,
-  NodeMatcherAlternative,
-  SelectionWithContext,
+	NodeFinder,
+	NodeMatcherAlternative,
+	SelectionWithContext,
 } from "../typings/Types";
 import { leadingSiblingNodeFinder, patternFinder } from "../util/nodeFinders";
 import { createPatternMatchers, matcher } from "../util/nodeMatchers";
 import {
-  extendUntilNextMatchingSiblingOrLast,
-  getNodeRange,
-  selectWithLeadingDelimiter,
+	extendUntilNextMatchingSiblingOrLast,
+	getNodeRange,
+	selectWithLeadingDelimiter,
 } from "../util/nodeSelectors";
 import { getMatchesInRange } from "../apps/cursorless-vscode/getMatchesInRange";
 import {
-  isReversed,
-  selectionFromRange,
-  shrinkRangeToFitContent,
+	isReversed,
+	selectionFromRange,
+	shrinkRangeToFitContent,
 } from "../util/selectionUtils";
 
 /**
@@ -30,30 +30,30 @@ import {
  * @returns The selection with context
  */
 function nameExtractor(
-  editor: TextEditor,
-  node: SyntaxNode,
+	editor: TextEditor,
+	node: SyntaxNode,
 ): SelectionWithContext {
-  const range = getNodeRange(node);
-  const contentRange = range.isEmpty
-    ? range
-    : range.with(range.start.translate(0, 1));
-  const removalRange = getNodeRange(node.parent!);
+	const range = getNodeRange(node);
+	const contentRange = range.isEmpty
+		? range
+		: range.with(range.start.translate(0, 1));
+	const removalRange = getNodeRange(node.parent!);
 
-  return {
-    selection: new Selection(contentRange.start, contentRange.end),
-    context: {
-      removalRange,
-    },
-  };
+	return {
+		selection: new Selection(contentRange.start, contentRange.end),
+		context: {
+			removalRange,
+		},
+	};
 }
 
 const HEADING_MARKER_TYPES = [
-  "atx_h1_marker",
-  "atx_h2_marker",
-  "atx_h3_marker",
-  "atx_h4_marker",
-  "atx_h5_marker",
-  "atx_h6_marker",
+	"atx_h1_marker",
+	"atx_h2_marker",
+	"atx_h3_marker",
+	"atx_h4_marker",
+	"atx_h5_marker",
+	"atx_h6_marker",
 ] as const;
 type HeadingMarkerType = typeof HEADING_MARKER_TYPES[number];
 
@@ -65,91 +65,91 @@ type HeadingMarkerType = typeof HEADING_MARKER_TYPES[number];
  * marker level or higher than the original type
  */
 function makeMinimumHeadingLevelFinder(
-  headingType: HeadingMarkerType,
+	headingType: HeadingMarkerType,
 ): NodeFinder {
-  const markerIndex = HEADING_MARKER_TYPES.indexOf(headingType);
-  return (node: SyntaxNode) => {
-    return node.type === "atx_heading" &&
-      HEADING_MARKER_TYPES.indexOf(
-        node.firstNamedChild?.type as HeadingMarkerType,
-      ) <= markerIndex
-      ? node
-      : null;
-  };
+	const markerIndex = HEADING_MARKER_TYPES.indexOf(headingType);
+	return (node: SyntaxNode) => {
+		return node.type === "atx_heading" &&
+			HEADING_MARKER_TYPES.indexOf(
+				node.firstNamedChild?.type as HeadingMarkerType,
+			) <= markerIndex
+			? node
+			: null;
+	};
 }
 
 function sectionExtractor(editor: TextEditor, node: SyntaxNode) {
-  const finder = makeMinimumHeadingLevelFinder(
-    node.firstNamedChild?.type as HeadingMarkerType,
-  );
+	const finder = makeMinimumHeadingLevelFinder(
+		node.firstNamedChild?.type as HeadingMarkerType,
+	);
 
-  const { context, selection } = extendUntilNextMatchingSiblingOrLast(
-    editor,
-    node,
-    finder,
-  );
-  return {
-    context,
-    selection: selectionFromRange(
-      isReversed(selection),
-      shrinkRangeToFitContent(editor, selection),
-    ),
-  };
+	const { context, selection } = extendUntilNextMatchingSiblingOrLast(
+		editor,
+		node,
+		finder,
+	);
+	return {
+		context,
+		selection: selectionFromRange(
+			isReversed(selection),
+			shrinkRangeToFitContent(editor, selection),
+		),
+	};
 }
 
 function sectionMatcher(...patterns: string[]) {
-  const finder = patternFinder(...patterns);
+	const finder = patternFinder(...patterns);
 
-  return matcher(leadingSiblingNodeFinder(finder), sectionExtractor);
+	return matcher(leadingSiblingNodeFinder(finder), sectionExtractor);
 }
 
 const itemLeadingDelimiterExtractor = selectWithLeadingDelimiter(
-  "list_marker_parenthesis",
-  "list_marker_dot",
-  "list_marker_star",
-  "list_marker_minus",
-  "list_marker_plus",
+	"list_marker_parenthesis",
+	"list_marker_dot",
+	"list_marker_star",
+	"list_marker_minus",
+	"list_marker_plus",
 );
 
 function excludeTrailingNewline(editor: TextEditor, range: Range) {
-  const matches = getMatchesInRange(/\r?\n?$/g, editor, range);
+	const matches = getMatchesInRange(/\r?\n?$/g, editor, range);
 
-  if (matches.length > 0) {
-    return new Range(range.start, matches[0].start);
-  }
+	if (matches.length > 0) {
+		return new Range(range.start, matches[0].start);
+	}
 
-  return range;
+	return range;
 }
 
 function itemExtractor(editor: TextEditor, node: SyntaxNode) {
-  const { context, selection } = itemLeadingDelimiterExtractor(editor, node);
+	const { context, selection } = itemLeadingDelimiterExtractor(editor, node);
 
-  return {
-    context,
-    selection: selectionFromRange(
-      isReversed(selection),
-      excludeTrailingNewline(editor, selection),
-    ),
-  };
+	return {
+		context,
+		selection: selectionFromRange(
+			isReversed(selection),
+			excludeTrailingNewline(editor, selection),
+		),
+	};
 }
 
 const nodeMatchers: Partial<
-  Record<SimpleScopeTypeType, NodeMatcherAlternative>
+	Record<SimpleScopeTypeType, NodeMatcherAlternative>
 > = {
-  list: ["list"],
-  comment: "html_block",
-  name: matcher(
-    leadingSiblingNodeFinder(patternFinder("atx_heading[heading_content]")),
-    nameExtractor,
-  ),
-  collectionItem: matcher(patternFinder("list_item.paragraph!"), itemExtractor),
-  section: sectionMatcher("atx_heading"),
-  sectionLevelOne: sectionMatcher("atx_heading.atx_h1_marker"),
-  sectionLevelTwo: sectionMatcher("atx_heading.atx_h2_marker"),
-  sectionLevelThree: sectionMatcher("atx_heading.atx_h3_marker"),
-  sectionLevelFour: sectionMatcher("atx_heading.atx_h4_marker"),
-  sectionLevelFive: sectionMatcher("atx_heading.atx_h5_marker"),
-  sectionLevelSix: sectionMatcher("atx_heading.atx_h6_marker"),
+	list: ["list"],
+	comment: "html_block",
+	name: matcher(
+		leadingSiblingNodeFinder(patternFinder("atx_heading[heading_content]")),
+		nameExtractor,
+	),
+	collectionItem: matcher(patternFinder("list_item.paragraph!"), itemExtractor),
+	section: sectionMatcher("atx_heading"),
+	sectionLevelOne: sectionMatcher("atx_heading.atx_h1_marker"),
+	sectionLevelTwo: sectionMatcher("atx_heading.atx_h2_marker"),
+	sectionLevelThree: sectionMatcher("atx_heading.atx_h3_marker"),
+	sectionLevelFour: sectionMatcher("atx_heading.atx_h4_marker"),
+	sectionLevelFive: sectionMatcher("atx_heading.atx_h5_marker"),
+	sectionLevelSix: sectionMatcher("atx_heading.atx_h6_marker"),
 };
 
 export default createPatternMatchers(nodeMatchers);

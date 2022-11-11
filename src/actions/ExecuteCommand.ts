@@ -8,17 +8,17 @@ import CommandAction, { CommandOptions } from "./CommandAction";
  * Should only be used by the API. Internally go directly to {@link CommandAction}
  */
 export default class ExecuteCommand implements Action {
-  private commandAction: CommandAction;
+	private commandAction: CommandAction;
 
-  constructor(graph: Graph) {
-    this.commandAction = new CommandAction(graph);
-  }
+	constructor(graph: Graph) {
+		this.commandAction = new CommandAction(graph);
+	}
 
-  async run(
-    targets: [Target[]],
-    command: string,
-    args: CommandOptions = {},
-  ): Promise<ActionReturnValue> {
-    return this.commandAction.run(targets, { ...args, command });
-  }
+	async run(
+		targets: [Target[]],
+		command: string,
+		args: CommandOptions = {},
+	): Promise<ActionReturnValue> {
+		return this.commandAction.run(targets, { ...args, command });
+	}
 }

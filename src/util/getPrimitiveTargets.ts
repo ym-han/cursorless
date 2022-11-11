@@ -1,9 +1,9 @@
 import {
-  PartialPrimitiveTargetDescriptor,
-  PartialRangeTargetDescriptor,
-  PartialTargetDescriptor,
-  PrimitiveTargetDescriptor,
-  TargetDescriptor,
+	PartialPrimitiveTargetDescriptor,
+	PartialRangeTargetDescriptor,
+	PartialTargetDescriptor,
+	PrimitiveTargetDescriptor,
+	TargetDescriptor,
 } from "../typings/targetDescriptor.types";
 
 /**
@@ -14,20 +14,20 @@ import {
  * @returns A list of primitive targets
  */
 export function getPartialPrimitiveTargets(targets: PartialTargetDescriptor[]) {
-  return targets.flatMap(getPartialPrimitiveTargetsHelper);
+	return targets.flatMap(getPartialPrimitiveTargetsHelper);
 }
 
 function getPartialPrimitiveTargetsHelper(
-  target: PartialTargetDescriptor,
+	target: PartialTargetDescriptor,
 ): PartialPrimitiveTargetDescriptor[] {
-  switch (target.type) {
-    case "primitive":
-      return [target];
-    case "list":
-      return target.elements.flatMap(getPartialPrimitiveTargetsHelper);
-    case "range":
-      return [target.anchor, target.active];
-  }
+	switch (target.type) {
+		case "primitive":
+			return [target];
+		case "list":
+			return target.elements.flatMap(getPartialPrimitiveTargetsHelper);
+		case "range":
+			return [target.anchor, target.active];
+	}
 }
 /**
  * Given a list of targets, recursively descends all targets and returns every
@@ -37,20 +37,20 @@ function getPartialPrimitiveTargetsHelper(
  * @returns A list of primitive targets
  */
 export function getPrimitiveTargets(targets: TargetDescriptor[]) {
-  return targets.flatMap(getPrimitiveTargetsHelper);
+	return targets.flatMap(getPrimitiveTargetsHelper);
 }
 
 function getPrimitiveTargetsHelper(
-  target: TargetDescriptor,
+	target: TargetDescriptor,
 ): PrimitiveTargetDescriptor[] {
-  switch (target.type) {
-    case "primitive":
-      return [target];
-    case "list":
-      return target.elements.flatMap(getPrimitiveTargetsHelper);
-    case "range":
-      return [target.anchor, target.active];
-  }
+	switch (target.type) {
+		case "primitive":
+			return [target];
+		case "list":
+			return target.elements.flatMap(getPrimitiveTargetsHelper);
+		case "range":
+			return [target.anchor, target.active];
+	}
 }
 
 /**
@@ -61,40 +61,40 @@ function getPrimitiveTargetsHelper(
  * @returns A list of primitive targets
  */
 export function transformPartialPrimitiveTargets(
-  targets: PartialTargetDescriptor[],
-  func: (
-    target: PartialPrimitiveTargetDescriptor,
-  ) => PartialPrimitiveTargetDescriptor,
+	targets: PartialTargetDescriptor[],
+	func: (
+		target: PartialPrimitiveTargetDescriptor,
+	) => PartialPrimitiveTargetDescriptor,
 ) {
-  return targets.map((target) =>
-    transformPartialPrimitiveTargetsHelper(target, func),
-  );
+	return targets.map((target) =>
+		transformPartialPrimitiveTargetsHelper(target, func),
+	);
 }
 
 function transformPartialPrimitiveTargetsHelper(
-  target: PartialTargetDescriptor,
-  func: (
-    target: PartialPrimitiveTargetDescriptor,
-  ) => PartialPrimitiveTargetDescriptor,
+	target: PartialTargetDescriptor,
+	func: (
+		target: PartialPrimitiveTargetDescriptor,
+	) => PartialPrimitiveTargetDescriptor,
 ): PartialTargetDescriptor {
-  switch (target.type) {
-    case "primitive":
-      return func(target);
-    case "list":
-      return {
-        ...target,
-        elements: target.elements.map(
-          (element) =>
-            transformPartialPrimitiveTargetsHelper(element, func) as
-              | PartialPrimitiveTargetDescriptor
-              | PartialRangeTargetDescriptor,
-        ),
-      };
-    case "range":
-      return {
-        ...target,
-        anchor: func(target.anchor),
-        active: func(target.active),
-      };
-  }
+	switch (target.type) {
+		case "primitive":
+			return func(target);
+		case "list":
+			return {
+				...target,
+				elements: target.elements.map(
+					(element) =>
+						transformPartialPrimitiveTargetsHelper(element, func) as
+							| PartialPrimitiveTargetDescriptor
+							| PartialRangeTargetDescriptor,
+				),
+			};
+		case "range":
+			return {
+				...target,
+				anchor: func(target.anchor),
+				active: func(target.active),
+			};
+	}
 }

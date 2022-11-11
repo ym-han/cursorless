@@ -6,28 +6,28 @@ import { openNewEditor } from "../openNewEditor";
 import { endToEndTestSetup } from "../endToEndTestSetup";
 
 suite("Backward compatibility", async function () {
-  endToEndTestSetup(this);
+	endToEndTestSetup(this);
 
-  test("Backward compatibility", runTest);
+	test("Backward compatibility", runTest);
 });
 
 async function runTest() {
-  const { graph } = (await getCursorlessApi()).testHelpers!;
+	const { graph } = (await getCursorlessApi()).testHelpers!;
 
-  const editor = await openNewEditor("");
+	const editor = await openNewEditor("");
 
-  editor.selections = [new vscode.Selection(0, 0, 0, 0)];
+	editor.selections = [new vscode.Selection(0, 0, 0, 0)];
 
-  await graph.hatTokenMap.addDecorations();
+	await graph.hatTokenMap.addDecorations();
 
-  await vscode.commands.executeCommand(
-    CURSORLESS_COMMAND_ID,
-    "whatever",
-    "wrapWithPairedDelimiter",
-    [{ type: "primitive", selectionType: "line", mark: { type: "cursor" } }],
-    "(",
-    ")",
-  );
+	await vscode.commands.executeCommand(
+		CURSORLESS_COMMAND_ID,
+		"whatever",
+		"wrapWithPairedDelimiter",
+		[{ type: "primitive", selectionType: "line", mark: { type: "cursor" } }],
+		"(",
+		")",
+	);
 
-  assert.deepStrictEqual(editor.document.getText(), "()");
+	assert.deepStrictEqual(editor.document.getText(), "()");
 }

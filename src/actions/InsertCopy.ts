@@ -9,86 +9,86 @@ import { createThatMark, runOnTargetsForEachEditor } from "../util/targetUtils";
 import { Action, ActionReturnValue } from "./actions.types";
 
 class InsertCopy implements Action {
-  getFinalStages = () => [containingLineIfUntypedStage];
+	getFinalStages = () => [containingLineIfUntypedStage];
 
-  constructor(private graph: Graph, private isBefore: boolean) {
-    this.run = this.run.bind(this);
-    this.runForEditor = this.runForEditor.bind(this);
-  }
+	constructor(private graph: Graph, private isBefore: boolean) {
+		this.run = this.run.bind(this);
+		this.runForEditor = this.runForEditor.bind(this);
+	}
 
-  async run([targets]: [Target[]]): Promise<ActionReturnValue> {
-    const results = flatten(
-      await runOnTargetsForEachEditor(targets, this.runForEditor),
-    );
+	async run([targets]: [Target[]]): Promise<ActionReturnValue> {
+		const results = flatten(
+			await runOnTargetsForEachEditor(targets, this.runForEditor),
+		);
 
-    await this.graph.editStyles.displayPendingEditDecorationsForRanges(
-      results.flatMap((result) =>
-        result.thatMark.map((that) => ({
-          editor: that.editor,
-          range: that.selection,
-        })),
-      ),
-      this.graph.editStyles.justAdded,
-      true,
-    );
+		await this.graph.editStyles.displayPendingEditDecorationsForRanges(
+			results.flatMap((result) =>
+				result.thatMark.map((that) => ({
+					editor: that.editor,
+					range: that.selection,
+				})),
+			),
+			this.graph.editStyles.justAdded,
+			true,
+		);
 
-    return {
-      sourceSelections: results.flatMap(({ sourceMark }) => sourceMark),
-      thatSelections: results.flatMap(({ thatMark }) => thatMark),
-    };
-  }
+		return {
+			sourceSelections: results.flatMap(({ sourceMark }) => sourceMark),
+			thatSelections: results.flatMap(({ thatMark }) => thatMark),
+		};
+	}
 
-  private async runForEditor(editor: TextEditor, targets: Target[]) {
-    // isBefore is inverted because we want the selections to stay with what is to the user the "copy"
-    const position = this.isBefore ? "after" : "before";
-    const edits = targets.flatMap((target) =>
-      target.toPositionTarget(position).constructChangeEdit(target.contentText),
-    );
+	private async runForEditor(editor: TextEditor, targets: Target[]) {
+		// isBefore is inverted because we want the selections to stay with what is to the user the "copy"
+		const position = this.isBefore ? "after" : "before";
+		const edits = targets.flatMap((target) =>
+			target.toPositionTarget(position).constructChangeEdit(target.contentText),
+		);
 
-    const cursorSelections = { selections: editor.selections };
-    const contentSelections = {
-      selections: targets.map(({ contentSelection }) => contentSelection),
-    };
-    const editSelections = {
-      selections: edits.map(
-        ({ range }) => new Selection(range.start, range.end),
-      ),
-      rangeBehavior: DecorationRangeBehavior.OpenOpen,
-    };
+		const cursorSelections = { selections: editor.selections };
+		const contentSelections = {
+			selections: targets.map(({ contentSelection }) => contentSelection),
+		};
+		const editSelections = {
+			selections: edits.map(
+				({ range }) => new Selection(range.start, range.end),
+			),
+			rangeBehavior: DecorationRangeBehavior.OpenOpen,
+		};
 
-    const [
-      updatedEditorSelections,
-      updatedContentSelections,
-      updatedEditSelections,
-    ]: Selection[][] = await performEditsAndUpdateSelectionsWithBehavior(
-      this.graph.rangeUpdater,
-      editor,
-      edits,
-      [cursorSelections, contentSelections, editSelections],
-    );
+		const [
+			updatedEditorSelections,
+			updatedContentSelections,
+			updatedEditSelections,
+		]: Selection[][] = await performEditsAndUpdateSelectionsWithBehavior(
+			this.graph.rangeUpdater,
+			editor,
+			edits,
+			[cursorSelections, contentSelections, editSelections],
+		);
 
-    const insertionRanges = zip(edits, updatedEditSelections).map(
-      ([edit, selection]) => edit!.updateRange(selection!),
-    );
+		const insertionRanges = zip(edits, updatedEditSelections).map(
+			([edit, selection]) => edit!.updateRange(selection!),
+		);
 
-    setSelectionsWithoutFocusingEditor(editor, updatedEditorSelections);
-    editor.revealRange(editor.selection);
+		setSelectionsWithoutFocusingEditor(editor, updatedEditorSelections);
+		editor.revealRange(editor.selection);
 
-    return {
-      sourceMark: createThatMark(targets, insertionRanges),
-      thatMark: createThatMark(targets, updatedContentSelections),
-    };
-  }
+		return {
+			sourceMark: createThatMark(targets, insertionRanges),
+			thatMark: createThatMark(targets, updatedContentSelections),
+		};
+	}
 }
 
 export class CopyContentBefore extends InsertCopy {
-  constructor(graph: Graph) {
-    super(graph, true);
-  }
+	constructor(graph: Graph) {
+		super(graph, true);
+	}
 }
 
 export class CopyContentAfter extends InsertCopy {
-  constructor(graph: Graph) {
-    super(graph, false);
-  }
+	constructor(graph: Graph) {
+		super(graph, false);
+	}
 }

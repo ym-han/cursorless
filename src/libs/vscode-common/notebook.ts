@@ -9,12 +9,12 @@ import type { NotebookDocument, TextDocument } from "vscode";
  */
 
 export function getCellIndex(
-  notebookDocument: NotebookDocument,
-  document: TextDocument,
+	notebookDocument: NotebookDocument,
+	document: TextDocument,
 ) {
-  return notebookDocument
-    .getCells()
-    .findIndex(
-      (cell) => cell.document.uri.toString() === document.uri.toString(),
-    );
+	return notebookDocument
+		.getCells()
+		.findIndex(
+			(cell) => cell.document.uri.toString() === document.uri.toString(),
+		);
 }

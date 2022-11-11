@@ -10,19 +10,19 @@ export type StateKey = keyof StateType;
  * values.
  */
 export interface State {
-  /**
-   * Return a value.
-   *
-   * @param key A string.
-   * @return The stored value or the defaultValue.
-   */
-  get(key: StateKey): StateType[StateKey];
+	/**
+	 * Return a value.
+	 *
+	 * @param key A string.
+	 * @return The stored value or the defaultValue.
+	 */
+	get(key: StateKey): StateType[StateKey];
 
-  /**
-   * Store a value. The value must be JSON-stringifyable.
-   *
-   * @param key A string.
-   * @param value A value. MUST not contain cyclic references.
-   */
-  set(key: StateKey, value: StateType[StateKey]): Thenable<void>;
+	/**
+	 * Store a value. The value must be JSON-stringifyable.
+	 *
+	 * @param key A string.
+	 * @param value A value. MUST not contain cyclic references.
+	 */
+	set(key: StateKey, value: StateType[StateKey]): Thenable<void>;
 }

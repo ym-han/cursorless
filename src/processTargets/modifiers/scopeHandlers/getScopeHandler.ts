@@ -1,12 +1,12 @@
 import {
-  CharacterScopeHandler,
-  DocumentScopeHandler,
-  IdentifierScopeHandler,
-  LineScopeHandler,
-  TokenScopeHandler,
-  WordScopeHandler,
-  OneOfScopeHandler,
-  ParagraphScopeHandler,
+	CharacterScopeHandler,
+	DocumentScopeHandler,
+	IdentifierScopeHandler,
+	LineScopeHandler,
+	TokenScopeHandler,
+	WordScopeHandler,
+	OneOfScopeHandler,
+	ParagraphScopeHandler,
 } from ".";
 import type { ScopeType } from "../../../typings/targetDescriptor.types";
 import type { ScopeHandler } from "./scopeHandler.types";
@@ -29,27 +29,27 @@ import type { ScopeHandler } from "./scopeHandler.types";
  * legacy pathways
  */
 export default function getScopeHandler(
-  scopeType: ScopeType,
-  languageId: string,
+	scopeType: ScopeType,
+	languageId: string,
 ): ScopeHandler | undefined {
-  switch (scopeType.type) {
-    case "character":
-      return new CharacterScopeHandler(scopeType, languageId);
-    case "word":
-      return new WordScopeHandler(scopeType, languageId);
-    case "token":
-      return new TokenScopeHandler(scopeType, languageId);
-    case "identifier":
-      return new IdentifierScopeHandler(scopeType, languageId);
-    case "line":
-      return new LineScopeHandler(scopeType, languageId);
-    case "document":
-      return new DocumentScopeHandler(scopeType, languageId);
-    case "oneOf":
-      return new OneOfScopeHandler(scopeType, languageId);
-    case "paragraph":
-      return new ParagraphScopeHandler(scopeType, languageId);
-    default:
-      return undefined;
-  }
+	switch (scopeType.type) {
+		case "character":
+			return new CharacterScopeHandler(scopeType, languageId);
+		case "word":
+			return new WordScopeHandler(scopeType, languageId);
+		case "token":
+			return new TokenScopeHandler(scopeType, languageId);
+		case "identifier":
+			return new IdentifierScopeHandler(scopeType, languageId);
+		case "line":
+			return new LineScopeHandler(scopeType, languageId);
+		case "document":
+			return new DocumentScopeHandler(scopeType, languageId);
+		case "oneOf":
+			return new OneOfScopeHandler(scopeType, languageId);
+		case "paragraph":
+			return new ParagraphScopeHandler(scopeType, languageId);
+		default:
+			return undefined;
+	}
 }

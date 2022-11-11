@@ -1,11 +1,11 @@
 import { Location, Range, Selection, TextEditor } from "vscode";
 import { SyntaxNode } from "web-tree-sitter";
 import getTextFragmentExtractor, {
-  TextFragmentExtractor,
+	TextFragmentExtractor,
 } from "../../../languages/getTextFragmentExtractor";
 import {
-  ComplexSurroundingPairName,
-  SurroundingPairScopeType,
+	ComplexSurroundingPairName,
+	SurroundingPairScopeType,
 } from "../../../typings/targetDescriptor.types";
 import { ProcessedTargetsContext } from "../../../typings/Types";
 import { complexDelimiterMap } from "./delimiterMaps";
@@ -28,68 +28,68 @@ import { findSurroundingPairTextBased } from "./findSurroundingPairTextBased";
  * `null` if none was found
  */
 export function processSurroundingPair(
-  context: ProcessedTargetsContext,
-  editor: TextEditor,
-  range: Range,
-  scopeType: SurroundingPairScopeType,
+	context: ProcessedTargetsContext,
+	editor: TextEditor,
+	range: Range,
+	scopeType: SurroundingPairScopeType,
 ): SurroundingPairInfo | null {
-  const document = editor.document;
-  const delimiters = complexDelimiterMap[
-    scopeType.delimiter as ComplexSurroundingPairName
-  ] ?? [scopeType.delimiter];
+	const document = editor.document;
+	const delimiters = complexDelimiterMap[
+		scopeType.delimiter as ComplexSurroundingPairName
+	] ?? [scopeType.delimiter];
 
-  let node: SyntaxNode | null;
-  let textFragmentExtractor: TextFragmentExtractor;
+	let node: SyntaxNode | null;
+	let textFragmentExtractor: TextFragmentExtractor;
 
-  try {
-    node = context.getNodeAtLocation(new Location(document.uri, range));
+	try {
+		node = context.getNodeAtLocation(new Location(document.uri, range));
 
-    textFragmentExtractor = getTextFragmentExtractor(document.languageId);
-  } catch (err) {
-    if ((err as Error).name === "UnsupportedLanguageError") {
-      // If we're in a language where we don't have a parse tree we use the text
-      // based algorithm
-      return findSurroundingPairTextBased(
-        editor,
-        range,
-        null,
-        delimiters,
-        scopeType,
-      );
-    } else {
-      throw err;
-    }
-  }
+		textFragmentExtractor = getTextFragmentExtractor(document.languageId);
+	} catch (err) {
+		if ((err as Error).name === "UnsupportedLanguageError") {
+			// If we're in a language where we don't have a parse tree we use the text
+			// based algorithm
+			return findSurroundingPairTextBased(
+				editor,
+				range,
+				null,
+				delimiters,
+				scopeType,
+			);
+		} else {
+			throw err;
+		}
+	}
 
-  // If we have a parse tree but we are in a string node or in a comment node,
-  // then we use the text-based algorithm
-  const selectionWithEditor = {
-    editor,
-    selection: new Selection(range.start, range.end),
-  };
-  const textFragmentRange = textFragmentExtractor(node, selectionWithEditor);
-  if (textFragmentRange != null) {
-    const surroundingRange = findSurroundingPairTextBased(
-      editor,
-      range,
-      textFragmentRange,
-      delimiters,
-      scopeType,
-    );
+	// If we have a parse tree but we are in a string node or in a comment node,
+	// then we use the text-based algorithm
+	const selectionWithEditor = {
+		editor,
+		selection: new Selection(range.start, range.end),
+	};
+	const textFragmentRange = textFragmentExtractor(node, selectionWithEditor);
+	if (textFragmentRange != null) {
+		const surroundingRange = findSurroundingPairTextBased(
+			editor,
+			range,
+			textFragmentRange,
+			delimiters,
+			scopeType,
+		);
 
-    if (surroundingRange != null) {
-      return surroundingRange;
-    }
-  }
+		if (surroundingRange != null) {
+			return surroundingRange;
+		}
+	}
 
-  // If we have a parse tree and either we are not in a string or comment or we
-  // couldn't find a surrounding pair within a string or comment, we use the
-  // parse tree-based algorithm
-  return findSurroundingPairParseTreeBased(
-    editor,
-    range,
-    node,
-    delimiters,
-    scopeType,
-  );
+	// If we have a parse tree and either we are not in a string or comment or we
+	// couldn't find a surrounding pair within a string or comment, we use the
+	// parse tree-based algorithm
+	return findSurroundingPairParseTreeBased(
+		editor,
+		range,
+		node,
+		delimiters,
+		scopeType,
+	);
 }

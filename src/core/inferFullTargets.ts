@@ -1,14 +1,14 @@
 import {
-  Mark,
-  Modifier,
-  PartialListTargetDescriptor,
-  PartialPrimitiveTargetDescriptor,
-  PartialRangeTargetDescriptor,
-  PartialTargetDescriptor,
-  PositionModifier,
-  PrimitiveTargetDescriptor,
-  RangeTargetDescriptor,
-  TargetDescriptor,
+	Mark,
+	Modifier,
+	PartialListTargetDescriptor,
+	PartialPrimitiveTargetDescriptor,
+	PartialRangeTargetDescriptor,
+	PartialTargetDescriptor,
+	PositionModifier,
+	PrimitiveTargetDescriptor,
+	RangeTargetDescriptor,
+	TargetDescriptor,
 } from "../typings/targetDescriptor.types";
 
 /**
@@ -21,130 +21,130 @@ import {
  * @returns Target objects fully filled out and ready to be processed by {@link processTargets}.
  */
 export default function inferFullTargets(
-  targets: PartialTargetDescriptor[],
+	targets: PartialTargetDescriptor[],
 ): TargetDescriptor[] {
-  return targets.map((target, index) =>
-    inferTarget(target, targets.slice(0, index)),
-  );
+	return targets.map((target, index) =>
+		inferTarget(target, targets.slice(0, index)),
+	);
 }
 
 function inferTarget(
-  target: PartialTargetDescriptor,
-  previousTargets: PartialTargetDescriptor[],
+	target: PartialTargetDescriptor,
+	previousTargets: PartialTargetDescriptor[],
 ): TargetDescriptor {
-  switch (target.type) {
-    case "list":
-      return inferListTarget(target, previousTargets);
-    case "range":
-    case "primitive":
-      return inferNonListTarget(target, previousTargets);
-  }
+	switch (target.type) {
+		case "list":
+			return inferListTarget(target, previousTargets);
+		case "range":
+		case "primitive":
+			return inferNonListTarget(target, previousTargets);
+	}
 }
 
 function inferListTarget(
-  target: PartialListTargetDescriptor,
-  previousTargets: PartialTargetDescriptor[],
+	target: PartialListTargetDescriptor,
+	previousTargets: PartialTargetDescriptor[],
 ): TargetDescriptor {
-  return {
-    ...target,
-    elements: target.elements.map((element, index) =>
-      inferNonListTarget(
-        element,
-        previousTargets.concat(target.elements.slice(0, index)),
-      ),
-    ),
-  };
+	return {
+		...target,
+		elements: target.elements.map((element, index) =>
+			inferNonListTarget(
+				element,
+				previousTargets.concat(target.elements.slice(0, index)),
+			),
+		),
+	};
 }
 
 function inferNonListTarget(
-  target: PartialPrimitiveTargetDescriptor | PartialRangeTargetDescriptor,
-  previousTargets: PartialTargetDescriptor[],
+	target: PartialPrimitiveTargetDescriptor | PartialRangeTargetDescriptor,
+	previousTargets: PartialTargetDescriptor[],
 ): PrimitiveTargetDescriptor | RangeTargetDescriptor {
-  switch (target.type) {
-    case "primitive":
-      return inferPrimitiveTarget(target, previousTargets);
-    case "range":
-      return inferRangeTarget(target, previousTargets);
-  }
+	switch (target.type) {
+		case "primitive":
+			return inferPrimitiveTarget(target, previousTargets);
+		case "range":
+			return inferRangeTarget(target, previousTargets);
+	}
 }
 
 function inferRangeTarget(
-  target: PartialRangeTargetDescriptor,
-  previousTargets: PartialTargetDescriptor[],
+	target: PartialRangeTargetDescriptor,
+	previousTargets: PartialTargetDescriptor[],
 ): RangeTargetDescriptor {
-  return {
-    type: "range",
-    excludeAnchor: target.excludeAnchor ?? false,
-    excludeActive: target.excludeActive ?? false,
-    rangeType: target.rangeType ?? "continuous",
-    anchor: inferPrimitiveTarget(target.anchor, previousTargets),
-    active: inferPrimitiveTarget(
-      target.active,
-      previousTargets.concat(target.anchor),
-    ),
-  };
+	return {
+		type: "range",
+		excludeAnchor: target.excludeAnchor ?? false,
+		excludeActive: target.excludeActive ?? false,
+		rangeType: target.rangeType ?? "continuous",
+		anchor: inferPrimitiveTarget(target.anchor, previousTargets),
+		active: inferPrimitiveTarget(
+			target.active,
+			previousTargets.concat(target.anchor),
+		),
+	};
 }
 
 function inferPrimitiveTarget(
-  target: PartialPrimitiveTargetDescriptor,
-  previousTargets: PartialTargetDescriptor[],
+	target: PartialPrimitiveTargetDescriptor,
+	previousTargets: PartialTargetDescriptor[],
 ): PrimitiveTargetDescriptor {
-  if (target.isImplicit) {
-    return {
-      type: "primitive",
-      mark: { type: "cursor" },
-      modifiers: [{ type: "toRawSelection" }],
-    };
-  }
+	if (target.isImplicit) {
+		return {
+			type: "primitive",
+			mark: { type: "cursor" },
+			modifiers: [{ type: "toRawSelection" }],
+		};
+	}
 
-  const ownPositionModifier = getPositionModifier(target);
-  const ownModifiers = getPreservedModifiers(target);
+	const ownPositionModifier = getPositionModifier(target);
+	const ownModifiers = getPreservedModifiers(target);
 
-  const mark = target.mark ??
-    (shouldInferPreviousMark(target)
-      ? getPreviousMark(previousTargets)
-      : null) ?? {
-      type: "cursor",
-    };
+	const mark = target.mark ??
+		(shouldInferPreviousMark(target)
+			? getPreviousMark(previousTargets)
+			: null) ?? {
+			type: "cursor",
+		};
 
-  const modifiers =
-    ownModifiers ?? getPreviousPreservedModifiers(previousTargets) ?? [];
+	const modifiers =
+		ownModifiers ?? getPreviousPreservedModifiers(previousTargets) ?? [];
 
-  const positionModifier =
-    ownPositionModifier ?? getPreviousPositionModifier(previousTargets);
+	const positionModifier =
+		ownPositionModifier ?? getPreviousPositionModifier(previousTargets);
 
-  return {
-    type: target.type,
-    mark,
-    modifiers,
-    positionModifier,
-  };
+	return {
+		type: target.type,
+		mark,
+		modifiers,
+		positionModifier,
+	};
 }
 
 function getPositionModifier(
-  target: PartialPrimitiveTargetDescriptor,
+	target: PartialPrimitiveTargetDescriptor,
 ): PositionModifier | undefined {
-  if (target.modifiers == null) {
-    return undefined;
-  }
+	if (target.modifiers == null) {
+		return undefined;
+	}
 
-  const positionModifierIndex = target.modifiers.findIndex(
-    (modifier) => modifier.type === "position",
-  );
+	const positionModifierIndex = target.modifiers.findIndex(
+		(modifier) => modifier.type === "position",
+	);
 
-  if (positionModifierIndex > 0) {
-    throw Error("Position modifiers must be at the start of a modifier chain");
-  }
+	if (positionModifierIndex > 0) {
+		throw Error("Position modifiers must be at the start of a modifier chain");
+	}
 
-  return positionModifierIndex === -1
-    ? undefined
-    : (target.modifiers[positionModifierIndex] as PositionModifier);
+	return positionModifierIndex === -1
+		? undefined
+		: (target.modifiers[positionModifierIndex] as PositionModifier);
 }
 
 function shouldInferPreviousMark(
-  target: PartialPrimitiveTargetDescriptor,
+	target: PartialPrimitiveTargetDescriptor,
 ): boolean {
-  return target.modifiers?.some((m) => m.type === "inferPreviousMark") ?? false;
+	return target.modifiers?.some((m) => m.type === "inferPreviousMark") ?? false;
 }
 
 /**
@@ -160,35 +160,35 @@ function shouldInferPreviousMark(
  * @returns A list of preserved modifiers or `undefined` if there are none
  */
 function getPreservedModifiers(
-  target: PartialPrimitiveTargetDescriptor,
+	target: PartialPrimitiveTargetDescriptor,
 ): Modifier[] | undefined {
-  const preservedModifiers = target.modifiers?.filter(
-    (modifier) => !["position", "inferPreviousMark"].includes(modifier.type),
-  );
-  return preservedModifiers == null || preservedModifiers.length === 0
-    ? undefined
-    : preservedModifiers;
+	const preservedModifiers = target.modifiers?.filter(
+		(modifier) => !["position", "inferPreviousMark"].includes(modifier.type),
+	);
+	return preservedModifiers == null || preservedModifiers.length === 0
+		? undefined
+		: preservedModifiers;
 }
 
 function getPreviousMark(
-  previousTargets: PartialTargetDescriptor[],
+	previousTargets: PartialTargetDescriptor[],
 ): Mark | undefined {
-  return getPreviousTargetAttribute(
-    previousTargets,
-    (target: PartialPrimitiveTargetDescriptor) => target.mark,
-  );
+	return getPreviousTargetAttribute(
+		previousTargets,
+		(target: PartialPrimitiveTargetDescriptor) => target.mark,
+	);
 }
 
 function getPreviousPreservedModifiers(
-  previousTargets: PartialTargetDescriptor[],
+	previousTargets: PartialTargetDescriptor[],
 ): Modifier[] | undefined {
-  return getPreviousTargetAttribute(previousTargets, getPreservedModifiers);
+	return getPreviousTargetAttribute(previousTargets, getPreservedModifiers);
 }
 
 function getPreviousPositionModifier(
-  previousTargets: PartialTargetDescriptor[],
+	previousTargets: PartialTargetDescriptor[],
 ): PositionModifier | undefined {
-  return getPreviousTargetAttribute(previousTargets, getPositionModifier);
+	return getPreviousTargetAttribute(previousTargets, getPositionModifier);
 }
 
 /**
@@ -202,38 +202,38 @@ function getPreviousPositionModifier(
  * @returns The extracted attribute or undefined if one could not be found
  */
 function getPreviousTargetAttribute<T>(
-  previousTargets: PartialTargetDescriptor[],
-  getAttribute: (target: PartialPrimitiveTargetDescriptor) => T | undefined,
+	previousTargets: PartialTargetDescriptor[],
+	getAttribute: (target: PartialPrimitiveTargetDescriptor) => T | undefined,
 ): T | undefined {
-  // Search from back(last) to front(first)
-  for (let i = previousTargets.length - 1; i > -1; --i) {
-    const target = previousTargets[i];
-    switch (target.type) {
-      case "primitive": {
-        const attributeValue = getAttribute(target);
-        if (attributeValue != null) {
-          return attributeValue;
-        }
-        break;
-      }
-      case "range": {
-        const attributeValue = getAttribute(target.anchor);
-        if (attributeValue != null) {
-          return attributeValue;
-        }
-        break;
-      }
-      case "list": {
-        const attributeValue = getPreviousTargetAttribute(
-          target.elements,
-          getAttribute,
-        );
-        if (attributeValue != null) {
-          return attributeValue;
-        }
-        break;
-      }
-    }
-  }
-  return undefined;
+	// Search from back(last) to front(first)
+	for (let i = previousTargets.length - 1; i > -1; --i) {
+		const target = previousTargets[i];
+		switch (target.type) {
+			case "primitive": {
+				const attributeValue = getAttribute(target);
+				if (attributeValue != null) {
+					return attributeValue;
+				}
+				break;
+			}
+			case "range": {
+				const attributeValue = getAttribute(target.anchor);
+				if (attributeValue != null) {
+					return attributeValue;
+				}
+				break;
+			}
+			case "list": {
+				const attributeValue = getPreviousTargetAttribute(
+					target.elements,
+					getAttribute,
+				);
+				if (attributeValue != null) {
+					return attributeValue;
+				}
+				break;
+			}
+		}
+	}
+	return undefined;
 }

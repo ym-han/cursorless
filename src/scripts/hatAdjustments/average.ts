@@ -3,9 +3,9 @@
  */
 import { HAT_SHAPES } from "../../core/hatStyles";
 import {
-  defaultShapeAdjustments,
-  HatAdjustments,
-  IndividualHatAdjustmentMap,
+	defaultShapeAdjustments,
+	HatAdjustments,
+	IndividualHatAdjustmentMap,
 } from "../../core/shapeAdjustments";
 import { postProcessValue } from "./lib";
 
@@ -15,61 +15,61 @@ import { postProcessValue } from "./lib";
 const newAdjustments: Partial<IndividualHatAdjustmentMap> = {};
 
 function processProperty(
-  originalAdjustment: HatAdjustments,
-  newAdjustment: HatAdjustments,
-  propertyName: keyof HatAdjustments,
+	originalAdjustment: HatAdjustments,
+	newAdjustment: HatAdjustments,
+	propertyName: keyof HatAdjustments,
 ) {
-  const originalValue = originalAdjustment[propertyName] ?? 0;
-  const newAdjustmentValue = newAdjustment[propertyName] ?? 0;
-  const newValue = originalValue + newAdjustmentValue;
-  const value = (originalValue + newValue) / 2;
+	const originalValue = originalAdjustment[propertyName] ?? 0;
+	const newAdjustmentValue = newAdjustment[propertyName] ?? 0;
+	const newValue = originalValue + newAdjustmentValue;
+	const value = (originalValue + newValue) / 2;
 
-  return {
-    value: postProcessValue(value),
-    originalAdjustment: postProcessValue(originalValue - value),
-    newAdjustment: postProcessValue(newValue - value),
-  };
+	return {
+		value: postProcessValue(value),
+		originalAdjustment: postProcessValue(originalValue - value),
+		newAdjustment: postProcessValue(newValue - value),
+	};
 }
 
 function main() {
-  const fullMap = Object.fromEntries(
-    HAT_SHAPES.map((shape) => {
-      const originalAdjustment = defaultShapeAdjustments[shape] ?? {};
-      const newAdjustment = newAdjustments[shape] ?? {};
+	const fullMap = Object.fromEntries(
+		HAT_SHAPES.map((shape) => {
+			const originalAdjustment = defaultShapeAdjustments[shape] ?? {};
+			const newAdjustment = newAdjustments[shape] ?? {};
 
-      return [
-        shape,
-        {
-          sizeAdjustment: processProperty(
-            originalAdjustment,
-            newAdjustment,
-            "sizeAdjustment",
-          ),
-          verticalOffset: processProperty(
-            originalAdjustment,
-            newAdjustment,
-            "verticalOffset",
-          ),
-        },
-      ];
-    }),
-  );
+			return [
+				shape,
+				{
+					sizeAdjustment: processProperty(
+						originalAdjustment,
+						newAdjustment,
+						"sizeAdjustment",
+					),
+					verticalOffset: processProperty(
+						originalAdjustment,
+						newAdjustment,
+						"verticalOffset",
+					),
+				},
+			];
+		}),
+	);
 
-  (["value", "originalAdjustment", "newAdjustment"] as const).forEach((key) => {
-    const map = Object.fromEntries(
-      HAT_SHAPES.map((shape) => {
-        return [
-          shape,
-          {
-            sizeAdjustment: fullMap[shape].sizeAdjustment[key],
-            verticalOffset: fullMap[shape].verticalOffset[key],
-          },
-        ];
-      }),
-    ) as IndividualHatAdjustmentMap;
-    console.log(`${key}: `);
-    console.log(JSON.stringify(map, null, 2));
-  });
+	(["value", "originalAdjustment", "newAdjustment"] as const).forEach((key) => {
+		const map = Object.fromEntries(
+			HAT_SHAPES.map((shape) => {
+				return [
+					shape,
+					{
+						sizeAdjustment: fullMap[shape].sizeAdjustment[key],
+						verticalOffset: fullMap[shape].verticalOffset[key],
+					},
+				];
+			}),
+		) as IndividualHatAdjustmentMap;
+		console.log(`${key}: `);
+		console.log(JSON.stringify(map, null, 2));
+	});
 }
 
 main();

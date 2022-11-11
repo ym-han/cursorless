@@ -10,14 +10,14 @@ import { flatten } from "lodash";
  * @returns
  */
 export const walkFiles = async (dir: string): Promise<string[]> => {
-  const dirEntries = await readdir(dir, { withFileTypes: true });
+	const dirEntries = await readdir(dir, { withFileTypes: true });
 
-  return flatten(
-    await Promise.all(
-      dirEntries.map(async (dirent) => {
-        const filePath = path.join(dir, dirent.name);
-        return dirent.isDirectory() ? await walkFiles(filePath) : [filePath];
-      }),
-    ),
-  );
+	return flatten(
+		await Promise.all(
+			dirEntries.map(async (dirent) => {
+				const filePath = path.join(dir, dirent.name);
+				return dirent.isDirectory() ? await walkFiles(filePath) : [filePath];
+			}),
+		),
+	);
 };

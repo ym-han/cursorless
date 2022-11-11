@@ -15,62 +15,62 @@ import { CommandTarget, State } from "./EditNew.types";
  * @returns An updated `state` object
  */
 export async function runCommandTargets(
-  graph: Graph,
-  editor: TextEditor,
-  state: State,
+	graph: Graph,
+	editor: TextEditor,
+	state: State,
 ): Promise<State> {
-  const commandTargets: CommandTarget[] = state.targets
-    .map((target, index) => {
-      const context = target.getEditNewContext();
-      if (context.type === "command") {
-        return {
-          target,
-          index,
-          command: context.command,
-        };
-      }
-    })
-    .filter((target): target is CommandTarget => !!target);
+	const commandTargets: CommandTarget[] = state.targets
+		.map((target, index) => {
+			const context = target.getEditNewContext();
+			if (context.type === "command") {
+				return {
+					target,
+					index,
+					command: context.command,
+				};
+			}
+		})
+		.filter((target): target is CommandTarget => !!target);
 
-  if (commandTargets.length === 0) {
-    return state;
-  }
+	if (commandTargets.length === 0) {
+		return state;
+	}
 
-  const command = ensureSingleCommand(commandTargets);
+	const command = ensureSingleCommand(commandTargets);
 
-  await graph.actions.setSelection.run([
-    commandTargets.map(({ target }) => target),
-  ]);
+	await graph.actions.setSelection.run([
+		commandTargets.map(({ target }) => target),
+	]);
 
-  const [updatedTargetRanges, updatedThatRanges] =
-    await callFunctionAndUpdateRanges(
-      graph.rangeUpdater,
-      () => commands.executeCommand(command),
-      editor.document,
-      [state.targets.map(({ contentRange }) => contentRange), state.thatRanges],
-    );
+	const [updatedTargetRanges, updatedThatRanges] =
+		await callFunctionAndUpdateRanges(
+			graph.rangeUpdater,
+			() => commands.executeCommand(command),
+			editor.document,
+			[state.targets.map(({ contentRange }) => contentRange), state.thatRanges],
+		);
 
-  // For each of the given command targets, the cursor will go where it ended
-  // up after running the command.  We add it to the state so that any
-  // potential edit targets can update them after we return from this function.
-  const cursorRanges = [...state.cursorRanges];
-  commandTargets.forEach((commandTarget, index) => {
-    cursorRanges[commandTarget.index] = editor.selections[index];
-  });
+	// For each of the given command targets, the cursor will go where it ended
+	// up after running the command.  We add it to the state so that any
+	// potential edit targets can update them after we return from this function.
+	const cursorRanges = [...state.cursorRanges];
+	commandTargets.forEach((commandTarget, index) => {
+		cursorRanges[commandTarget.index] = editor.selections[index];
+	});
 
-  return {
-    targets: state.targets.map((target, index) =>
-      target.withContentRange(updatedTargetRanges[index]),
-    ),
-    thatRanges: updatedThatRanges,
-    cursorRanges,
-  };
+	return {
+		targets: state.targets.map((target, index) =>
+			target.withContentRange(updatedTargetRanges[index]),
+		),
+		thatRanges: updatedThatRanges,
+		cursorRanges,
+	};
 }
 
 function ensureSingleCommand(targets: CommandTarget[]) {
-  const commands = targets.map((target) => target.command);
-  if (new Set(commands).size > 1) {
-    throw new Error("Can't run different commands at once");
-  }
-  return commands[0];
+	const commands = targets.map((target) => target.command);
+	if (new Set(commands).size > 1) {
+		throw new Error("Can't run different commands at once");
+	}
+	return commands[0];
 }

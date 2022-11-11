@@ -2,10 +2,10 @@ import { Position, Range, Selection, TextEditor } from "vscode";
 import { UntypedTarget } from "../processTargets/targets";
 import type { Target } from "../typings/target.types";
 import type {
-  PositionPlainObject,
-  RangePlainObject,
-  SelectionPlainObject,
-  TargetPlainObject,
+	PositionPlainObject,
+	RangePlainObject,
+	SelectionPlainObject,
+	TargetPlainObject,
 } from "../libs/vscode-common/toPlainObject";
 
 /**
@@ -22,39 +22,39 @@ import type {
  * @returns A `Target` constructed from the given plain object
  */
 export function plainObjectToTarget(
-  editor: TextEditor,
-  plainObject: TargetPlainObject,
+	editor: TextEditor,
+	plainObject: TargetPlainObject,
 ): Target {
-  switch (plainObject.type) {
-    case "UntypedTarget":
-      return new UntypedTarget({
-        editor,
-        isReversed: plainObject.isReversed,
-        contentRange: plainObjectToRange(plainObject.contentRange),
-        hasExplicitRange: plainObject.hasExplicitRange,
-      });
-    default:
-      throw Error(`Unsupported target type ${plainObject.type}`);
-  }
+	switch (plainObject.type) {
+		case "UntypedTarget":
+			return new UntypedTarget({
+				editor,
+				isReversed: plainObject.isReversed,
+				contentRange: plainObjectToRange(plainObject.contentRange),
+				hasExplicitRange: plainObject.hasExplicitRange,
+			});
+		default:
+			throw Error(`Unsupported target type ${plainObject.type}`);
+	}
 }
 
 export function plainObjectToPosition({
-  line,
-  character,
+	line,
+	character,
 }: PositionPlainObject): Position {
-  return new Position(line, character);
+	return new Position(line, character);
 }
 
 export function plainObjectToRange({ start, end }: RangePlainObject): Range {
-  return new Range(plainObjectToPosition(start), plainObjectToPosition(end));
+	return new Range(plainObjectToPosition(start), plainObjectToPosition(end));
 }
 
 export function plainObjectToSelection({
-  anchor,
-  active,
+	anchor,
+	active,
 }: SelectionPlainObject): Selection {
-  return new Selection(
-    plainObjectToPosition(anchor),
-    plainObjectToPosition(active),
-  );
+	return new Selection(
+		plainObjectToPosition(anchor),
+		plainObjectToPosition(active),
+	);
 }

@@ -18,32 +18,32 @@ let retryCount = -1;
 let previousTestTitle = "";
 
 export function endToEndTestSetup(suite: Mocha.Suite) {
-  suite.timeout("100s");
-  suite.retries(5);
+	suite.timeout("100s");
+	suite.retries(5);
 
-  let ide: IDE | undefined;
-  let injectIde: ((ide: IDE) => void) | undefined;
-  let spy: SpyIDE | undefined;
+	let ide: IDE | undefined;
+	let injectIde: ((ide: IDE) => void) | undefined;
+	let spy: SpyIDE | undefined;
 
-  setup(async function (this: Context) {
-    const title = this.test!.fullTitle();
-    retryCount = title === previousTestTitle ? retryCount + 1 : 0;
-    previousTestTitle = title;
-    ({ ide, injectIde } = (await getCursorlessApi()).testHelpers!);
-    spy = new SpyIDE(ide!);
-    injectIde!(spy);
-  });
+	setup(async function (this: Context) {
+		const title = this.test!.fullTitle();
+		retryCount = title === previousTestTitle ? retryCount + 1 : 0;
+		previousTestTitle = title;
+		({ ide, injectIde } = (await getCursorlessApi()).testHelpers!);
+		spy = new SpyIDE(ide!);
+		injectIde!(spy);
+	});
 
-  teardown(() => {
-    sinon.restore();
-    injectIde!(ide!);
-  });
+	teardown(() => {
+		sinon.restore();
+		injectIde!(ide!);
+	});
 
-  return {
-    getSpy() {
-      return spy;
-    },
-  };
+	return {
+		getSpy() {
+			return spy;
+		},
+	};
 }
 
 /**
@@ -57,9 +57,9 @@ export function endToEndTestSetup(suite: Mocha.Suite) {
  * @returns A promise that will resolve when the sleep is over
  */
 export function sleepWithBackoff(ms: number) {
-  const timeToSleep = shouldUpdateFixtures()
-    ? ms * 2
-    : ms * Math.pow(2, retryCount - 2);
+	const timeToSleep = shouldUpdateFixtures()
+		? ms * 2
+		: ms * Math.pow(2, retryCount - 2);
 
-  return sleep(timeToSleep);
+	return sleep(timeToSleep);
 }

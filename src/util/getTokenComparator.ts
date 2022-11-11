@@ -7,29 +7,29 @@ import { Token } from "../typings/Types";
  * @param selectionCharacterIndex The character index of current cursor within line
  */
 export function getTokenComparator(
-  selectionDisplayLine: number,
-  selectionCharacterIndex: number,
+	selectionDisplayLine: number,
+	selectionCharacterIndex: number,
 ): (a: Token, b: Token) => number {
-  return (token1, token2) => {
-    const token1LineDiff = Math.abs(token1.displayLine - selectionDisplayLine);
-    const token2LineDiff = Math.abs(token2.displayLine - selectionDisplayLine);
+	return (token1, token2) => {
+		const token1LineDiff = Math.abs(token1.displayLine - selectionDisplayLine);
+		const token2LineDiff = Math.abs(token2.displayLine - selectionDisplayLine);
 
-    if (token1LineDiff < token2LineDiff) {
-      return -1;
-    }
+		if (token1LineDiff < token2LineDiff) {
+			return -1;
+		}
 
-    if (token1LineDiff > token2LineDiff) {
-      return 1;
-    }
+		if (token1LineDiff > token2LineDiff) {
+			return 1;
+		}
 
-    const token1CharacterDiff = Math.abs(
-      token1.range.start.character - selectionCharacterIndex,
-    );
+		const token1CharacterDiff = Math.abs(
+			token1.range.start.character - selectionCharacterIndex,
+		);
 
-    const token2CharacterDiff = Math.abs(
-      token2.range.start.character - selectionCharacterIndex,
-    );
+		const token2CharacterDiff = Math.abs(
+			token2.range.start.character - selectionCharacterIndex,
+		);
 
-    return token1CharacterDiff - token2CharacterDiff;
-  };
+		return token1CharacterDiff - token2CharacterDiff;
+	};
 }

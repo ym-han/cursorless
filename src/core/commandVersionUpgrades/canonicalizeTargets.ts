@@ -1,54 +1,54 @@
 import update from "immutability-helper";
 import { flow } from "lodash";
 import {
-  PartialPrimitiveTargetDescriptor,
-  PartialTargetDescriptor,
-  SimpleScopeTypeType,
+	PartialPrimitiveTargetDescriptor,
+	PartialTargetDescriptor,
+	SimpleScopeTypeType,
 } from "../../typings/targetDescriptor.types";
 import { transformPartialPrimitiveTargets } from "../../util/getPrimitiveTargets";
 import { HatStyleName } from "../hatStyles";
 
 const SCOPE_TYPE_CANONICALIZATION_MAPPING: Record<string, SimpleScopeTypeType> =
-  {
-    arrowFunction: "anonymousFunction",
-    dictionary: "map",
-    regex: "regularExpression",
-  };
+	{
+		arrowFunction: "anonymousFunction",
+		dictionary: "map",
+		regex: "regularExpression",
+	};
 
 const COLOR_CANONICALIZATION_MAPPING: Record<string, HatStyleName> = {
-  purple: "pink",
+	purple: "pink",
 };
 
 const canonicalizeScopeTypes = (
-  target: PartialPrimitiveTargetDescriptor,
+	target: PartialPrimitiveTargetDescriptor,
 ): PartialPrimitiveTargetDescriptor => {
-  target.modifiers?.forEach((mod) => {
-    if (mod.type === "containingScope" || mod.type === "everyScope") {
-      mod.scopeType.type =
-        SCOPE_TYPE_CANONICALIZATION_MAPPING[mod.scopeType.type] ??
-        mod.scopeType.type;
-    }
-  });
-  return target;
+	target.modifiers?.forEach((mod) => {
+		if (mod.type === "containingScope" || mod.type === "everyScope") {
+			mod.scopeType.type =
+				SCOPE_TYPE_CANONICALIZATION_MAPPING[mod.scopeType.type] ??
+				mod.scopeType.type;
+		}
+	});
+	return target;
 };
 
 const canonicalizeColors = (
-  target: PartialPrimitiveTargetDescriptor,
+	target: PartialPrimitiveTargetDescriptor,
 ): PartialPrimitiveTargetDescriptor =>
-  target.mark?.type === "decoratedSymbol"
-    ? update(target, {
-        mark: {
-          symbolColor: (symbolColor: string) =>
-            COLOR_CANONICALIZATION_MAPPING[symbolColor] ?? symbolColor,
-        },
-      })
-    : target;
+	target.mark?.type === "decoratedSymbol"
+		? update(target, {
+				mark: {
+					symbolColor: (symbolColor: string) =>
+						COLOR_CANONICALIZATION_MAPPING[symbolColor] ?? symbolColor,
+				},
+		  })
+		: target;
 
 export default function canonicalizeTargets(
-  partialTargets: PartialTargetDescriptor[],
+	partialTargets: PartialTargetDescriptor[],
 ) {
-  return transformPartialPrimitiveTargets(
-    partialTargets,
-    flow(canonicalizeScopeTypes, canonicalizeColors),
-  );
+	return transformPartialPrimitiveTargets(
+		partialTargets,
+		flow(canonicalizeScopeTypes, canonicalizeColors),
+	);
 }

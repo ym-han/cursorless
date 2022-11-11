@@ -15,23 +15,23 @@ import { ScopeHandler } from "./scopeHandler.types";
  * @returns
  */
 export default function getScopeRelativeToPosition(
-  scopeHandler: ScopeHandler,
-  editor: TextEditor,
-  position: Position,
-  offset: number,
-  direction: Direction,
+	scopeHandler: ScopeHandler,
+	editor: TextEditor,
+	position: Position,
+	offset: number,
+	direction: Direction,
 ): TargetScope {
-  let scopeCount = 0;
-  const iterator = scopeHandler.generateScopes(editor, position, direction, {
-    containment: "disallowedIfStrict",
-  });
-  for (const scope of iterator) {
-    scopeCount += 1;
+	let scopeCount = 0;
+	const iterator = scopeHandler.generateScopes(editor, position, direction, {
+		containment: "disallowedIfStrict",
+	});
+	for (const scope of iterator) {
+		scopeCount += 1;
 
-    if (scopeCount === offset) {
-      return scope;
-    }
-  }
+		if (scopeCount === offset) {
+			return scope;
+		}
+	}
 
-  throw new OutOfRangeError();
+	throw new OutOfRangeError();
 }

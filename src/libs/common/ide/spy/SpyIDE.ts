@@ -1,9 +1,9 @@
 import { pickBy, values } from "lodash";
 import type {
-  Disposable,
-  IDE,
-  RunMode,
-  WorkspaceFolder,
+	Disposable,
+	IDE,
+	RunMode,
+	WorkspaceFolder,
 } from "../types/ide.types";
 import type { Configuration } from "../types/Configuration";
 import type { State } from "../types/State";
@@ -11,45 +11,45 @@ import SpyMessages, { Message } from "./SpyMessages";
 import type { Clipboard } from "../types/Clipboard";
 
 export interface SpyIDERecordedValues {
-  messages?: Message[];
+	messages?: Message[];
 }
 
 export default class SpyIDE implements IDE {
-  configuration: Configuration;
-  globalState: State;
-  clipboard: Clipboard;
-  messages: SpyMessages;
+	configuration: Configuration;
+	globalState: State;
+	clipboard: Clipboard;
+	messages: SpyMessages;
 
-  constructor(private original: IDE) {
-    this.configuration = original.configuration;
-    this.globalState = original.globalState;
-    this.clipboard = original.clipboard;
-    this.messages = new SpyMessages(original.messages);
-  }
+	constructor(private original: IDE) {
+		this.configuration = original.configuration;
+		this.globalState = original.globalState;
+		this.clipboard = original.clipboard;
+		this.messages = new SpyMessages(original.messages);
+	}
 
-  public get assetsRoot(): string {
-    return this.original.assetsRoot;
-  }
+	public get assetsRoot(): string {
+		return this.original.assetsRoot;
+	}
 
-  public get runMode(): RunMode {
-    return this.original.runMode;
-  }
+	public get runMode(): RunMode {
+		return this.original.runMode;
+	}
 
-  public get workspaceFolders(): readonly WorkspaceFolder[] | undefined {
-    return this.original.workspaceFolders;
-  }
+	public get workspaceFolders(): readonly WorkspaceFolder[] | undefined {
+		return this.original.workspaceFolders;
+	}
 
-  disposeOnExit(...disposables: Disposable[]): () => void {
-    return this.original.disposeOnExit(...disposables);
-  }
+	disposeOnExit(...disposables: Disposable[]): () => void {
+		return this.original.disposeOnExit(...disposables);
+	}
 
-  getSpyValues(): SpyIDERecordedValues | undefined {
-    const ret = {
-      messages: this.messages.getSpyValues(),
-    };
+	getSpyValues(): SpyIDERecordedValues | undefined {
+		const ret = {
+			messages: this.messages.getSpyValues(),
+		};
 
-    return values(ret).every((value) => value == null)
-      ? undefined
-      : pickBy(ret, (value) => value != null);
-  }
+		return values(ret).every((value) => value == null)
+			? undefined
+			: pickBy(ret, (value) => value != null);
+	}
 }

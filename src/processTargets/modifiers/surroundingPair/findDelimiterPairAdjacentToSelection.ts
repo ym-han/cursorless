@@ -2,10 +2,10 @@ import { SurroundingPairScopeType } from "../../../typings/targetDescriptor.type
 import { findOppositeDelimiter } from "./findOppositeDelimiter";
 import { getSurroundingPairOffsets } from "./getSurroundingPairOffsets";
 import {
-  DelimiterOccurrence,
-  Offsets,
-  PossibleDelimiterOccurrence,
-  SurroundingPairOffsets,
+	DelimiterOccurrence,
+	Offsets,
+	PossibleDelimiterOccurrence,
+	SurroundingPairOffsets,
 } from "./types";
 import { weaklyContains } from "./weaklyContains";
 
@@ -27,51 +27,51 @@ import { weaklyContains } from "./weaklyContains";
  * can't be found in the given list of delimiter occurrences.
  */
 export function findDelimiterPairAdjacentToSelection(
-  initialIndex: number,
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  selectionOffsets: Offsets,
-  scopeType: SurroundingPairScopeType,
-  bailOnUnmatchedAdjacent: boolean = false,
+	initialIndex: number,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	selectionOffsets: Offsets,
+	scopeType: SurroundingPairScopeType,
+	bailOnUnmatchedAdjacent: boolean = false,
 ): SurroundingPairOffsets | null {
-  const indicesToTry = [initialIndex + 1, initialIndex];
+	const indicesToTry = [initialIndex + 1, initialIndex];
 
-  for (const index of indicesToTry) {
-    const delimiterOccurrence = delimiterOccurrences[index];
+	for (const index of indicesToTry) {
+		const delimiterOccurrence = delimiterOccurrences[index];
 
-    if (
-      delimiterOccurrence != null &&
-      weaklyContains(delimiterOccurrence.offsets, selectionOffsets)
-    ) {
-      const { delimiterInfo } = delimiterOccurrence;
+		if (
+			delimiterOccurrence != null &&
+			weaklyContains(delimiterOccurrence.offsets, selectionOffsets)
+		) {
+			const { delimiterInfo } = delimiterOccurrence;
 
-      if (delimiterInfo != null) {
-        const possibleMatch = findOppositeDelimiter(
-          delimiterOccurrences,
-          index,
-          delimiterInfo,
-          scopeType.forceDirection,
-        );
+			if (delimiterInfo != null) {
+				const possibleMatch = findOppositeDelimiter(
+					delimiterOccurrences,
+					index,
+					delimiterInfo,
+					scopeType.forceDirection,
+				);
 
-        if (possibleMatch != null) {
-          const surroundingPairOffsets = getSurroundingPairOffsets(
-            delimiterOccurrence as DelimiterOccurrence,
-            possibleMatch,
-          );
+				if (possibleMatch != null) {
+					const surroundingPairOffsets = getSurroundingPairOffsets(
+						delimiterOccurrence as DelimiterOccurrence,
+						possibleMatch,
+					);
 
-          if (
-            !scopeType.requireStrongContainment ||
-            (surroundingPairOffsets.leftDelimiter.start <
-              selectionOffsets.start &&
-              surroundingPairOffsets.rightDelimiter.end > selectionOffsets.end)
-          ) {
-            return surroundingPairOffsets;
-          }
-        } else if (bailOnUnmatchedAdjacent) {
-          return null;
-        }
-      }
-    }
-  }
+					if (
+						!scopeType.requireStrongContainment ||
+						(surroundingPairOffsets.leftDelimiter.start <
+							selectionOffsets.start &&
+							surroundingPairOffsets.rightDelimiter.end > selectionOffsets.end)
+					) {
+						return surroundingPairOffsets;
+					}
+				} else if (bailOnUnmatchedAdjacent) {
+					return null;
+				}
+			}
+		}
+	}
 
-  return null;
+	return null;
 }

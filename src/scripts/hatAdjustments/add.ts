@@ -4,9 +4,9 @@
 import { sum } from "lodash";
 import { HAT_SHAPES } from "../../core/hatStyles";
 import {
-  defaultShapeAdjustments,
-  HatAdjustments,
-  IndividualHatAdjustmentMap,
+	defaultShapeAdjustments,
+	HatAdjustments,
+	IndividualHatAdjustmentMap,
 } from "../../core/shapeAdjustments";
 import { postProcessValue } from "./lib";
 
@@ -16,39 +16,39 @@ import { postProcessValue } from "./lib";
 const newAdjustments: Partial<IndividualHatAdjustmentMap> = {};
 
 const adjustments: Partial<IndividualHatAdjustmentMap>[] = [
-  newAdjustments,
-  defaultShapeAdjustments,
+	newAdjustments,
+	defaultShapeAdjustments,
 ];
 
 function processProperty(
-  hatAdjustmentsList: HatAdjustments[],
-  propertyName: keyof HatAdjustments,
+	hatAdjustmentsList: HatAdjustments[],
+	propertyName: keyof HatAdjustments,
 ) {
-  const value = sum(
-    hatAdjustmentsList.map((adjustment) => adjustment[propertyName] ?? 0),
-  );
+	const value = sum(
+		hatAdjustmentsList.map((adjustment) => adjustment[propertyName] ?? 0),
+	);
 
-  return postProcessValue(value);
+	return postProcessValue(value);
 }
 
 function main() {
-  const finalMap = Object.fromEntries(
-    HAT_SHAPES.map((shape) => {
-      const adjustmentsList = adjustments.map(
-        (adjustment) => adjustment[shape] ?? {},
-      );
+	const finalMap = Object.fromEntries(
+		HAT_SHAPES.map((shape) => {
+			const adjustmentsList = adjustments.map(
+				(adjustment) => adjustment[shape] ?? {},
+			);
 
-      return [
-        shape,
-        {
-          sizeAdjustment: processProperty(adjustmentsList, "sizeAdjustment"),
-          verticalOffset: processProperty(adjustmentsList, "verticalOffset"),
-        },
-      ];
-    }),
-  ) as IndividualHatAdjustmentMap;
+			return [
+				shape,
+				{
+					sizeAdjustment: processProperty(adjustmentsList, "sizeAdjustment"),
+					verticalOffset: processProperty(adjustmentsList, "verticalOffset"),
+				},
+			];
+		}),
+	) as IndividualHatAdjustmentMap;
 
-  console.log(JSON.stringify(finalMap, null, 2));
+	console.log(JSON.stringify(finalMap, null, 2));
 }
 
 main();

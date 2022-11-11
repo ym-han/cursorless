@@ -5,67 +5,67 @@ import { Graph } from "../typings/Types";
  * Contains measurements for the user's font
  */
 export default class FontMeasurements {
-  fontSize!: number;
+	fontSize!: number;
 
-  /**
-   * The width of a character in the user's chosen font and font size.
-   */
-  characterWidth!: number;
+	/**
+	 * The width of a character in the user's chosen font and font size.
+	 */
+	characterWidth!: number;
 
-  /**
-   * The height of a character in the user's chosen font and font size. The
-   * height is measured from the baseline to the top of a letter
-   */
-  characterHeight!: number;
+	/**
+	 * The height of a character in the user's chosen font and font size. The
+	 * height is measured from the baseline to the top of a letter
+	 */
+	characterHeight!: number;
 
-  private extensionContext!: vscode.ExtensionContext;
-  private initialized = false;
+	private extensionContext!: vscode.ExtensionContext;
+	private initialized = false;
 
-  constructor(private graph: Graph) {}
+	constructor(private graph: Graph) {}
 
-  init(extensionContext: vscode.ExtensionContext) {
-    this.extensionContext = extensionContext;
-    this.initialized = true;
-  }
+	init(extensionContext: vscode.ExtensionContext) {
+		this.extensionContext = extensionContext;
+		this.initialized = true;
+	}
 
-  clearCache() {
-    if (!this.initialized) {
-      throw Error("Font measurements used before initialization");
-    }
+	clearCache() {
+		if (!this.initialized) {
+			throw Error("Font measurements used before initialization");
+		}
 
-    this.extensionContext.globalState.update("fontRatios", undefined);
-  }
+		this.extensionContext.globalState.update("fontRatios", undefined);
+	}
 
-  async calculate() {
-    if (!this.initialized) {
-      throw Error("Font measurements used before initialization");
-    }
+	async calculate() {
+		if (!this.initialized) {
+			throw Error("Font measurements used before initialization");
+		}
 
-    const fontFamily = getFontFamily();
-    let widthRatio, heightRatio;
-    const fontRatiosCache = this.extensionContext.globalState.get<{
-      widthRatio: number;
-      heightRatio: number;
-      fontFamily: string;
-    }>("fontRatios");
+		const fontFamily = getFontFamily();
+		let widthRatio, heightRatio;
+		const fontRatiosCache = this.extensionContext.globalState.get<{
+			widthRatio: number;
+			heightRatio: number;
+			fontFamily: string;
+		}>("fontRatios");
 
-    if (fontRatiosCache == null || fontRatiosCache.fontFamily !== fontFamily) {
-      const fontRatios = await getFontRatios();
-      this.extensionContext.globalState.update("fontRatios", {
-        ...fontRatios,
-        fontFamily,
-      });
-      widthRatio = fontRatios.widthRatio;
-      heightRatio = fontRatios.heightRatio;
-    } else {
-      widthRatio = fontRatiosCache.widthRatio;
-      heightRatio = fontRatiosCache.heightRatio;
-    }
+		if (fontRatiosCache == null || fontRatiosCache.fontFamily !== fontFamily) {
+			const fontRatios = await getFontRatios();
+			this.extensionContext.globalState.update("fontRatios", {
+				...fontRatios,
+				fontFamily,
+			});
+			widthRatio = fontRatios.widthRatio;
+			heightRatio = fontRatios.heightRatio;
+		} else {
+			widthRatio = fontRatiosCache.widthRatio;
+			heightRatio = fontRatiosCache.heightRatio;
+		}
 
-    this.fontSize = getFontSize();
-    this.characterWidth = this.fontSize * widthRatio;
-    this.characterHeight = this.fontSize * heightRatio;
-  }
+		this.fontSize = getFontSize();
+		this.characterWidth = this.fontSize * widthRatio;
+		this.characterHeight = this.fontSize * heightRatio;
+	}
 }
 
 /**
@@ -74,54 +74,54 @@ export default class FontMeasurements {
  * @returns The width and height ratios of the font
  */
 function getFontRatios() {
-  const panel = vscode.window.createWebviewPanel(
-    "cursorless.loading",
-    "Cursorless",
-    {
-      preserveFocus: true,
-      viewColumn: vscode.ViewColumn.Active,
-    },
-    {
-      enableScripts: true,
-    },
-  );
+	const panel = vscode.window.createWebviewPanel(
+		"cursorless.loading",
+		"Cursorless",
+		{
+			preserveFocus: true,
+			viewColumn: vscode.ViewColumn.Active,
+		},
+		{
+			enableScripts: true,
+		},
+	);
 
-  panel.webview.html = getWebviewContent();
+	panel.webview.html = getWebviewContent();
 
-  interface FontRatios {
-    /**
-     * The ratio of the width of a character in the given font to the font size
-     */
-    widthRatio: number;
+	interface FontRatios {
+		/**
+		 * The ratio of the width of a character in the given font to the font size
+		 */
+		widthRatio: number;
 
-    /**
-     * The ratio of the height of a character in the given font to the font
-     * size. The height is measured from the baseline to the top of the span
-     */
-    heightRatio: number;
-  }
+		/**
+		 * The ratio of the height of a character in the given font to the font
+		 * size. The height is measured from the baseline to the top of the span
+		 */
+		heightRatio: number;
+	}
 
-  return new Promise<FontRatios>((resolve) => {
-    panel.webview.onDidReceiveMessage((message) => {
-      panel.dispose();
-      resolve(message);
-    });
-  });
+	return new Promise<FontRatios>((resolve) => {
+		panel.webview.onDidReceiveMessage((message) => {
+			panel.dispose();
+			resolve(message);
+		});
+	});
 }
 
 function getFontSize() {
-  const config = vscode.workspace.getConfiguration("editor");
-  return config.get<number>("fontSize")!;
+	const config = vscode.workspace.getConfiguration("editor");
+	return config.get<number>("fontSize")!;
 }
 
 function getFontFamily() {
-  const config = vscode.workspace.getConfiguration("editor");
-  return config.get<string>("fontFamily")!;
+	const config = vscode.workspace.getConfiguration("editor");
+	return config.get<string>("fontFamily")!;
 }
 
 function getWebviewContent() {
-  // baseline adjustment based on https://stackoverflow.com/a/27295528
-  return `<!DOCTYPE html>
+	// baseline adjustment based on https://stackoverflow.com/a/27295528
+	return `<!DOCTYPE html>
   <html lang="en">
   <body>
       <h1>Loading Cursorless...</h1>

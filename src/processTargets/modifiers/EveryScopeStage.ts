@@ -32,66 +32,66 @@ import { ScopeHandler } from "./scopeHandlers/scopeHandler.types";
  *    to the expanded target's {@link Target.contentRange}.
  */
 export class EveryScopeStage implements ModifierStage {
-  constructor(private modifier: EveryScopeModifier) {}
+	constructor(private modifier: EveryScopeModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    const { scopeType } = this.modifier;
-    const { editor, isReversed } = target;
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		const { scopeType } = this.modifier;
+		const { editor, isReversed } = target;
 
-    const scopeHandler = getScopeHandler(scopeType, editor.document.languageId);
+		const scopeHandler = getScopeHandler(scopeType, editor.document.languageId);
 
-    if (scopeHandler == null) {
-      return getLegacyScopeStage(this.modifier).run(context, target);
-    }
+		if (scopeHandler == null) {
+			return getLegacyScopeStage(this.modifier).run(context, target);
+		}
 
-    let scopes: TargetScope[] | undefined;
+		let scopes: TargetScope[] | undefined;
 
-    if (target.hasExplicitRange) {
-      scopes = getScopesOverlappingRange(
-        scopeHandler,
-        editor,
-        target.contentRange,
-      );
+		if (target.hasExplicitRange) {
+			scopes = getScopesOverlappingRange(
+				scopeHandler,
+				editor,
+				target.contentRange,
+			);
 
-      if (
-        scopes.length === 1 &&
-        scopes[0].domain.contains(target.contentRange)
-      ) {
-        // If the only scope that came back completely contains the input target
-        // range, we treat the input as if it had no explicit range, expanding
-        // to default iteration socpe below
-        scopes = undefined;
-      }
-    }
+			if (
+				scopes.length === 1 &&
+				scopes[0].domain.contains(target.contentRange)
+			) {
+				// If the only scope that came back completely contains the input target
+				// range, we treat the input as if it had no explicit range, expanding
+				// to default iteration socpe below
+				scopes = undefined;
+			}
+		}
 
-    if (scopes == null) {
-      // If target had no explicit range, or was contained by a single target
-      // instance, expand to iteration scope before overlapping
-      scopes = getScopesOverlappingRange(
-        scopeHandler,
-        editor,
-        this.getDefaultIterationRange(context, scopeHandler, target),
-      );
-    }
+		if (scopes == null) {
+			// If target had no explicit range, or was contained by a single target
+			// instance, expand to iteration scope before overlapping
+			scopes = getScopesOverlappingRange(
+				scopeHandler,
+				editor,
+				this.getDefaultIterationRange(context, scopeHandler, target),
+			);
+		}
 
-    if (scopes.length === 0) {
-      throw new NoContainingScopeError(scopeType.type);
-    }
+		if (scopes.length === 0) {
+			throw new NoContainingScopeError(scopeType.type);
+		}
 
-    return scopes.map((scope) => scope.getTarget(isReversed));
-  }
+		return scopes.map((scope) => scope.getTarget(isReversed));
+	}
 
-  getDefaultIterationRange(
-    context: ProcessedTargetsContext,
-    scopeHandler: ScopeHandler,
-    target: Target,
-  ): Range {
-    const containingIterationScopeModifier = getModifierStage({
-      type: "containingScope",
-      scopeType: scopeHandler.iterationScopeType,
-    });
+	getDefaultIterationRange(
+		context: ProcessedTargetsContext,
+		scopeHandler: ScopeHandler,
+		target: Target,
+	): Range {
+		const containingIterationScopeModifier = getModifierStage({
+			type: "containingScope",
+			scopeType: scopeHandler.iterationScopeType,
+		});
 
-    return containingIterationScopeModifier.run(context, target)[0]
-      .contentRange;
-  }
+		return containingIterationScopeModifier.run(context, target)[0]
+			.contentRange;
+	}
 }

@@ -1,7 +1,7 @@
 import type { Target } from "../../typings/target.types";
 import type {
-  ContainingSurroundingPairModifier,
-  SurroundingPairModifier,
+	ContainingSurroundingPairModifier,
+	SurroundingPairModifier,
 } from "../../typings/targetDescriptor.types";
 import type { ProcessedTargetsContext } from "../../typings/Types";
 import type { ModifierStage } from "../PipelineStages.types";
@@ -22,41 +22,41 @@ import { processSurroundingPair } from "./surroundingPair";
  * `null` if none was found
  */
 export default class SurroundingPairStage implements ModifierStage {
-  constructor(private modifier: SurroundingPairModifier) {}
+	constructor(private modifier: SurroundingPairModifier) {}
 
-  run(
-    context: ProcessedTargetsContext,
-    target: Target,
-  ): SurroundingPairTarget[] {
-    if (this.modifier.type === "everyScope") {
-      throw Error(`Unsupported every scope ${this.modifier.scopeType.type}`);
-    }
+	run(
+		context: ProcessedTargetsContext,
+		target: Target,
+	): SurroundingPairTarget[] {
+		if (this.modifier.type === "everyScope") {
+			throw Error(`Unsupported every scope ${this.modifier.scopeType.type}`);
+		}
 
-    return processedSurroundingPairTarget(this.modifier, context, target);
-  }
+		return processedSurroundingPairTarget(this.modifier, context, target);
+	}
 }
 
 function processedSurroundingPairTarget(
-  modifier: ContainingSurroundingPairModifier,
-  context: ProcessedTargetsContext,
-  target: Target,
+	modifier: ContainingSurroundingPairModifier,
+	context: ProcessedTargetsContext,
+	target: Target,
 ): SurroundingPairTarget[] {
-  const pairInfo = processSurroundingPair(
-    context,
-    target.editor,
-    target.contentRange,
-    modifier.scopeType,
-  );
+	const pairInfo = processSurroundingPair(
+		context,
+		target.editor,
+		target.contentRange,
+		modifier.scopeType,
+	);
 
-  if (pairInfo == null) {
-    throw new Error("Couldn't find containing pair");
-  }
+	if (pairInfo == null) {
+		throw new Error("Couldn't find containing pair");
+	}
 
-  return [
-    new SurroundingPairTarget({
-      ...pairInfo,
-      editor: target.editor,
-      isReversed: target.isReversed,
-    }),
-  ];
+	return [
+		new SurroundingPairTarget({
+			...pairInfo,
+			editor: target.editor,
+			isReversed: target.isReversed,
+		}),
+	];
 }

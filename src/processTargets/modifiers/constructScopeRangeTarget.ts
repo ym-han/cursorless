@@ -14,25 +14,25 @@ import { TargetScope } from "./scopeHandlers/scope.types";
  * {@link scope2}
  */
 export function constructScopeRangeTarget(
-  isReversed: boolean,
-  scope1: TargetScope,
-  scope2: TargetScope,
+	isReversed: boolean,
+	scope1: TargetScope,
+	scope2: TargetScope,
 ): Target {
-  const target1 = scope1.getTarget(isReversed);
-  const target2 = scope2.getTarget(isReversed);
+	const target1 = scope1.getTarget(isReversed);
+	const target2 = scope2.getTarget(isReversed);
 
-  const isScope2After = target2.contentRange.start.isAfterOrEqual(
-    target1.contentRange.start,
-  );
+	const isScope2After = target2.contentRange.start.isAfterOrEqual(
+		target1.contentRange.start,
+	);
 
-  const [startTarget, endTarget] = isScope2After
-    ? [target1, target2]
-    : [target2, target1];
+	const [startTarget, endTarget] = isScope2After
+		? [target1, target2]
+		: [target2, target1];
 
-  return startTarget.createContinuousRangeTarget(
-    isReversed,
-    endTarget,
-    true,
-    true,
-  );
+	return startTarget.createContinuousRangeTarget(
+		isReversed,
+		endTarget,
+		true,
+		true,
+	);
 }

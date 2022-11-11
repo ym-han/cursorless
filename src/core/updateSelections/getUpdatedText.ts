@@ -1,7 +1,7 @@
 import {
-  ChangeEventInfo,
-  FullRangeInfo,
-  RangeOffsets,
+	ChangeEventInfo,
+	FullRangeInfo,
+	RangeOffsets,
 } from "../../typings/updateSelections";
 
 /**
@@ -18,44 +18,44 @@ import {
  * @returns The new text of the range
  */
 export function getUpdatedText(
-  changeEventInfo: ChangeEventInfo,
-  rangeInfo: FullRangeInfo,
-  newOffsets: RangeOffsets,
+	changeEventInfo: ChangeEventInfo,
+	rangeInfo: FullRangeInfo,
+	newOffsets: RangeOffsets,
 ): string {
-  const { start: changeOriginalOffsetsStart, end: changeOriginalOffsetsEnd } =
-    changeEventInfo.originalOffsets;
-  const { start: rangeOriginalOffsetsStart, end: rangeOriginalOffsetsEnd } =
-    rangeInfo.offsets;
+	const { start: changeOriginalOffsetsStart, end: changeOriginalOffsetsEnd } =
+		changeEventInfo.originalOffsets;
+	const { start: rangeOriginalOffsetsStart, end: rangeOriginalOffsetsEnd } =
+		rangeInfo.offsets;
 
-  const newTextStartOffset = Math.min(
-    changeOriginalOffsetsStart,
-    rangeOriginalOffsetsStart,
-  );
+	const newTextStartOffset = Math.min(
+		changeOriginalOffsetsStart,
+		rangeOriginalOffsetsStart,
+	);
 
-  let result = "";
+	let result = "";
 
-  // First add any text from the range before the start of the change range
-  if (rangeOriginalOffsetsStart < changeOriginalOffsetsStart) {
-    result += rangeInfo.text.substring(
-      0,
-      changeOriginalOffsetsStart - rangeOriginalOffsetsStart,
-    );
-  }
+	// First add any text from the range before the start of the change range
+	if (rangeOriginalOffsetsStart < changeOriginalOffsetsStart) {
+		result += rangeInfo.text.substring(
+			0,
+			changeOriginalOffsetsStart - rangeOriginalOffsetsStart,
+		);
+	}
 
-  // Then add the text of the change
-  result += changeEventInfo.event.text;
+	// Then add the text of the change
+	result += changeEventInfo.event.text;
 
-  // Then add any text that was after the original change range
-  if (changeOriginalOffsetsEnd < rangeOriginalOffsetsEnd) {
-    result += rangeInfo.text.substring(
-      rangeOriginalOffsetsEnd - changeOriginalOffsetsEnd,
-      rangeInfo.text.length,
-    );
-  }
+	// Then add any text that was after the original change range
+	if (changeOriginalOffsetsEnd < rangeOriginalOffsetsEnd) {
+		result += rangeInfo.text.substring(
+			rangeOriginalOffsetsEnd - changeOriginalOffsetsEnd,
+			rangeInfo.text.length,
+		);
+	}
 
-  // Then take a substring based on the range's new offsets
-  return result.substring(
-    newOffsets.start - newTextStartOffset,
-    newOffsets.end - newTextStartOffset,
-  );
+	// Then take a substring based on the range's new offsets
+	return result.substring(
+		newOffsets.start - newTextStartOffset,
+		newOffsets.end - newTextStartOffset,
+	);
 }

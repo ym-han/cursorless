@@ -4,19 +4,19 @@
  * @returns The merged object
  */
 export function mergeStrict<Value>(
-  ...objects: Record<string, Value>[]
+	...objects: Record<string, Value>[]
 ): Record<string, Value> {
-  const returnValue: Record<string, Value> = {};
+	const returnValue: Record<string, Value> = {};
 
-  objects.forEach((object: object) => {
-    for (const [key, value] of Object.entries(object)) {
-      if (Object.prototype.hasOwnProperty.call(returnValue, key)) {
-        throw new Error(`Found duplicate property ${key}`);
-      }
+	objects.forEach((object: object) => {
+		for (const [key, value] of Object.entries(object)) {
+			if (Object.prototype.hasOwnProperty.call(returnValue, key)) {
+				throw new Error(`Found duplicate property ${key}`);
+			}
 
-      returnValue[key] = value;
-    }
-  });
+			returnValue[key] = value;
+		}
+	});
 
-  return returnValue;
+	return returnValue;
 }

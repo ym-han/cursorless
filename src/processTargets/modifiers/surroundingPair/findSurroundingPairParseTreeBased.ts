@@ -1,8 +1,8 @@
 import { Range, TextDocument, TextEditor } from "vscode";
 import { SyntaxNode } from "web-tree-sitter";
 import {
-  SimpleSurroundingPairName,
-  SurroundingPairScopeType,
+	SimpleSurroundingPairName,
+	SurroundingPairScopeType,
 } from "../../../typings/targetDescriptor.types";
 import { getNodeRange } from "../../../util/nodeSelectors";
 import { isContainedInErrorNode } from "../../../util/treeSitterUtils";
@@ -10,9 +10,9 @@ import { extractSelectionFromSurroundingPairOffsets } from "./extractSelectionFr
 import { findSurroundingPairCore } from "./findSurroundingPairCore";
 import { getIndividualDelimiters } from "./getIndividualDelimiters";
 import {
-  IndividualDelimiter,
-  Offsets,
-  PossibleDelimiterOccurrence,
+	IndividualDelimiter,
+	Offsets,
+	PossibleDelimiterOccurrence,
 } from "./types";
 
 /**
@@ -58,98 +58,98 @@ import {
  * @returns The newly expanded selection, including editor info
  */
 export function findSurroundingPairParseTreeBased(
-  editor: TextEditor,
-  selection: Range,
-  node: SyntaxNode,
-  delimiters: SimpleSurroundingPairName[],
-  scopeType: SurroundingPairScopeType,
+	editor: TextEditor,
+	selection: Range,
+	node: SyntaxNode,
+	delimiters: SimpleSurroundingPairName[],
+	scopeType: SurroundingPairScopeType,
 ) {
-  const document: TextDocument = editor.document;
+	const document: TextDocument = editor.document;
 
-  const individualDelimiters = getIndividualDelimiters(delimiters);
+	const individualDelimiters = getIndividualDelimiters(delimiters);
 
-  const delimiterTextToDelimiterInfoMap = Object.fromEntries(
-    individualDelimiters.map((individualDelimiter) => [
-      individualDelimiter.text,
-      individualDelimiter,
-    ]),
-  );
+	const delimiterTextToDelimiterInfoMap = Object.fromEntries(
+		individualDelimiters.map((individualDelimiter) => [
+			individualDelimiter.text,
+			individualDelimiter,
+		]),
+	);
 
-  const selectionOffsets = {
-    start: document.offsetAt(selection.start),
-    end: document.offsetAt(selection.end),
-  };
+	const selectionOffsets = {
+		start: document.offsetAt(selection.start),
+		end: document.offsetAt(selection.end),
+	};
 
-  /**
-   * Context to pass to nested call
-   */
-  const context: Context = {
-    delimiterTextToDelimiterInfoMap,
-    individualDelimiters,
-    delimiters,
-    selectionOffsets,
-    scopeType,
-  };
+	/**
+	 * Context to pass to nested call
+	 */
+	const context: Context = {
+		delimiterTextToDelimiterInfoMap,
+		individualDelimiters,
+		delimiters,
+		selectionOffsets,
+		scopeType,
+	};
 
-  // Walk up the parse tree from parent to parent until we find a node whose
-  // descendants contain an appropriate matching pair.
-  for (
-    let currentNode: SyntaxNode | null = node;
-    currentNode != null;
-    currentNode = currentNode.parent
-  ) {
-    // Just bail early if the node doesn't completely contain our selection as
-    // it is a lost cause.
-    if (!getNodeRange(currentNode).contains(selection)) {
-      continue;
-    }
+	// Walk up the parse tree from parent to parent until we find a node whose
+	// descendants contain an appropriate matching pair.
+	for (
+		let currentNode: SyntaxNode | null = node;
+		currentNode != null;
+		currentNode = currentNode.parent
+	) {
+		// Just bail early if the node doesn't completely contain our selection as
+		// it is a lost cause.
+		if (!getNodeRange(currentNode).contains(selection)) {
+			continue;
+		}
 
-    // Here we apply the core algorithm
-    const pairOffsets = findSurroundingPairContainedInNode(
-      context,
-      currentNode,
-    );
+		// Here we apply the core algorithm
+		const pairOffsets = findSurroundingPairContainedInNode(
+			context,
+			currentNode,
+		);
 
-    // And then perform postprocessing
-    if (pairOffsets != null) {
-      return extractSelectionFromSurroundingPairOffsets(
-        document,
-        0,
-        pairOffsets,
-      );
-    }
-  }
+		// And then perform postprocessing
+		if (pairOffsets != null) {
+			return extractSelectionFromSurroundingPairOffsets(
+				document,
+				0,
+				pairOffsets,
+			);
+		}
+	}
 
-  return null;
+	return null;
 }
 
 /**
  * Context to pass to nested call
  */
 interface Context {
-  /**
-   * Map from raw text to info about the delimiter at that point
-   */
-  delimiterTextToDelimiterInfoMap: {
-    [k: string]: IndividualDelimiter;
-  };
+	/**
+	 * Map from raw text to info about the delimiter at that point
+	 */
+	delimiterTextToDelimiterInfoMap: {
+		[k: string]: IndividualDelimiter;
+	};
 
-  /**
-   * A list of all opening / closing delimiters that we are considering
-   */
-  individualDelimiters: IndividualDelimiter[];
+	/**
+	 * A list of all opening / closing delimiters that we are considering
+	 */
+	individualDelimiters: IndividualDelimiter[];
 
-  /**
-   * The names of the delimiters that we're considering
-   */
-  delimiters: SimpleSurroundingPairName[];
+	/**
+	 * The names of the delimiters that we're considering
+	 */
+	delimiters: SimpleSurroundingPairName[];
 
-  /**
-   * The offsets of the selection
-   */
-  selectionOffsets: Offsets;
+	/**
+	 * The offsets of the selection
+	 */
+	selectionOffsets: Offsets;
 
-  scopeType: SurroundingPairScopeType;
+	scopeType: SurroundingPairScopeType;
 }
 
 /**
@@ -162,90 +162,90 @@ interface Context {
  * @returns The offsets of the matching surrounding pair, or `null` if none is found
  */
 function findSurroundingPairContainedInNode(
-  context: Context,
-  node: SyntaxNode,
+	context: Context,
+	node: SyntaxNode,
 ) {
-  const {
-    delimiterTextToDelimiterInfoMap,
-    individualDelimiters,
-    delimiters,
-    selectionOffsets,
-    scopeType,
-  } = context;
+	const {
+		delimiterTextToDelimiterInfoMap,
+		individualDelimiters,
+		delimiters,
+		selectionOffsets,
+		scopeType,
+	} = context;
 
-  /**
-   * A list of all delimiter nodes descending from `node`, as determined by
-   * their type.
-   * Handles the case of error nodes with no text. https://github.com/cursorless-dev/cursorless/issues/688
-   */
-  const possibleDelimiterNodes = node
-    .descendantsOfType(individualDelimiters.map(({ text }) => text))
-    .filter((node) => !(node.text === "" && node.hasError()));
+	/**
+	 * A list of all delimiter nodes descending from `node`, as determined by
+	 * their type.
+	 * Handles the case of error nodes with no text. https://github.com/cursorless-dev/cursorless/issues/688
+	 */
+	const possibleDelimiterNodes = node
+		.descendantsOfType(individualDelimiters.map(({ text }) => text))
+		.filter((node) => !(node.text === "" && node.hasError()));
 
-  /**
-   * A list of all delimiter occurrences, generated from the delimiter nodes.
-   */
-  const delimiterOccurrences: PossibleDelimiterOccurrence[] =
-    possibleDelimiterNodes.map((delimiterNode) => {
-      return {
-        offsets: {
-          start: delimiterNode.startIndex,
-          end: delimiterNode.endIndex,
-        },
-        get delimiterInfo() {
-          const delimiterInfo =
-            delimiterTextToDelimiterInfoMap[delimiterNode.type];
+	/**
+	 * A list of all delimiter occurrences, generated from the delimiter nodes.
+	 */
+	const delimiterOccurrences: PossibleDelimiterOccurrence[] =
+		possibleDelimiterNodes.map((delimiterNode) => {
+			return {
+				offsets: {
+					start: delimiterNode.startIndex,
+					end: delimiterNode.endIndex,
+				},
+				get delimiterInfo() {
+					const delimiterInfo =
+						delimiterTextToDelimiterInfoMap[delimiterNode.type];
 
-          // Distinguish between a greater-than sign and an angle bracket by
-          // looking at its position within its parent node.
-          if (
-            delimiterInfo.delimiter === "angleBrackets" &&
-            inferDelimiterSide(delimiterNode) !== delimiterInfo.side &&
-            !isContainedInErrorNode(delimiterNode)
-          ) {
-            return undefined;
-          }
+					// Distinguish between a greater-than sign and an angle bracket by
+					// looking at its position within its parent node.
+					if (
+						delimiterInfo.delimiter === "angleBrackets" &&
+						inferDelimiterSide(delimiterNode) !== delimiterInfo.side &&
+						!isContainedInErrorNode(delimiterNode)
+					) {
+						return undefined;
+					}
 
-          // NB: If side is `"unknown"`, ie we cannot determine whether
-          // something is a left or right delimiter based on its text / type
-          // alone (eg `"`), we assume it is a left delimiter if it is the
-          // first child of its parent, and right delimiter otherwise.  This
-          // approach might not always work, but seems to work in the
-          // languages we've tried.
-          const side =
-            delimiterInfo.side === "unknown" && scopeType.forceDirection == null
-              ? inferDelimiterSide(delimiterNode)
-              : delimiterInfo.side;
+					// NB: If side is `"unknown"`, ie we cannot determine whether
+					// something is a left or right delimiter based on its text / type
+					// alone (eg `"`), we assume it is a left delimiter if it is the
+					// first child of its parent, and right delimiter otherwise.  This
+					// approach might not always work, but seems to work in the
+					// languages we've tried.
+					const side =
+						delimiterInfo.side === "unknown" && scopeType.forceDirection == null
+							? inferDelimiterSide(delimiterNode)
+							: delimiterInfo.side;
 
-          return {
-            ...delimiterInfo,
-            side,
-          };
-        },
-      };
-    });
+					return {
+						...delimiterInfo,
+						side,
+					};
+				},
+			};
+		});
 
-  // Just run core algorithm once we have our list of delimiters.
-  return findSurroundingPairCore(
-    scopeType,
-    delimiterOccurrences,
-    delimiters,
-    selectionOffsets,
+	// Just run core algorithm once we have our list of delimiters.
+	return findSurroundingPairCore(
+		scopeType,
+		delimiterOccurrences,
+		delimiters,
+		selectionOffsets,
 
-    // If we're not the root node of the parse tree (ie `node.parent !=
-    // null`), we tell `findSurroundingPairCore` to bail if it finds a
-    // delimiter adjacent to our selection, but doesn't find its opposite
-    // delimiter within our list. We do so because it's possible that the
-    // adjacent delimiter's opposite might be found when we run again on a
-    // parent node later.
-    node.parent != null,
-  );
+		// If we're not the root node of the parse tree (ie `node.parent !=
+		// null`), we tell `findSurroundingPairCore` to bail if it finds a
+		// delimiter adjacent to our selection, but doesn't find its opposite
+		// delimiter within our list. We do so because it's possible that the
+		// adjacent delimiter's opposite might be found when we run again on a
+		// parent node later.
+		node.parent != null,
+	);
 }
 
 function inferDelimiterSide(delimiterNode: SyntaxNode) {
-  return delimiterNode.parent?.firstChild?.equals(delimiterNode)
-    ? "left"
-    : delimiterNode.parent?.lastChild?.equals(delimiterNode)
-    ? "right"
-    : ("unknown" as const);
+	return delimiterNode.parent?.firstChild?.equals(delimiterNode)
+		? "left"
+		: delimiterNode.parent?.lastChild?.equals(delimiterNode)
+		? "right"
+		: ("unknown" as const);
 }

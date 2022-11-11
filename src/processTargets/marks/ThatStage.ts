@@ -4,25 +4,25 @@ import { ProcessedTargetsContext } from "../../typings/Types";
 import { MarkStage } from "../PipelineStages.types";
 
 export class ThatStage implements MarkStage {
-  constructor(private mark: ThatMark) {}
+	constructor(private mark: ThatMark) {}
 
-  run(context: ProcessedTargetsContext): Target[] {
-    if (context.thatMark.length === 0) {
-      throw Error("No available that marks");
-    }
+	run(context: ProcessedTargetsContext): Target[] {
+		if (context.thatMark.length === 0) {
+			throw Error("No available that marks");
+		}
 
-    return context.thatMark;
-  }
+		return context.thatMark;
+	}
 }
 
 export class SourceStage implements MarkStage {
-  constructor(private mark: SourceMark) {}
+	constructor(private mark: SourceMark) {}
 
-  run(context: ProcessedTargetsContext): Target[] {
-    if (context.sourceMark.length === 0) {
-      throw Error("No available source marks");
-    }
+	run(context: ProcessedTargetsContext): Target[] {
+		if (context.sourceMark.length === 0) {
+			throw Error("No available source marks");
+		}
 
-    return context.sourceMark;
-  }
+		return context.sourceMark;
+	}
 }

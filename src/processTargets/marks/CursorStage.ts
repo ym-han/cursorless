@@ -6,17 +6,17 @@ import type { MarkStage } from "../PipelineStages.types";
 import { UntypedTarget } from "../targets";
 
 export default class CursorStage implements MarkStage {
-  constructor(private mark: CursorMark) {}
+	constructor(private mark: CursorMark) {}
 
-  run(context: ProcessedTargetsContext): Target[] {
-    return context.currentSelections.map(
-      (selection) =>
-        new UntypedTarget({
-          editor: selection.editor,
-          isReversed: isReversed(selection.selection),
-          contentRange: selection.selection,
-          hasExplicitRange: !selection.selection.isEmpty,
-        }),
-    );
-  }
+	run(context: ProcessedTargetsContext): Target[] {
+		return context.currentSelections.map(
+			(selection) =>
+				new UntypedTarget({
+					editor: selection.editor,
+					isReversed: isReversed(selection.selection),
+					contentRange: selection.selection,
+					hasExplicitRange: !selection.selection.isEmpty,
+				}),
+		);
+	}
 }

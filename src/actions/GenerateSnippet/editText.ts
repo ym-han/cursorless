@@ -10,21 +10,21 @@ import { Offsets } from "../../processTargets/modifiers/surroundingPair/types";
  * @returns The edited string
  */
 export function editText(text: string, edits: Edit[]): string {
-  const sortedEdits = sortBy(edits, (edit) => edit.offsets.start);
-  let output = "";
-  let currentOffset = 0;
+	const sortedEdits = sortBy(edits, (edit) => edit.offsets.start);
+	let output = "";
+	let currentOffset = 0;
 
-  for (const edit of sortedEdits) {
-    output += text.slice(currentOffset, edit.offsets.start) + edit.text;
-    currentOffset = edit.offsets.end;
-  }
+	for (const edit of sortedEdits) {
+		output += text.slice(currentOffset, edit.offsets.start) + edit.text;
+		currentOffset = edit.offsets.end;
+	}
 
-  output += text.slice(currentOffset);
+	output += text.slice(currentOffset);
 
-  return output;
+	return output;
 }
 
 interface Edit {
-  offsets: Offsets;
-  text: string;
+	offsets: Offsets;
+	text: string;
 }

@@ -8,15 +8,15 @@ import { SurroundingPairOffsets, DelimiterOccurrence } from "./types";
  * @returns A pair of start and end offsets for the given delimiters
  */
 export function getSurroundingPairOffsets(
-  delimiter1: DelimiterOccurrence,
-  delimiter2: DelimiterOccurrence,
+	delimiter1: DelimiterOccurrence,
+	delimiter2: DelimiterOccurrence,
 ): SurroundingPairOffsets {
-  const isDelimiter1First = delimiter1.offsets.start < delimiter2.offsets.start;
-  const leftDelimiter = isDelimiter1First ? delimiter1 : delimiter2;
-  const rightDelimiter = isDelimiter1First ? delimiter2 : delimiter1;
+	const isDelimiter1First = delimiter1.offsets.start < delimiter2.offsets.start;
+	const leftDelimiter = isDelimiter1First ? delimiter1 : delimiter2;
+	const rightDelimiter = isDelimiter1First ? delimiter2 : delimiter1;
 
-  return {
-    leftDelimiter: leftDelimiter.offsets,
-    rightDelimiter: rightDelimiter.offsets,
-  };
+	return {
+		leftDelimiter: leftDelimiter.offsets,
+		rightDelimiter: rightDelimiter.offsets,
+	};
 }

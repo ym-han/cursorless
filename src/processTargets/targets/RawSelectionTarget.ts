@@ -6,12 +6,12 @@ import BaseTarget from "./BaseTarget";
  * inherited from the source in the case of a bring after a bring before
  */
 export default class RawSelectionTarget extends BaseTarget {
-  insertionDelimiter = "";
-  isRaw = true;
+	insertionDelimiter = "";
+	isRaw = true;
 
-  getLeadingDelimiterTarget = () => undefined;
-  getTrailingDelimiterTarget = () => undefined;
-  getRemovalRange = () => this.contentRange;
+	getLeadingDelimiterTarget = () => undefined;
+	getTrailingDelimiterTarget = () => undefined;
+	getRemovalRange = () => this.contentRange;
 
-  protected getCloneParameters = () => this.state;
+	protected getCloneParameters = () => this.state;
 }

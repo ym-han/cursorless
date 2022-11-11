@@ -4,12 +4,12 @@ import { ThatMark } from "./core/ThatMark";
 import VscodeIDE from "./ide/vscode/VscodeIDE";
 import FakeIDE from "./libs/common/ide/fake/FakeIDE";
 import ide, {
-  injectIde,
+	injectIde,
 } from "./libs/cursorless-engine/singletons/ide.singleton";
 import {
-  CursorlessApi,
-  getCommandServerApi,
-  getParseTreeApi,
+	CursorlessApi,
+	getCommandServerApi,
+	getParseTreeApi,
 } from "./libs/vscode-common/getExtensionApi";
 import { plainObjectToTarget } from "./testUtil/fromPlainObject";
 import isTesting from "./testUtil/isTesting";
@@ -26,64 +26,64 @@ import makeGraph, { FactoryMap } from "./util/makeGraph";
  * - Creates an entrypoint for running commands {@link CommandRunner}.
  */
 export async function activate(
-  context: vscode.ExtensionContext,
+	context: vscode.ExtensionContext,
 ): Promise<CursorlessApi> {
-  const { getNodeAtLocation } = await getParseTreeApi();
-  const commandServerApi = await getCommandServerApi();
+	const { getNodeAtLocation } = await getParseTreeApi();
+	const commandServerApi = await getCommandServerApi();
 
-  if (isTesting()) {
-    // FIXME: At some point we'll probably want to support partial mocking
-    // rather than mocking away everything that we can
-    const fake = new FakeIDE();
-    fake.mockAssetsRoot(context.extensionPath);
-    injectIde(fake);
-  } else {
-    injectIde(new VscodeIDE(context));
-  }
+	if (isTesting()) {
+		// FIXME: At some point we'll probably want to support partial mocking
+		// rather than mocking away everything that we can
+		const fake = new FakeIDE();
+		fake.mockAssetsRoot(context.extensionPath);
+		injectIde(fake);
+	} else {
+		injectIde(new VscodeIDE(context));
+	}
 
-  const graph = makeGraph({
-    ...graphFactories,
-    extensionContext: () => context,
-    commandServerApi: () => commandServerApi,
-    getNodeAtLocation: () => getNodeAtLocation,
-  } as FactoryMap<Graph>);
-  graph.debug.init();
-  graph.snippets.init();
-  graph.fontMeasurements.init(context);
-  await graph.decorations.init(context);
-  graph.hatTokenMap.init();
-  graph.testCaseRecorder.init();
-  graph.cheatsheet.init();
-  graph.statusBarItem.init();
+	const graph = makeGraph({
+		...graphFactories,
+		extensionContext: () => context,
+		commandServerApi: () => commandServerApi,
+		getNodeAtLocation: () => getNodeAtLocation,
+	} as FactoryMap<Graph>);
+	graph.debug.init();
+	graph.snippets.init();
+	graph.fontMeasurements.init(context);
+	await graph.decorations.init(context);
+	graph.hatTokenMap.init();
+	graph.testCaseRecorder.init();
+	graph.cheatsheet.init();
+	graph.statusBarItem.init();
 
-  const thatMark = new ThatMark();
-  const sourceMark = new ThatMark();
+	const thatMark = new ThatMark();
+	const sourceMark = new ThatMark();
 
-  // TODO: Do this using the graph once we migrate its dependencies onto the graph
-  new CommandRunner(graph, thatMark, sourceMark);
+	// TODO: Do this using the graph once we migrate its dependencies onto the graph
+	new CommandRunner(graph, thatMark, sourceMark);
 
-  return {
-    thatMark,
-    sourceMark,
-    testHelpers: isTesting()
-      ? {
-          graph,
-          ide: ide() as FakeIDE,
-          injectIde,
+	return {
+		thatMark,
+		sourceMark,
+		testHelpers: isTesting()
+			? {
+					graph,
+					ide: ide() as FakeIDE,
+					injectIde,
 
-          // FIXME: Remove this once we have a better way to get this function
-          // accessible from our tests
-          plainObjectToTarget,
-        }
-      : undefined,
+					// FIXME: Remove this once we have a better way to get this function
+					// accessible from our tests
+					plainObjectToTarget,
+			  }
+			: undefined,
 
-    experimental: {
-      registerThirdPartySnippets: graph.snippets.registerThirdPartySnippets,
-    },
-  };
+		experimental: {
+			registerThirdPartySnippets: graph.snippets.registerThirdPartySnippets,
+		},
+	};
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-  // do nothing
+	// do nothing
 }

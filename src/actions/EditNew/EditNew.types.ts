@@ -6,18 +6,18 @@ import { Target } from "../../typings/target.types";
  * VSCode command to insert a new target, eg `editor.action.insertLineAfter`.
  */
 export interface CommandTarget {
-  target: Target;
+	target: Target;
 
-  /**
-   * The original index of this target in the original list of targets passed
-   * to the action
-   */
-  index: number;
+	/**
+	 * The original index of this target in the original list of targets passed
+	 * to the action
+	 */
+	index: number;
 
-  /**
-   * The VSCode command to run, eg `editor.action.insertLineAfter`
-   */
-  command: string;
+	/**
+	 * The VSCode command to run, eg `editor.action.insertLineAfter`
+	 */
+	command: string;
 }
 
 /**
@@ -25,13 +25,13 @@ export interface CommandTarget {
  * edit action to insert a new target
  */
 export interface EditTarget {
-  target: Target;
+	target: Target;
 
-  /**
-   * The original index of this target in the original list of targets passed
-   * to the action
-   */
-  index: number;
+	/**
+	 * The original index of this target in the original list of targets passed
+	 * to the action
+	 */
+	index: number;
 }
 
 /**
@@ -43,22 +43,22 @@ export interface EditTarget {
  * number of original targets passed into the action.
  */
 export interface State {
-  /**
-   * This field stores the original targets.
-   */
-  targets: Target[];
+	/**
+	 * This field stores the original targets.
+	 */
+	targets: Target[];
 
-  /**
-   * We use this field to track the desired `thatMark` at the end, updating it
-   * as necessary.
-   */
-  thatRanges: Range[];
+	/**
+	 * We use this field to track the desired `thatMark` at the end, updating it
+	 * as necessary.
+	 */
+	thatRanges: Range[];
 
-  /**
-   * Where the cursors should be placed.  We update these after each step.
-   * They are initially undefined, and we update them as we run commands /
-   * perform edits, and the finally use them to set the cursor positions at the
-   * end.
-   */
-  cursorRanges: (Range | undefined)[];
+	/**
+	 * Where the cursors should be placed.  We update these after each step.
+	 * They are initially undefined, and we update them as we run commands /
+	 * perform edits, and the finally use them to set the cursor positions at the
+	 * end.
+	 */
+	cursorRanges: (Range | undefined)[];
 }

@@ -1,13 +1,13 @@
 import type { Clipboard } from "../types/Clipboard";
 
 export default class FakeClipboard implements Clipboard {
-  private clipboardContents: string = "";
+	private clipboardContents: string = "";
 
-  async readText(): Promise<string> {
-    return this.clipboardContents;
-  }
+	async readText(): Promise<string> {
+		return this.clipboardContents;
+	}
 
-  async writeText(value: string): Promise<void> {
-    this.clipboardContents = value;
-  }
+	async writeText(value: string): Promise<void> {
+		this.clipboardContents = value;
+	}
 }

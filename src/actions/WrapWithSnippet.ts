@@ -4,102 +4,102 @@ import ModifyIfUntypedStage from "../processTargets/modifiers/ModifyIfUntypedSta
 import { Target } from "../typings/target.types";
 import { Graph } from "../typings/Types";
 import {
-  findMatchingSnippetDefinitionStrict,
-  transformSnippetVariables,
+	findMatchingSnippetDefinitionStrict,
+	transformSnippetVariables,
 } from "../util/snippet";
 import { ensureSingleEditor } from "../util/targetUtils";
 import { SnippetParser } from "../vendor/snippet/snippetParser";
 import { Action, ActionReturnValue } from "./actions.types";
 
 export default class WrapWithSnippet implements Action {
-  private snippetParser = new SnippetParser();
+	private snippetParser = new SnippetParser();
 
-  getFinalStages(snippetLocation: string) {
-    const [snippetName, placeholderName] =
-      parseSnippetLocation(snippetLocation);
+	getFinalStages(snippetLocation: string) {
+		const [snippetName, placeholderName] =
+			parseSnippetLocation(snippetLocation);
 
-    const snippet = this.graph.snippets.getSnippetStrict(snippetName);
+		const snippet = this.graph.snippets.getSnippetStrict(snippetName);
 
-    const variables = snippet.variables ?? {};
-    const defaultScopeType = variables[placeholderName]?.wrapperScopeType;
+		const variables = snippet.variables ?? {};
+		const defaultScopeType = variables[placeholderName]?.wrapperScopeType;
 
-    if (defaultScopeType == null) {
-      return [];
-    }
+		if (defaultScopeType == null) {
+			return [];
+		}
 
-    return [
-      new ModifyIfUntypedStage({
-        type: "modifyIfUntyped",
-        modifier: {
-          type: "containingScope",
-          scopeType: {
-            type: defaultScopeType,
-          },
-        },
-      }),
-    ];
-  }
+		return [
+			new ModifyIfUntypedStage({
+				type: "modifyIfUntyped",
+				modifier: {
+					type: "containingScope",
+					scopeType: {
+						type: defaultScopeType,
+					},
+				},
+			}),
+		];
+	}
 
-  constructor(private graph: Graph) {
-    this.run = this.run.bind(this);
-  }
+	constructor(private graph: Graph) {
+		this.run = this.run.bind(this);
+	}
 
-  async run(
-    [targets]: [Target[]],
-    snippetLocation: string,
-  ): Promise<ActionReturnValue> {
-    const [snippetName, placeholderName] =
-      parseSnippetLocation(snippetLocation);
+	async run(
+		[targets]: [Target[]],
+		snippetLocation: string,
+	): Promise<ActionReturnValue> {
+		const [snippetName, placeholderName] =
+			parseSnippetLocation(snippetLocation);
 
-    const snippet = this.graph.snippets.getSnippetStrict(snippetName);
+		const snippet = this.graph.snippets.getSnippetStrict(snippetName);
 
-    const editor = ensureSingleEditor(targets);
+		const editor = ensureSingleEditor(targets);
 
-    const definition = findMatchingSnippetDefinitionStrict(
-      targets,
-      snippet.definitions,
-    );
+		const definition = findMatchingSnippetDefinitionStrict(
+			targets,
+			snippet.definitions,
+		);
 
-    const parsedSnippet = this.snippetParser.parse(definition.body.join("\n"));
+		const parsedSnippet = this.snippetParser.parse(definition.body.join("\n"));
 
-    transformSnippetVariables(parsedSnippet, placeholderName);
+		transformSnippetVariables(parsedSnippet, placeholderName);
 
-    const snippetString = parsedSnippet.toTextmateString();
+		const snippetString = parsedSnippet.toTextmateString();
 
-    await this.graph.editStyles.displayPendingEditDecorations(
-      targets,
-      this.graph.editStyles.pendingModification0,
-    );
+		await this.graph.editStyles.displayPendingEditDecorations(
+			targets,
+			this.graph.editStyles.pendingModification0,
+		);
 
-    const targetSelections = targets.map((target) => target.contentSelection);
+		const targetSelections = targets.map((target) => target.contentSelection);
 
-    await this.graph.actions.setSelection.run([targets]);
+		await this.graph.actions.setSelection.run([targets]);
 
-    // NB: We used the command "editor.action.insertSnippet" instead of calling editor.insertSnippet
-    // because the latter doesn't support special variables like CLIPBOARD
-    const [updatedTargetSelections] = await callFunctionAndUpdateSelections(
-      this.graph.rangeUpdater,
-      () =>
-        commands.executeCommand("editor.action.insertSnippet", {
-          snippet: snippetString,
-        }),
-      editor.document,
-      [targetSelections],
-    );
+		// NB: We used the command "editor.action.insertSnippet" instead of calling editor.insertSnippet
+		// because the latter doesn't support special variables like CLIPBOARD
+		const [updatedTargetSelections] = await callFunctionAndUpdateSelections(
+			this.graph.rangeUpdater,
+			() =>
+				commands.executeCommand("editor.action.insertSnippet", {
+					snippet: snippetString,
+				}),
+			editor.document,
+			[targetSelections],
+		);
 
-    return {
-      thatSelections: updatedTargetSelections.map((selection) => ({
-        editor,
-        selection,
-      })),
-    };
-  }
+		return {
+			thatSelections: updatedTargetSelections.map((selection) => ({
+				editor,
+				selection,
+			})),
+		};
+	}
 }
 
 function parseSnippetLocation(snippetLocation: string): [string, string] {
-  const [snippetName, placeholderName] = snippetLocation.split(".");
-  if (snippetName == null || placeholderName == null) {
-    throw new Error("Snippet location missing '.'");
-  }
-  return [snippetName, placeholderName];
+	const [snippetName, placeholderName] = snippetLocation.split(".");
+	if (snippetName == null || placeholderName == null) {
+		throw new Error("Snippet location missing '.'");
+	}
+	return [snippetName, placeholderName];
 }

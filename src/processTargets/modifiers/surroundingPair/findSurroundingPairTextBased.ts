@@ -1,9 +1,9 @@
 import { escapeRegExp, findLast, uniq } from "lodash";
 import { Range, TextDocument, TextEditor } from "vscode";
 import {
-  SimpleSurroundingPairName,
-  SurroundingPairName,
-  SurroundingPairScopeType,
+	SimpleSurroundingPairName,
+	SurroundingPairName,
+	SurroundingPairScopeType,
 } from "../../../typings/targetDescriptor.types";
 import { getDocumentRange } from "../../../util/rangeUtils";
 import { matchAll } from "../../../libs/cursorless-engine/util/regex";
@@ -11,10 +11,10 @@ import { extractSelectionFromSurroundingPairOffsets } from "./extractSelectionFr
 import { findSurroundingPairCore } from "./findSurroundingPairCore";
 import { getIndividualDelimiters } from "./getIndividualDelimiters";
 import {
-  IndividualDelimiter,
-  Offsets,
-  PossibleDelimiterOccurrence,
-  SurroundingPairOffsets,
+	IndividualDelimiter,
+	Offsets,
+	PossibleDelimiterOccurrence,
+	SurroundingPairOffsets,
 } from "./types";
 
 /**
@@ -66,146 +66,146 @@ const SCAN_EXPANSION_FACTOR = 3;
  * @returns The newly expanded selection, including editor info
  */
 export function findSurroundingPairTextBased(
-  editor: TextEditor,
-  range: Range,
-  allowableRange: Range | null,
-  delimiters: SimpleSurroundingPairName[],
-  scopeType: SurroundingPairScopeType,
+	editor: TextEditor,
+	range: Range,
+	allowableRange: Range | null,
+	delimiters: SimpleSurroundingPairName[],
+	scopeType: SurroundingPairScopeType,
 ) {
-  const document: TextDocument = editor.document;
-  const fullRange = allowableRange ?? getDocumentRange(document);
+	const document: TextDocument = editor.document;
+	const fullRange = allowableRange ?? getDocumentRange(document);
 
-  const individualDelimiters = getIndividualDelimiters(delimiters);
+	const individualDelimiters = getIndividualDelimiters(delimiters);
 
-  const delimiterTextToDelimiterInfoMap = Object.fromEntries(
-    individualDelimiters.map((individualDelimiter) => [
-      individualDelimiter.text,
-      individualDelimiter,
-    ]),
-  );
+	const delimiterTextToDelimiterInfoMap = Object.fromEntries(
+		individualDelimiters.map((individualDelimiter) => [
+			individualDelimiter.text,
+			individualDelimiter,
+		]),
+	);
 
-  /**
-   * Regex to use to find delimiters
-   */
-  const delimiterRegex = getDelimiterRegex(individualDelimiters);
+	/**
+	 * Regex to use to find delimiters
+	 */
+	const delimiterRegex = getDelimiterRegex(individualDelimiters);
 
-  /**
-   * The offset of the allowable range within the document.  All offsets are
-   * taken relative to this range.
-   */
-  const fullRangeOffsets = {
-    start: document.offsetAt(fullRange.start),
-    end: document.offsetAt(fullRange.end),
-  };
-  const selectionOffsets = {
-    start: document.offsetAt(range.start),
-    end: document.offsetAt(range.end),
-  };
+	/**
+	 * The offset of the allowable range within the document.  All offsets are
+	 * taken relative to this range.
+	 */
+	const fullRangeOffsets = {
+		start: document.offsetAt(fullRange.start),
+		end: document.offsetAt(fullRange.end),
+	};
+	const selectionOffsets = {
+		start: document.offsetAt(range.start),
+		end: document.offsetAt(range.end),
+	};
 
-  /**
-   * Context to pass to nested call
-   */
-  const context: Context = {
-    scopeType,
-    delimiterRegex,
-    delimiters,
-    delimiterTextToDelimiterInfoMap,
-  };
+	/**
+	 * Context to pass to nested call
+	 */
+	const context: Context = {
+		scopeType,
+		delimiterRegex,
+		delimiters,
+		delimiterTextToDelimiterInfoMap,
+	};
 
-  for (
-    let scanLength = INITIAL_SCAN_LENGTH;
-    scanLength < MAX_SCAN_LENGTH;
-    scanLength *= SCAN_EXPANSION_FACTOR
-  ) {
-    /**
-     * The current range in which to look. Here we take the full range and
-     * restrict it based on the current scan length
-     */
-    const currentRangeOffsets = {
-      start: Math.max(
-        fullRangeOffsets.start,
-        selectionOffsets.end - scanLength / 2,
-      ),
-      end: Math.min(
-        fullRangeOffsets.end,
-        selectionOffsets.end + scanLength / 2,
-      ),
-    };
+	for (
+		let scanLength = INITIAL_SCAN_LENGTH;
+		scanLength < MAX_SCAN_LENGTH;
+		scanLength *= SCAN_EXPANSION_FACTOR
+	) {
+		/**
+		 * The current range in which to look. Here we take the full range and
+		 * restrict it based on the current scan length
+		 */
+		const currentRangeOffsets = {
+			start: Math.max(
+				fullRangeOffsets.start,
+				selectionOffsets.end - scanLength / 2,
+			),
+			end: Math.min(
+				fullRangeOffsets.end,
+				selectionOffsets.end + scanLength / 2,
+			),
+		};
 
-    const currentRange = new Range(
-      document.positionAt(currentRangeOffsets.start),
-      document.positionAt(currentRangeOffsets.end),
-    );
+		const currentRange = new Range(
+			document.positionAt(currentRangeOffsets.start),
+			document.positionAt(currentRangeOffsets.end),
+		);
 
-    // Just bail early if the range doesn't completely contain our selection as
-    // it is a lost cause.
-    if (!currentRange.contains(range)) {
-      continue;
-    }
+		// Just bail early if the range doesn't completely contain our selection as
+		// it is a lost cause.
+		if (!currentRange.contains(range)) {
+			continue;
+		}
 
-    // Here we apply the core algorithm. This algorithm operates relative to the
-    // string that it receives so we need to adjust the selection range before
-    // we pass it in and then later we will adjust to the offsets that it
-    // returns
-    const adjustedSelectionOffsets = {
-      start: selectionOffsets.start - currentRangeOffsets.start,
-      end: selectionOffsets.end - currentRangeOffsets.start,
-    };
+		// Here we apply the core algorithm. This algorithm operates relative to the
+		// string that it receives so we need to adjust the selection range before
+		// we pass it in and then later we will adjust to the offsets that it
+		// returns
+		const adjustedSelectionOffsets = {
+			start: selectionOffsets.start - currentRangeOffsets.start,
+			end: selectionOffsets.end - currentRangeOffsets.start,
+		};
 
-    const pairOffsets = getDelimiterPairOffsets(
-      context,
-      document.getText(currentRange),
-      adjustedSelectionOffsets,
-      currentRangeOffsets.start === fullRangeOffsets.start,
-      currentRangeOffsets.end === fullRangeOffsets.end,
-    );
+		const pairOffsets = getDelimiterPairOffsets(
+			context,
+			document.getText(currentRange),
+			adjustedSelectionOffsets,
+			currentRangeOffsets.start === fullRangeOffsets.start,
+			currentRangeOffsets.end === fullRangeOffsets.end,
+		);
 
-    if (pairOffsets != null) {
-      // And then perform postprocessing
-      return extractSelectionFromSurroundingPairOffsets(
-        document,
-        currentRangeOffsets.start,
-        pairOffsets,
-      );
-    }
+		if (pairOffsets != null) {
+			// And then perform postprocessing
+			return extractSelectionFromSurroundingPairOffsets(
+				document,
+				currentRangeOffsets.start,
+				pairOffsets,
+			);
+		}
 
-    // If the current range is greater than are equal to the full range then we
-    // should stop expanding
-    if (currentRange.contains(fullRange)) {
-      break;
-    }
-  }
+		// If the current range is greater than are equal to the full range then we
+		// should stop expanding
+		if (currentRange.contains(fullRange)) {
+			break;
+		}
+	}
 
-  return null;
+	return null;
 }
 
 function getDelimiterRegex(individualDelimiters: IndividualDelimiter[]) {
-  // Create a regex which is a disjunction of all possible left / right
-  // delimiter texts
-  const individualDelimiterDisjunct = uniq(
-    individualDelimiters.map(({ text }) => text),
-  )
-    .map(escapeRegExp)
-    .join("|");
+	// Create a regex which is a disjunction of all possible left / right
+	// delimiter texts
+	const individualDelimiterDisjunct = uniq(
+		individualDelimiters.map(({ text }) => text),
+	)
+		.map(escapeRegExp)
+		.join("|");
 
-  // Then make sure that we don't allow preceding `\`
-  return new RegExp(`(?<!\\\\)(${individualDelimiterDisjunct})`, "gu");
+	// Then make sure that we don't allow preceding `\`
+	return new RegExp(`(?<!\\\\)(${individualDelimiterDisjunct})`, "gu");
 }
 
 /**
  * Context to pass to nested call
  */
 interface Context {
-  scopeType: SurroundingPairScopeType;
-  delimiterTextToDelimiterInfoMap: {
-    [k: string]: IndividualDelimiter;
-  };
-  delimiterRegex: RegExp;
+	scopeType: SurroundingPairScopeType;
+	delimiterTextToDelimiterInfoMap: {
+		[k: string]: IndividualDelimiter;
+	};
+	delimiterRegex: RegExp;
 
-  /**
-   * The allowable delimiter names
-   */
-  delimiters: SimpleSurroundingPairName[];
+	/**
+	 * The allowable delimiter names
+	 */
+	delimiters: SimpleSurroundingPairName[];
 }
 
 /**
@@ -222,97 +222,97 @@ interface Context {
  * found
  */
 function getDelimiterPairOffsets(
-  context: Context,
-  text: string,
-  selectionOffsets: Offsets,
-  isAtStartOfFullRange: boolean,
-  isAtEndOfFullRange: boolean,
+	context: Context,
+	text: string,
+	selectionOffsets: Offsets,
+	isAtStartOfFullRange: boolean,
+	isAtEndOfFullRange: boolean,
 ): SurroundingPairOffsets | null {
-  const {
-    scopeType,
-    delimiterTextToDelimiterInfoMap,
-    delimiterRegex,
-    delimiters,
-  } = context;
-  const { forceDirection } = scopeType;
+	const {
+		scopeType,
+		delimiterTextToDelimiterInfoMap,
+		delimiterRegex,
+		delimiters,
+	} = context;
+	const { forceDirection } = scopeType;
 
-  // XXX: The below is a bit wasteful when there are multiple targets, because
-  // this whole function gets run once per target, so we're re-running this
-  // regex tokenization for every one, but could probably just run it once.
-  /**
-   * A list of delimiter occurrences to pass to the core algorithm
-   */
-  const delimiterOccurrences: PossibleDelimiterOccurrence[] = matchAll(
-    text,
-    delimiterRegex,
-    (match, index) => {
-      const startOffset = match.index!;
-      const matchText = match[0];
+	// XXX: The below is a bit wasteful when there are multiple targets, because
+	// this whole function gets run once per target, so we're re-running this
+	// regex tokenization for every one, but could probably just run it once.
+	/**
+	 * A list of delimiter occurrences to pass to the core algorithm
+	 */
+	const delimiterOccurrences: PossibleDelimiterOccurrence[] = matchAll(
+		text,
+		delimiterRegex,
+		(match, index) => {
+			const startOffset = match.index!;
+			const matchText = match[0];
 
-      // NB: It is important to cache here because otherwise the algorithm that
-      // disambiguates delimiters of unknown side goes badly super linear
-      let hasCachedDelimiterInfo = false;
-      let cachedDelimiterInfo: IndividualDelimiter | undefined = undefined;
+			// NB: It is important to cache here because otherwise the algorithm that
+			// disambiguates delimiters of unknown side goes badly super linear
+			let hasCachedDelimiterInfo = false;
+			let cachedDelimiterInfo: IndividualDelimiter | undefined = undefined;
 
-      return {
-        offsets: {
-          start: startOffset,
-          end: startOffset + matchText.length,
-        },
+			return {
+				offsets: {
+					start: startOffset,
+					end: startOffset + matchText.length,
+				},
 
-        get delimiterInfo() {
-          if (hasCachedDelimiterInfo) {
-            return cachedDelimiterInfo;
-          }
+				get delimiterInfo() {
+					if (hasCachedDelimiterInfo) {
+						return cachedDelimiterInfo;
+					}
 
-          const rawDelimiterInfo = delimiterTextToDelimiterInfoMap[matchText];
+					const rawDelimiterInfo = delimiterTextToDelimiterInfoMap[matchText];
 
-          const side =
-            rawDelimiterInfo.side === "unknown" && forceDirection == null
-              ? inferDelimiterSide(
-                  text,
-                  delimiterOccurrences,
-                  index,
-                  rawDelimiterInfo?.delimiter,
-                  startOffset,
-                )
-              : rawDelimiterInfo.side;
+					const side =
+						rawDelimiterInfo.side === "unknown" && forceDirection == null
+							? inferDelimiterSide(
+									text,
+									delimiterOccurrences,
+									index,
+									rawDelimiterInfo?.delimiter,
+									startOffset,
+							  )
+							: rawDelimiterInfo.side;
 
-          const delimiterInfo = { ...rawDelimiterInfo, side };
+					const delimiterInfo = { ...rawDelimiterInfo, side };
 
-          hasCachedDelimiterInfo = true;
-          cachedDelimiterInfo = delimiterInfo;
+					hasCachedDelimiterInfo = true;
+					cachedDelimiterInfo = delimiterInfo;
 
-          return delimiterInfo;
-        },
-      };
-    },
-  );
+					return delimiterInfo;
+				},
+			};
+		},
+	);
 
-  // Then just run core algorithm
-  const surroundingPair = findSurroundingPairCore(
-    scopeType,
-    delimiterOccurrences,
-    delimiters,
-    selectionOffsets,
-    !isAtStartOfFullRange || !isAtEndOfFullRange,
-  );
+	// Then just run core algorithm
+	const surroundingPair = findSurroundingPairCore(
+		scopeType,
+		delimiterOccurrences,
+		delimiters,
+		selectionOffsets,
+		!isAtStartOfFullRange || !isAtEndOfFullRange,
+	);
 
-  // If we're not at the start of the full range, or we're not at the end of the
-  // full range then we get nervous if the delimiter we found is at the end of
-  // the range which is not complete, because we might have cut a token in half.
-  // In this case we return null and let the next iteration handle it using a
-  // larger range.
-  if (
-    surroundingPair == null ||
-    (!isAtStartOfFullRange && surroundingPair.leftDelimiter.start === 0) ||
-    (!isAtEndOfFullRange &&
-      surroundingPair.rightDelimiter.end === text.length - 1)
-  ) {
-    return null;
-  }
+	// If we're not at the start of the full range, or we're not at the end of the
+	// full range then we get nervous if the delimiter we found is at the end of
+	// the range which is not complete, because we might have cut a token in half.
+	// In this case we return null and let the next iteration handle it using a
+	// larger range.
+	if (
+		surroundingPair == null ||
+		(!isAtStartOfFullRange && surroundingPair.leftDelimiter.start === 0) ||
+		(!isAtEndOfFullRange &&
+			surroundingPair.rightDelimiter.end === text.length - 1)
+	) {
+		return null;
+	}
 
-  return surroundingPair;
+	return surroundingPair;
 }
 
 /**
@@ -342,30 +342,30 @@ function getDelimiterPairOffsets(
  * @returns The inferred side of the delimiter
  */
 function inferDelimiterSide(
-  fullText: string,
-  delimiterOccurrences: PossibleDelimiterOccurrence[],
-  index: number,
-  delimiter: SurroundingPairName,
-  occurrenceStartOffset: number,
+	fullText: string,
+	delimiterOccurrences: PossibleDelimiterOccurrence[],
+	index: number,
+	delimiter: SurroundingPairName,
+	occurrenceStartOffset: number,
 ) {
-  const previousOccurrence =
-    index === 0
-      ? null
-      : findLast(
-          delimiterOccurrences,
-          (delimiterOccurrence) =>
-            delimiterOccurrence.delimiterInfo?.delimiter === delimiter,
-          index - 1,
-        );
+	const previousOccurrence =
+		index === 0
+			? null
+			: findLast(
+					delimiterOccurrences,
+					(delimiterOccurrence) =>
+						delimiterOccurrence.delimiterInfo?.delimiter === delimiter,
+					index - 1,
+			  );
 
-  if (
-    previousOccurrence == null ||
-    fullText
-      .substring(previousOccurrence.offsets.end, occurrenceStartOffset)
-      .includes("\n")
-  ) {
-    return "left";
-  }
+	if (
+		previousOccurrence == null ||
+		fullText
+			.substring(previousOccurrence.offsets.end, occurrenceStartOffset)
+			.includes("\n")
+	) {
+		return "left";
+	}
 
-  return previousOccurrence.delimiterInfo!.side === "left" ? "right" : "left";
+	return previousOccurrence.delimiterInfo!.side === "left" ? "right" : "left";
 }

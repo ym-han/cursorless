@@ -1,12 +1,12 @@
 export * from "./commandIds";
 export {
-  extractTargetedMarks,
-  extractTargetKeys,
+	extractTargetedMarks,
+	extractTargetKeys,
 } from "./testUtil/extractTargetedMarks";
 export { default as FakeIDE } from "./ide/fake/FakeIDE";
 export {
-  runTestSubset,
-  TEST_SUBSET_GREP_STRING,
+	runTestSubset,
+	TEST_SUBSET_GREP_STRING,
 } from "./testUtil/runTestSubset";
 export { default as serialize } from "./testUtil/serialize";
 export { default as SpyIDE } from "./ide/spy/SpyIDE";

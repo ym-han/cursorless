@@ -4,16 +4,16 @@ import { subtokenFixture } from "./fixtures/subtoken.fixture";
 import { unitTestSetup } from "./unitTestSetup";
 
 suite("subtoken regex matcher", () => {
-  unitTestSetup();
+	unitTestSetup();
 
-  subtokenFixture.forEach(({ input, expectedOutput }) => {
-    test(input, () => {
-      assert.deepStrictEqual(
-        new WordTokenizer("anyLang")
-          .splitIdentifier(input)
-          .map(({ text }) => text),
-        expectedOutput,
-      );
-    });
-  });
+	subtokenFixture.forEach(({ input, expectedOutput }) => {
+		test(input, () => {
+			assert.deepStrictEqual(
+				new WordTokenizer("anyLang")
+					.splitIdentifier(input)
+					.map(({ text }) => text),
+				expectedOutput,
+			);
+		});
+	});
 });

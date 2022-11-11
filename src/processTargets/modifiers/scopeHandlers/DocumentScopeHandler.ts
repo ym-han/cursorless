@@ -6,30 +6,30 @@ import BaseScopeHandler from "./BaseScopeHandler";
 import { TargetScope } from "./scope.types";
 
 export default class DocumentScopeHandler extends BaseScopeHandler {
-  public readonly scopeType = { type: "document" } as const;
-  public readonly iterationScopeType = { type: "document" } as const;
-  protected readonly isHierarchical = false;
+	public readonly scopeType = { type: "document" } as const;
+	public readonly iterationScopeType = { type: "document" } as const;
+	protected readonly isHierarchical = false;
 
-  constructor(_scopeType: ScopeType, _languageId: string) {
-    super();
-  }
+	constructor(_scopeType: ScopeType, _languageId: string) {
+		super();
+	}
 
-  protected *generateScopeCandidates(
-    editor: TextEditor,
-    _position: Position,
-    _direction: Direction,
-  ): Iterable<TargetScope> {
-    const contentRange = getDocumentRange(editor.document);
+	protected *generateScopeCandidates(
+		editor: TextEditor,
+		_position: Position,
+		_direction: Direction,
+	): Iterable<TargetScope> {
+		const contentRange = getDocumentRange(editor.document);
 
-    yield {
-      editor,
-      domain: contentRange,
-      getTarget: (isReversed) =>
-        new DocumentTarget({
-          editor,
-          isReversed,
-          contentRange,
-        }),
-    };
-  }
+		yield {
+			editor,
+			domain: contentRange,
+			getTarget: (isReversed) =>
+				new DocumentTarget({
+					editor,
+					isReversed,
+					contentRange,
+				}),
+		};
+	}
 }

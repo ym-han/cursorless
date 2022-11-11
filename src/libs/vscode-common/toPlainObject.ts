@@ -4,18 +4,18 @@ import type { Target } from "../../typings/target.types";
 import type { Token } from "../../typings/Types";
 
 export type PositionPlainObject = {
-  line: number;
-  character: number;
+	line: number;
+	character: number;
 };
 
 export type RangePlainObject = {
-  start: PositionPlainObject;
-  end: PositionPlainObject;
+	start: PositionPlainObject;
+	end: PositionPlainObject;
 };
 
 export type SelectionPlainObject = {
-  anchor: PositionPlainObject;
-  active: PositionPlainObject;
+	anchor: PositionPlainObject;
+	active: PositionPlainObject;
 };
 
 /**
@@ -28,45 +28,45 @@ export type SelectionPlainObject = {
  * can't use it to construct rich targets as inputs to actions in tests.
  */
 export type TargetPlainObject = {
-  /**
-   * The type name of the target, eg `UntypedTarget`.
-   */
-  type: string;
+	/**
+	 * The type name of the target, eg `UntypedTarget`.
+	 */
+	type: string;
 
-  /**
-   * Corresponds to {@link Target.contentRange}
-   */
-  contentRange: RangePlainObject;
+	/**
+	 * Corresponds to {@link Target.contentRange}
+	 */
+	contentRange: RangePlainObject;
 
-  /**
-   * Corresponds to {@link Target.isReversed}.
-   */
-  isReversed: boolean;
+	/**
+	 * Corresponds to {@link Target.isReversed}.
+	 */
+	isReversed: boolean;
 
-  /**
-   * Corresponds to {@link Target.hasExplicitRange}.
-   */
-  hasExplicitRange: boolean;
+	/**
+	 * Corresponds to {@link Target.hasExplicitRange}.
+	 */
+	hasExplicitRange: boolean;
 };
 
 export type SerializedMarks = {
-  [decoratedCharacter: string]: RangePlainObject;
+	[decoratedCharacter: string]: RangePlainObject;
 };
 
 export function rangeToPlainObject(range: Range): RangePlainObject {
-  return {
-    start: positionToPlainObject(range.start),
-    end: positionToPlainObject(range.end),
-  };
+	return {
+		start: positionToPlainObject(range.start),
+		end: positionToPlainObject(range.end),
+	};
 }
 
 export function selectionToPlainObject(
-  selection: Selection,
+	selection: Selection,
 ): SelectionPlainObject {
-  return {
-    anchor: positionToPlainObject(selection.anchor),
-    active: positionToPlainObject(selection.active),
-  };
+	return {
+		anchor: positionToPlainObject(selection.anchor),
+		active: positionToPlainObject(selection.active),
+	};
 }
 
 /**
@@ -80,37 +80,37 @@ export function selectionToPlainObject(
  * @returns A plain object that can be json serialized
  */
 export function targetToPlainObject(target: Target): TargetPlainObject {
-  return {
-    type: target.constructor.name,
-    contentRange: rangeToPlainObject(target.contentRange),
-    isReversed: target.isReversed,
-    hasExplicitRange: target.hasExplicitRange,
-  };
+	return {
+		type: target.constructor.name,
+		contentRange: rangeToPlainObject(target.contentRange),
+		isReversed: target.isReversed,
+		hasExplicitRange: target.hasExplicitRange,
+	};
 }
 
 export function positionToPlainObject({
-  line,
-  character,
+	line,
+	character,
 }: Position): PositionPlainObject {
-  return { line, character };
+	return { line, character };
 }
 
 export function marksToPlainObject(marks: {
-  [decoratedCharacter: string]: Token;
+	[decoratedCharacter: string]: Token;
 }) {
-  const serializedMarks: SerializedMarks = {};
-  Object.entries(marks).forEach(
-    ([key, value]: [string, Token]) =>
-      (serializedMarks[key] = rangeToPlainObject(value.range)),
-  );
-  return serializedMarks;
+	const serializedMarks: SerializedMarks = {};
+	Object.entries(marks).forEach(
+		([key, value]: [string, Token]) =>
+			(serializedMarks[key] = rangeToPlainObject(value.range)),
+	);
+	return serializedMarks;
 }
 
 export function testDecorationsToPlainObject(decorations: TestDecoration[]) {
-  return decorations.map(({ name, type, start, end }) => ({
-    name,
-    type,
-    start: positionToPlainObject(start),
-    end: positionToPlainObject(end),
-  }));
+	return decorations.map(({ name, type, start, end }) => ({
+		name,
+		type,
+		start: positionToPlainObject(start),
+		end: positionToPlainObject(end),
+	}));
 }

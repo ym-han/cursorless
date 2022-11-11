@@ -1,8 +1,8 @@
 import { invariant } from "immutability-helper";
 import {
-  ChangeEventInfo,
-  FullRangeInfo,
-  RangeOffsets,
+	ChangeEventInfo,
+	FullRangeInfo,
+	RangeOffsets,
 } from "../../typings/updateSelections";
 
 /**
@@ -27,39 +27,39 @@ import {
  * @returns The new offsets for the given range
  */
 export default function getOffsetsForDeleteOrReplace(
-  changeEventInfo: ChangeEventInfo,
-  rangeInfo: FullRangeInfo,
+	changeEventInfo: ChangeEventInfo,
+	rangeInfo: FullRangeInfo,
 ): RangeOffsets {
-  const {
-    originalOffsets: {
-      start: changeOriginalStartOffset,
-      end: changeOriginalEndOffset,
-    },
-    finalOffsets: { end: changeFinalEndOffset },
-    displacement,
-  } = changeEventInfo;
-  const {
-    offsets: { start: rangeStart, end: rangeEnd },
-  } = rangeInfo;
+	const {
+		originalOffsets: {
+			start: changeOriginalStartOffset,
+			end: changeOriginalEndOffset,
+		},
+		finalOffsets: { end: changeFinalEndOffset },
+		displacement,
+	} = changeEventInfo;
+	const {
+		offsets: { start: rangeStart, end: rangeEnd },
+	} = rangeInfo;
 
-  invariant(
-    changeOriginalEndOffset > changeOriginalStartOffset,
-    () => "Change range expected to be nonempty",
-  );
-  invariant(
-    changeOriginalEndOffset >= rangeStart &&
-      changeOriginalStartOffset <= rangeEnd,
-    () => "Change range expected to intersect with selection range",
-  );
+	invariant(
+		changeOriginalEndOffset > changeOriginalStartOffset,
+		() => "Change range expected to be nonempty",
+	);
+	invariant(
+		changeOriginalEndOffset >= rangeStart &&
+			changeOriginalStartOffset <= rangeEnd,
+		() => "Change range expected to intersect with selection range",
+	);
 
-  return {
-    start:
-      changeOriginalEndOffset <= rangeStart
-        ? rangeStart + displacement
-        : Math.min(rangeStart, changeFinalEndOffset),
-    end:
-      changeOriginalEndOffset <= rangeEnd
-        ? rangeEnd + displacement
-        : Math.min(rangeEnd, changeFinalEndOffset),
-  };
+	return {
+		start:
+			changeOriginalEndOffset <= rangeStart
+				? rangeStart + displacement
+				: Math.min(rangeStart, changeFinalEndOffset),
+		end:
+			changeOriginalEndOffset <= rangeEnd
+				? rangeEnd + displacement
+				: Math.min(rangeEnd, changeFinalEndOffset),
+	};
 }

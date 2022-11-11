@@ -5,27 +5,27 @@ import { openNewEditor } from "../openNewEditor";
 import { endToEndTestSetup } from "../endToEndTestSetup";
 
 suite("toggle decorations", async function () {
-  endToEndTestSetup(this);
+	endToEndTestSetup(this);
 
-  test("toggle decorations", () => runTest());
+	test("toggle decorations", () => runTest());
 });
 
 async function runTest() {
-  const { hatTokenMap } = (await getCursorlessApi()).testHelpers!.graph;
+	const { hatTokenMap } = (await getCursorlessApi()).testHelpers!.graph;
 
-  await openNewEditor("Hello world testing whatever");
+	await openNewEditor("Hello world testing whatever");
 
-  // Check that hats appear by default
-  await hatTokenMap.addDecorations();
-  assert((await hatTokenMap.getReadableMap(false)).getEntries().length !== 0);
+	// Check that hats appear by default
+	await hatTokenMap.addDecorations();
+	assert((await hatTokenMap.getReadableMap(false)).getEntries().length !== 0);
 
-  // Check that hats disappear when turned off
-  await vscode.commands.executeCommand("cursorless.toggleDecorations");
-  await hatTokenMap.addDecorations();
-  assert((await hatTokenMap.getReadableMap(false)).getEntries().length === 0);
+	// Check that hats disappear when turned off
+	await vscode.commands.executeCommand("cursorless.toggleDecorations");
+	await hatTokenMap.addDecorations();
+	assert((await hatTokenMap.getReadableMap(false)).getEntries().length === 0);
 
-  // Check that hats reappear when turned back on
-  await vscode.commands.executeCommand("cursorless.toggleDecorations");
-  await hatTokenMap.addDecorations();
-  assert((await hatTokenMap.getReadableMap(false)).getEntries().length !== 0);
+	// Check that hats reappear when turned back on
+	await vscode.commands.executeCommand("cursorless.toggleDecorations");
+	await hatTokenMap.addDecorations();
+	assert((await hatTokenMap.getReadableMap(false)).getEntries().length !== 0);
 }

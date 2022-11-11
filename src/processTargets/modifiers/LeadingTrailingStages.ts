@@ -1,7 +1,7 @@
 import { Target } from "../../typings/target.types";
 import {
-  LeadingModifier,
-  TrailingModifier,
+	LeadingModifier,
+	TrailingModifier,
 } from "../../typings/targetDescriptor.types";
 import { ProcessedTargetsContext } from "../../typings/Types";
 import { ModifierStage } from "../PipelineStages.types";
@@ -12,36 +12,36 @@ import { containingTokenIfUntypedStage } from "./commonContainingScopeIfUntypedS
  * such delimiter exists on the given target.
  */
 class NoDelimiterError extends Error {
-  constructor(type: "leading" | "trailing") {
-    super(`Target has no ${type} delimiter.`);
-    this.name = "NoDelimiterError";
-  }
+	constructor(type: "leading" | "trailing") {
+		super(`Target has no ${type} delimiter.`);
+		this.name = "NoDelimiterError";
+	}
 }
 
 export class LeadingStage implements ModifierStage {
-  constructor(private modifier: LeadingModifier) {}
+	constructor(private modifier: LeadingModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    return containingTokenIfUntypedStage.run(context, target).map((target) => {
-      const leading = target.getLeadingDelimiterTarget();
-      if (leading == null) {
-        throw new NoDelimiterError("leading");
-      }
-      return leading;
-    });
-  }
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		return containingTokenIfUntypedStage.run(context, target).map((target) => {
+			const leading = target.getLeadingDelimiterTarget();
+			if (leading == null) {
+				throw new NoDelimiterError("leading");
+			}
+			return leading;
+		});
+	}
 }
 
 export class TrailingStage implements ModifierStage {
-  constructor(private modifier: TrailingModifier) {}
+	constructor(private modifier: TrailingModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    return containingTokenIfUntypedStage.run(context, target).map((target) => {
-      const trailing = target.getTrailingDelimiterTarget();
-      if (trailing == null) {
-        throw new NoDelimiterError("trailing");
-      }
-      return trailing;
-    });
-  }
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		return containingTokenIfUntypedStage.run(context, target).map((target) => {
+			const trailing = target.getTrailingDelimiterTarget();
+			if (trailing == null) {
+				throw new NoDelimiterError("trailing");
+			}
+			return trailing;
+		});
+	}
 }

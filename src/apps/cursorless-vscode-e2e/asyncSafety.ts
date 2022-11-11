@@ -13,21 +13,21 @@ import type { Context, Done } from "mocha";
  * @returns A safely wrapped test function
  */
 export default function asyncSafety(fn: () => Promise<void>) {
-  return function (this: Context, done: Done) {
-    const runnable = this.runnable();
+	return function (this: Context, done: Done) {
+		const runnable = this.runnable();
 
-    fn.bind(this)()
-      .then(() => {
-        // for successful I think we only need timedOut? not sure though, might have side effects
-        // when the duration check is added it will get stuck and never complete on a second runthrough
-        if (!runnable.timedOut) {
-          done();
-        }
-      })
-      .catch((err: unknown) => {
-        if (!runnable.timedOut && !runnable.duration) {
-          done(err);
-        }
-      });
-  };
+		fn.bind(this)()
+			.then(() => {
+				// for successful I think we only need timedOut? not sure though, might have side effects
+				// when the duration check is added it will get stuck and never complete on a second runthrough
+				if (!runnable.timedOut) {
+					done();
+				}
+			})
+			.catch((err: unknown) => {
+				if (!runnable.timedOut && !runnable.duration) {
+					done(err);
+				}
+			});
+	};
 }

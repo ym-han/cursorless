@@ -1,8 +1,8 @@
 import { Position, TextEditor } from "vscode";
 import { getScopeHandler } from ".";
 import {
-  Direction,
-  OneOfScopeType,
+	Direction,
+	OneOfScopeType,
 } from "../../../typings/targetDescriptor.types";
 import BaseScopeHandler from "./BaseScopeHandler";
 import { compareTargetScopes } from "./compareTargetScopes";
@@ -11,62 +11,62 @@ import type { TargetScope } from "./scope.types";
 import { ScopeHandler, ScopeIteratorRequirements } from "./scopeHandler.types";
 
 export default class OneOfScopeHandler extends BaseScopeHandler {
-  protected isHierarchical = true;
+	protected isHierarchical = true;
 
-  private scopeHandlers: ScopeHandler[] = this.scopeType.scopeTypes.map(
-    (scopeType) => {
-      const handler = getScopeHandler(scopeType, this.languageId);
-      if (handler == null) {
-        throw new Error(`No available scope handler for '${scopeType.type}'`);
-      }
-      return handler;
-    },
-  );
+	private scopeHandlers: ScopeHandler[] = this.scopeType.scopeTypes.map(
+		(scopeType) => {
+			const handler = getScopeHandler(scopeType, this.languageId);
+			if (handler == null) {
+				throw new Error(`No available scope handler for '${scopeType.type}'`);
+			}
+			return handler;
+		},
+	);
 
-  public iterationScopeType: OneOfScopeType = {
-    type: "oneOf",
-    scopeTypes: this.scopeHandlers.map(
-      ({ iterationScopeType }) => iterationScopeType,
-    ),
-  };
+	public iterationScopeType: OneOfScopeType = {
+		type: "oneOf",
+		scopeTypes: this.scopeHandlers.map(
+			({ iterationScopeType }) => iterationScopeType,
+		),
+	};
 
-  constructor(
-    public readonly scopeType: OneOfScopeType,
-    private languageId: string,
-  ) {
-    super();
-  }
+	constructor(
+		public readonly scopeType: OneOfScopeType,
+		private languageId: string,
+	) {
+		super();
+	}
 
-  *generateScopeCandidates(
-    editor: TextEditor,
-    position: Position,
-    direction: Direction,
-    hints?: ScopeIteratorRequirements | undefined,
-  ): Iterable<TargetScope> {
-    const iterators = this.scopeHandlers.map((scopeHandler) =>
-      scopeHandler
-        .generateScopes(editor, position, direction, hints)
-        [Symbol.iterator](),
-    );
+	*generateScopeCandidates(
+		editor: TextEditor,
+		position: Position,
+		direction: Direction,
+		hints?: ScopeIteratorRequirements | undefined,
+	): Iterable<TargetScope> {
+		const iterators = this.scopeHandlers.map((scopeHandler) =>
+			scopeHandler
+				.generateScopes(editor, position, direction, hints)
+				[Symbol.iterator](),
+		);
 
-    let iteratorInfos = getInitialIteratorInfos(iterators);
+		let iteratorInfos = getInitialIteratorInfos(iterators);
 
-    while (iteratorInfos.length > 0) {
-      iteratorInfos.sort((a, b) =>
-        compareTargetScopes(direction, position, a.value, b.value),
-      );
+		while (iteratorInfos.length > 0) {
+			iteratorInfos.sort((a, b) =>
+				compareTargetScopes(direction, position, a.value, b.value),
+			);
 
-      // Pick minimum scope according to canonical scope ordering
-      const currentScope = iteratorInfos[0].value;
+			// Pick minimum scope according to canonical scope ordering
+			const currentScope = iteratorInfos[0].value;
 
-      yield currentScope;
+			yield currentScope;
 
-      // Advance all iterators past the scope that was yielded
-      iteratorInfos = advanceIteratorsUntil(
-        iteratorInfos,
-        (scope) =>
-          compareTargetScopes(direction, position, currentScope, scope) < 0,
-      );
-    }
-  }
+			// Advance all iterators past the scope that was yielded
+			iteratorInfos = advanceIteratorsUntil(
+				iteratorInfos,
+				(scope) =>
+					compareTargetScopes(direction, position, currentScope, scope) < 0,
+			);
+		}
+	}
 }

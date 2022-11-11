@@ -1,13 +1,13 @@
 import { Range, TextEditor } from "vscode";
 import {
-  CommonTargetParameters,
-  LineTarget,
-  PlainTarget,
+	CommonTargetParameters,
+	LineTarget,
+	PlainTarget,
 } from "../processTargets/targets";
 import { Target } from "../typings/target.types";
 
 type TargetConstructor<T extends Target> = new (
-  parameters: CommonTargetParameters,
+	parameters: CommonTargetParameters,
 ) => T;
 
 /**
@@ -21,18 +21,18 @@ type TargetConstructor<T extends Target> = new (
  * is undefined
  */
 export function tryConstructTarget<T extends Target>(
-  constructor: TargetConstructor<T>,
-  editor: TextEditor,
-  range: Range | undefined,
-  isReversed: boolean,
+	constructor: TargetConstructor<T>,
+	editor: TextEditor,
+	range: Range | undefined,
+	isReversed: boolean,
 ): T | undefined {
-  return range == null
-    ? undefined
-    : new constructor({
-        editor,
-        isReversed,
-        contentRange: range,
-      });
+	return range == null
+		? undefined
+		: new constructor({
+				editor,
+				isReversed,
+				contentRange: range,
+		  });
 }
 
 /**
@@ -45,11 +45,11 @@ export function tryConstructTarget<T extends Target>(
  * if the range is undefined
  */
 export function tryConstructPlainTarget(
-  editor: TextEditor,
-  range: Range | undefined,
-  isReversed: boolean,
+	editor: TextEditor,
+	range: Range | undefined,
+	isReversed: boolean,
 ): PlainTarget | undefined {
-  return tryConstructTarget(PlainTarget, editor, range, isReversed);
+	return tryConstructTarget(PlainTarget, editor, range, isReversed);
 }
 
 /**
@@ -62,9 +62,9 @@ export function tryConstructPlainTarget(
  * if the range is undefined
  */
 export function constructLineTarget(
-  editor: TextEditor,
-  range: Range | undefined,
-  isReversed: boolean,
+	editor: TextEditor,
+	range: Range | undefined,
+	isReversed: boolean,
 ): LineTarget | undefined {
-  return tryConstructTarget(LineTarget, editor, range, isReversed);
+	return tryConstructTarget(LineTarget, editor, range, isReversed);
 }

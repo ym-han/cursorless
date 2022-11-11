@@ -8,21 +8,21 @@ import { window, workspace } from "vscode";
  * @param snippetName The name of the snippet
  */
 export async function openNewSnippetFile(snippetName: string) {
-  const userSnippetsDir = workspace
-    .getConfiguration("cursorless.experimental")
-    .get<string>("snippetsDir");
+	const userSnippetsDir = workspace
+		.getConfiguration("cursorless.experimental")
+		.get<string>("snippetsDir");
 
-  if (!userSnippetsDir) {
-    throw new Error("User snippets dir not configured.");
-  }
+	if (!userSnippetsDir) {
+		throw new Error("User snippets dir not configured.");
+	}
 
-  const path = join(userSnippetsDir, `${snippetName}.cursorless-snippets`);
-  await touch(path);
-  const snippetDoc = await workspace.openTextDocument(path);
-  await window.showTextDocument(snippetDoc);
+	const path = join(userSnippetsDir, `${snippetName}.cursorless-snippets`);
+	await touch(path);
+	const snippetDoc = await workspace.openTextDocument(path);
+	await window.showTextDocument(snippetDoc);
 }
 
 async function touch(path: string) {
-  const file = await open(path, "w");
-  await file.close();
+	const file = await open(path, "w");
+	await file.close();
 }

@@ -9,30 +9,30 @@ import { ModifierStage } from "../PipelineStages.types";
  * scope type, ie if {@link Target.hasExplicitScopeType} is `false`.
  */
 export default class ModifyIfUntypedStage implements ModifierStage {
-  private nestedStage_?: ModifierStage;
+	private nestedStage_?: ModifierStage;
 
-  constructor(private modifier: ModifyIfUntypedModifier) {}
+	constructor(private modifier: ModifyIfUntypedModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    // If true this target has an explicit scope type and should not be modified.
-    if (target.hasExplicitScopeType) {
-      return [target];
-    }
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		// If true this target has an explicit scope type and should not be modified.
+		if (target.hasExplicitScopeType) {
+			return [target];
+		}
 
-    /**
-     * This target is lacking an explicit scope type and should use inference/upgrade when needed.
-     * See {@link Target.hasExplicitScopeType} for more info
-     */
-    return this.nestedStage
-      .run(context, target)
-      .map((newTarget) => newTarget.withThatTarget(target));
-  }
+		/**
+		 * This target is lacking an explicit scope type and should use inference/upgrade when needed.
+		 * See {@link Target.hasExplicitScopeType} for more info
+		 */
+		return this.nestedStage
+			.run(context, target)
+			.map((newTarget) => newTarget.withThatTarget(target));
+	}
 
-  private get nestedStage() {
-    if (this.nestedStage_ == null) {
-      this.nestedStage_ = getModifierStage(this.modifier.modifier);
-    }
+	private get nestedStage() {
+		if (this.nestedStage_ == null) {
+			this.nestedStage_ = getModifierStage(this.modifier.modifier);
+		}
 
-    return this.nestedStage_;
-  }
+		return this.nestedStage_;
+	}
 }

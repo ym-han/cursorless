@@ -1,21 +1,21 @@
 import type {
-  ContainingScopeModifier,
-  EveryScopeModifier,
-  SurroundingPairModifier,
+	ContainingScopeModifier,
+	EveryScopeModifier,
+	SurroundingPairModifier,
 } from "../../typings/targetDescriptor.types";
 import type { ModifierStage } from "../PipelineStages.types";
 import ItemStage from "./ItemStage";
 import BoundedNonWhitespaceSequenceStage from "./scopeTypeStages/BoundedNonWhitespaceStage";
 import ContainingSyntaxScopeStage, {
-  SimpleContainingScopeModifier,
-  SimpleEveryScopeModifier,
+	SimpleContainingScopeModifier,
+	SimpleEveryScopeModifier,
 } from "./scopeTypeStages/ContainingSyntaxScopeStage";
 import NotebookCellStage from "./scopeTypeStages/NotebookCellStage";
 import {
-  CustomRegexModifier,
-  CustomRegexStage,
-  NonWhitespaceSequenceStage,
-  UrlStage,
+	CustomRegexModifier,
+	CustomRegexStage,
+	NonWhitespaceSequenceStage,
+	UrlStage,
 } from "./scopeTypeStages/RegexStage";
 import SurroundingPairStage from "./SurroundingPairStage";
 
@@ -33,27 +33,27 @@ import SurroundingPairStage from "./SurroundingPairStage";
  * @returns A scope stage implementing the modifier for the given scope type
  */
 export default function getLegacyScopeStage(
-  modifier: ContainingScopeModifier | EveryScopeModifier,
+	modifier: ContainingScopeModifier | EveryScopeModifier,
 ): ModifierStage {
-  switch (modifier.scopeType.type) {
-    case "notebookCell":
-      return new NotebookCellStage(modifier);
-    case "nonWhitespaceSequence":
-      return new NonWhitespaceSequenceStage(modifier);
-    case "boundedNonWhitespaceSequence":
-      return new BoundedNonWhitespaceSequenceStage(modifier);
-    case "url":
-      return new UrlStage(modifier);
-    case "collectionItem":
-      return new ItemStage(modifier);
-    case "customRegex":
-      return new CustomRegexStage(modifier as CustomRegexModifier);
-    case "surroundingPair":
-      return new SurroundingPairStage(modifier as SurroundingPairModifier);
-    default:
-      // Default to containing syntax scope using tree sitter
-      return new ContainingSyntaxScopeStage(
-        modifier as SimpleContainingScopeModifier | SimpleEveryScopeModifier,
-      );
-  }
+	switch (modifier.scopeType.type) {
+		case "notebookCell":
+			return new NotebookCellStage(modifier);
+		case "nonWhitespaceSequence":
+			return new NonWhitespaceSequenceStage(modifier);
+		case "boundedNonWhitespaceSequence":
+			return new BoundedNonWhitespaceSequenceStage(modifier);
+		case "url":
+			return new UrlStage(modifier);
+		case "collectionItem":
+			return new ItemStage(modifier);
+		case "customRegex":
+			return new CustomRegexStage(modifier as CustomRegexModifier);
+		case "surroundingPair":
+			return new SurroundingPairStage(modifier as SurroundingPairModifier);
+		default:
+			// Default to containing syntax scope using tree sitter
+			return new ContainingSyntaxScopeStage(
+				modifier as SimpleContainingScopeModifier | SimpleEveryScopeModifier,
+			);
+	}
 }

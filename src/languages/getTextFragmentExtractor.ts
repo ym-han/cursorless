@@ -14,56 +14,56 @@ import { getNodeMatcher } from "./getNodeMatcher";
 import { notSupported } from "../util/nodeMatchers";
 
 export type TextFragmentExtractor = (
-  node: SyntaxNode,
-  selection: SelectionWithEditor,
+	node: SyntaxNode,
+	selection: SelectionWithEditor,
 ) => Range | null;
 
 function constructDefaultTextFragmentExtractor(
-  languageId: SupportedLanguageId,
-  stringTextFragmentExtractor?: TextFragmentExtractor,
+	languageId: SupportedLanguageId,
+	stringTextFragmentExtractor?: TextFragmentExtractor,
 ): TextFragmentExtractor {
-  const commentNodeMatcher = getNodeMatcher(languageId, "comment", false);
-  stringTextFragmentExtractor =
-    stringTextFragmentExtractor ??
-    constructDefaultStringTextFragmentExtractor(languageId);
+	const commentNodeMatcher = getNodeMatcher(languageId, "comment", false);
+	stringTextFragmentExtractor =
+		stringTextFragmentExtractor ??
+		constructDefaultStringTextFragmentExtractor(languageId);
 
-  return (node: SyntaxNode, selection: SelectionWithEditor) => {
-    const stringTextFragment = stringTextFragmentExtractor!(node, selection);
+	return (node: SyntaxNode, selection: SelectionWithEditor) => {
+		const stringTextFragment = stringTextFragmentExtractor!(node, selection);
 
-    if (stringTextFragment != null) {
-      return stringTextFragment;
-    }
+		if (stringTextFragment != null) {
+			return stringTextFragment;
+		}
 
-    if (
-      commentNodeMatcher !== notSupported &&
-      commentNodeMatcher(selection, node) != null
-    ) {
-      return getNodeRange(node);
-    }
+		if (
+			commentNodeMatcher !== notSupported &&
+			commentNodeMatcher(selection, node) != null
+		) {
+			return getNodeRange(node);
+		}
 
-    // Treat error nodes as raw text so that the surrounding pair matcher can
-    // still be useful when we have a bad parse tree
-    if (node.type === "ERROR") {
-      return getNodeRange(node);
-    }
+		// Treat error nodes as raw text so that the surrounding pair matcher can
+		// still be useful when we have a bad parse tree
+		if (node.type === "ERROR") {
+			return getNodeRange(node);
+		}
 
-    return null;
-  };
+		return null;
+	};
 }
 
 function constructDefaultStringTextFragmentExtractor(
-  languageId: SupportedLanguageId,
+	languageId: SupportedLanguageId,
 ): TextFragmentExtractor {
-  const stringNodeMatcher = getNodeMatcher(languageId, "string", false);
+	const stringNodeMatcher = getNodeMatcher(languageId, "string", false);
 
-  return (node: SyntaxNode, selection: SelectionWithEditor) => {
-    if (stringNodeMatcher(selection, node) != null) {
-      // Exclude starting and ending quotation marks
-      return getNodeInternalRange(node);
-    }
+	return (node: SyntaxNode, selection: SelectionWithEditor) => {
+		if (stringNodeMatcher(selection, node) != null) {
+			// Exclude starting and ending quotation marks
+			return getNodeInternalRange(node);
+		}
 
-    return null;
-  };
+		return null;
+	};
 }
 
 /**
@@ -80,17 +80,17 @@ function constructDefaultStringTextFragmentExtractor(
  * @returns The range of the string text or null if the node is not a string
  */
 function constructHackedStringTextFragmentExtractor(
-  languageId: SupportedLanguageId,
+	languageId: SupportedLanguageId,
 ) {
-  const stringNodeMatcher = getNodeMatcher(languageId, "string", false);
+	const stringNodeMatcher = getNodeMatcher(languageId, "string", false);
 
-  return (node: SyntaxNode, selection: SelectionWithEditor) => {
-    if (stringNodeMatcher(selection, node) != null) {
-      return getNodeRange(node);
-    }
+	return (node: SyntaxNode, selection: SelectionWithEditor) => {
+		if (stringNodeMatcher(selection, node) != null) {
+			return getNodeRange(node);
+		}
 
-    return null;
-  };
+		return null;
+	};
 }
 
 /**
@@ -104,15 +104,15 @@ function constructHackedStringTextFragmentExtractor(
  * @returns The text fragment extractor for the given language
  */
 export default function getTextFragmentExtractor(
-  languageId: string,
+	languageId: string,
 ): TextFragmentExtractor {
-  const extractor = textFragmentExtractors[languageId as SupportedLanguageId];
+	const extractor = textFragmentExtractors[languageId as SupportedLanguageId];
 
-  if (extractor == null) {
-    throw new UnsupportedLanguageError(languageId);
-  }
+	if (extractor == null) {
+		throw new UnsupportedLanguageError(languageId);
+	}
 
-  return extractor;
+	return extractor;
 }
 
 // NB: For now when we want use the entire file as a text fragment we just
@@ -122,75 +122,75 @@ type FullDocumentTextFragmentExtractor = null;
 const fullDocumentTextFragmentExtractor = null;
 
 const textFragmentExtractors: Record<
-  SupportedLanguageId,
-  TextFragmentExtractor | FullDocumentTextFragmentExtractor
+	SupportedLanguageId,
+	TextFragmentExtractor | FullDocumentTextFragmentExtractor
 > = {
-  c: constructDefaultTextFragmentExtractor("c"),
-  clojure: constructDefaultTextFragmentExtractor(
-    "clojure",
-    constructHackedStringTextFragmentExtractor("clojure"),
-  ),
-  cpp: constructDefaultTextFragmentExtractor("cpp"),
-  csharp: constructDefaultTextFragmentExtractor("csharp"),
-  css: constructDefaultTextFragmentExtractor(
-    "css",
-    scssStringTextFragmentExtractor,
-  ),
-  go: constructDefaultTextFragmentExtractor("go"),
-  html: constructDefaultTextFragmentExtractor(
-    "html",
-    htmlStringTextFragmentExtractor,
-  ),
-  java: constructDefaultTextFragmentExtractor(
-    "java",
-    constructHackedStringTextFragmentExtractor("java"),
-  ),
-  javascript: constructDefaultTextFragmentExtractor(
-    "javascript",
-    typescriptStringTextFragmentExtractor,
-  ),
-  javascriptreact: constructDefaultTextFragmentExtractor(
-    "javascriptreact",
-    typescriptStringTextFragmentExtractor,
-  ),
-  jsonc: constructDefaultTextFragmentExtractor(
-    "jsonc",
-    jsonStringTextFragmentExtractor,
-  ),
-  json: constructDefaultTextFragmentExtractor(
-    "json",
-    jsonStringTextFragmentExtractor,
-  ),
-  latex: fullDocumentTextFragmentExtractor,
-  markdown: fullDocumentTextFragmentExtractor,
-  php: constructDefaultTextFragmentExtractor(
-    "php",
-    phpStringTextFragmentExtractor,
-  ),
-  python: constructDefaultTextFragmentExtractor("python"),
-  ruby: constructDefaultTextFragmentExtractor(
-    "ruby",
-    rubyStringTextFragmentExtractor,
-  ),
-  scala: constructDefaultTextFragmentExtractor(
-    "scala",
-    constructHackedStringTextFragmentExtractor("scala"),
-  ),
-  scss: constructDefaultTextFragmentExtractor(
-    "scss",
-    scssStringTextFragmentExtractor,
-  ),
-  rust: constructDefaultTextFragmentExtractor("rust"),
-  typescript: constructDefaultTextFragmentExtractor(
-    "typescript",
-    typescriptStringTextFragmentExtractor,
-  ),
-  typescriptreact: constructDefaultTextFragmentExtractor(
-    "typescriptreact",
-    typescriptStringTextFragmentExtractor,
-  ),
-  xml: constructDefaultTextFragmentExtractor(
-    "xml",
-    htmlStringTextFragmentExtractor,
-  ),
+	c: constructDefaultTextFragmentExtractor("c"),
+	clojure: constructDefaultTextFragmentExtractor(
+		"clojure",
+		constructHackedStringTextFragmentExtractor("clojure"),
+	),
+	cpp: constructDefaultTextFragmentExtractor("cpp"),
+	csharp: constructDefaultTextFragmentExtractor("csharp"),
+	css: constructDefaultTextFragmentExtractor(
+		"css",
+		scssStringTextFragmentExtractor,
+	),
+	go: constructDefaultTextFragmentExtractor("go"),
+	html: constructDefaultTextFragmentExtractor(
+		"html",
+		htmlStringTextFragmentExtractor,
+	),
+	java: constructDefaultTextFragmentExtractor(
+		"java",
+		constructHackedStringTextFragmentExtractor("java"),
+	),
+	javascript: constructDefaultTextFragmentExtractor(
+		"javascript",
+		typescriptStringTextFragmentExtractor,
+	),
+	javascriptreact: constructDefaultTextFragmentExtractor(
+		"javascriptreact",
+		typescriptStringTextFragmentExtractor,
+	),
+	jsonc: constructDefaultTextFragmentExtractor(
+		"jsonc",
+		jsonStringTextFragmentExtractor,
+	),
+	json: constructDefaultTextFragmentExtractor(
+		"json",
+		jsonStringTextFragmentExtractor,
+	),
+	latex: fullDocumentTextFragmentExtractor,
+	markdown: fullDocumentTextFragmentExtractor,
+	php: constructDefaultTextFragmentExtractor(
+		"php",
+		phpStringTextFragmentExtractor,
+	),
+	python: constructDefaultTextFragmentExtractor("python"),
+	ruby: constructDefaultTextFragmentExtractor(
+		"ruby",
+		rubyStringTextFragmentExtractor,
+	),
+	scala: constructDefaultTextFragmentExtractor(
+		"scala",
+		constructHackedStringTextFragmentExtractor("scala"),
+	),
+	scss: constructDefaultTextFragmentExtractor(
+		"scss",
+		scssStringTextFragmentExtractor,
+	),
+	rust: constructDefaultTextFragmentExtractor("rust"),
+	typescript: constructDefaultTextFragmentExtractor(
+		"typescript",
+		typescriptStringTextFragmentExtractor,
+	),
+	typescriptreact: constructDefaultTextFragmentExtractor(
+		"typescriptreact",
+		typescriptStringTextFragmentExtractor,
+	),
+	xml: constructDefaultTextFragmentExtractor(
+		"xml",
+		htmlStringTextFragmentExtractor,
+	),
 };

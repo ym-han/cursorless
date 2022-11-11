@@ -1,8 +1,8 @@
 import { NoContainingScopeError } from "../../errors";
 import type { Target } from "../../typings/target.types";
 import type {
-  ContainingScopeModifier,
-  Direction,
+	ContainingScopeModifier,
+	Direction,
 } from "../../typings/targetDescriptor.types";
 import type { ProcessedTargetsContext } from "../../typings/Types";
 import getScopeHandler from "./scopeHandlers/getScopeHandler";
@@ -33,150 +33,150 @@ import { getContainingScope } from "./getContainingScope";
  *    input target content range.
  */
 export class ContainingScopeStage implements ModifierStage {
-  constructor(private modifier: ContainingScopeModifier) {}
+	constructor(private modifier: ContainingScopeModifier) {}
 
-  run(context: ProcessedTargetsContext, target: Target): Target[] {
-    const {
-      isReversed,
-      editor,
-      contentRange: { start, end },
-    } = target;
-    const { scopeType, ancestorIndex = 0 } = this.modifier;
+	run(context: ProcessedTargetsContext, target: Target): Target[] {
+		const {
+			isReversed,
+			editor,
+			contentRange: { start, end },
+		} = target;
+		const { scopeType, ancestorIndex = 0 } = this.modifier;
 
-    const scopeHandler = getScopeHandler(
-      scopeType,
-      target.editor.document.languageId,
-    );
+		const scopeHandler = getScopeHandler(
+			scopeType,
+			target.editor.document.languageId,
+		);
 
-    if (scopeHandler == null) {
-      return getLegacyScopeStage(this.modifier).run(context, target);
-    }
+		if (scopeHandler == null) {
+			return getLegacyScopeStage(this.modifier).run(context, target);
+		}
 
-    if (end.isEqual(start)) {
-      // Input target is empty; return the preferred scope touching target
-      let scope = getPreferredScopeTouchingPosition(
-        scopeHandler,
-        editor,
-        start,
-      );
+		if (end.isEqual(start)) {
+			// Input target is empty; return the preferred scope touching target
+			let scope = getPreferredScopeTouchingPosition(
+				scopeHandler,
+				editor,
+				start,
+			);
 
-      if (scope == null) {
-        throw new NoContainingScopeError(this.modifier.scopeType.type);
-      }
+			if (scope == null) {
+				throw new NoContainingScopeError(this.modifier.scopeType.type);
+			}
 
-      if (ancestorIndex > 0) {
-        scope = expandFromPosition(
-          scopeHandler,
-          editor,
-          scope.domain.end,
-          "forward",
-          ancestorIndex - 1,
-        );
-      }
+			if (ancestorIndex > 0) {
+				scope = expandFromPosition(
+					scopeHandler,
+					editor,
+					scope.domain.end,
+					"forward",
+					ancestorIndex - 1,
+				);
+			}
 
-      if (scope == null) {
-        throw new NoContainingScopeError(this.modifier.scopeType.type);
-      }
+			if (scope == null) {
+				throw new NoContainingScopeError(this.modifier.scopeType.type);
+			}
 
-      return [scope.getTarget(isReversed)];
-    }
+			return [scope.getTarget(isReversed)];
+		}
 
-    const startScope = expandFromPosition(
-      scopeHandler,
-      editor,
-      start,
-      "forward",
-      ancestorIndex,
-    );
+		const startScope = expandFromPosition(
+			scopeHandler,
+			editor,
+			start,
+			"forward",
+			ancestorIndex,
+		);
 
-    if (startScope == null) {
-      throw new NoContainingScopeError(this.modifier.scopeType.type);
-    }
+		if (startScope == null) {
+			throw new NoContainingScopeError(this.modifier.scopeType.type);
+		}
 
-    if (startScope.domain.contains(end)) {
-      return [startScope.getTarget(isReversed)];
-    }
+		if (startScope.domain.contains(end)) {
+			return [startScope.getTarget(isReversed)];
+		}
 
-    const endScope = expandFromPosition(
-      scopeHandler,
-      editor,
-      end,
-      "backward",
-      ancestorIndex,
-    );
+		const endScope = expandFromPosition(
+			scopeHandler,
+			editor,
+			end,
+			"backward",
+			ancestorIndex,
+		);
 
-    if (endScope == null) {
-      throw new NoContainingScopeError(this.modifier.scopeType.type);
-    }
+		if (endScope == null) {
+			throw new NoContainingScopeError(this.modifier.scopeType.type);
+		}
 
-    return [constructScopeRangeTarget(isReversed, startScope, endScope)];
-  }
+		return [constructScopeRangeTarget(isReversed, startScope, endScope)];
+	}
 }
 
 function expandFromPosition(
-  scopeHandler: ScopeHandler,
-  editor: TextEditor,
-  position: Position,
-  direction: Direction,
-  ancestorIndex: number,
+	scopeHandler: ScopeHandler,
+	editor: TextEditor,
+	position: Position,
+	direction: Direction,
+	ancestorIndex: number,
 ): TargetScope | undefined {
-  let nextAncestorIndex = 0;
-  for (const scope of scopeHandler.generateScopes(editor, position, direction, {
-    containment: "required",
-  })) {
-    if (nextAncestorIndex === ancestorIndex) {
-      return scope;
-    }
+	let nextAncestorIndex = 0;
+	for (const scope of scopeHandler.generateScopes(editor, position, direction, {
+		containment: "required",
+	})) {
+		if (nextAncestorIndex === ancestorIndex) {
+			return scope;
+		}
 
-    // Because containment is required, and we are moving in a consistent
-    // direction (ie forward or backward), each scope will be progressively
-    // larger
-    nextAncestorIndex += 1;
-  }
+		// Because containment is required, and we are moving in a consistent
+		// direction (ie forward or backward), each scope will be progressively
+		// larger
+		nextAncestorIndex += 1;
+	}
 
-  return undefined;
+	return undefined;
 }
 
 function getPreferredScopeTouchingPosition(
-  scopeHandler: ScopeHandler,
-  editor: TextEditor,
-  position: Position,
+	scopeHandler: ScopeHandler,
+	editor: TextEditor,
+	position: Position,
 ): TargetScope | undefined {
-  const forwardScope = getContainingScope(
-    scopeHandler,
-    editor,
-    position,
-    "forward",
-  );
+	const forwardScope = getContainingScope(
+		scopeHandler,
+		editor,
+		position,
+		"forward",
+	);
 
-  if (forwardScope == null) {
-    return getContainingScope(scopeHandler, editor, position, "backward");
-  }
+	if (forwardScope == null) {
+		return getContainingScope(scopeHandler, editor, position, "backward");
+	}
 
-  if (
-    scopeHandler.isPreferredOver == null ||
-    forwardScope.domain.start.isBefore(position)
-  ) {
-    return forwardScope;
-  }
+	if (
+		scopeHandler.isPreferredOver == null ||
+		forwardScope.domain.start.isBefore(position)
+	) {
+		return forwardScope;
+	}
 
-  const backwardScope = getContainingScope(
-    scopeHandler,
-    editor,
-    position,
-    "backward",
-  );
+	const backwardScope = getContainingScope(
+		scopeHandler,
+		editor,
+		position,
+		"backward",
+	);
 
-  // If there is no backward scope, or if the backward scope is an ancestor of
-  // forward scope, return forward scope
-  if (
-    backwardScope == null ||
-    backwardScope.domain.contains(forwardScope.domain)
-  ) {
-    return forwardScope;
-  }
+	// If there is no backward scope, or if the backward scope is an ancestor of
+	// forward scope, return forward scope
+	if (
+		backwardScope == null ||
+		backwardScope.domain.contains(forwardScope.domain)
+	) {
+		return forwardScope;
+	}
 
-  return scopeHandler.isPreferredOver(backwardScope, forwardScope) ?? false
-    ? backwardScope
-    : forwardScope;
+	return scopeHandler.isPreferredOver(backwardScope, forwardScope) ?? false
+		? backwardScope
+		: forwardScope;
 }

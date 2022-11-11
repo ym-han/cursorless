@@ -1,66 +1,66 @@
 import { range } from "lodash";
 import * as semver from "semver";
 import {
-  commands,
-  NotebookDocument,
-  TextDocument,
-  TextEditor,
-  version,
+	commands,
+	NotebookDocument,
+	TextDocument,
+	TextEditor,
+	version,
 } from "vscode";
 import { getNotebookFromCellDocument } from "./notebook";
 import { getCellIndex } from "../libs/vscode-common/notebook";
 import { getActiveTextEditor } from "../ide/vscode/activeTextEditor";
 
 export function isVscodeLegacyNotebookVersion() {
-  return semver.lt(version, "1.68.0");
+	return semver.lt(version, "1.68.0");
 }
 
 export async function focusNotebookCellLegacy(editor: TextEditor) {
-  const activeTextEditor = getActiveTextEditor();
+	const activeTextEditor = getActiveTextEditor();
 
-  if (activeTextEditor == null) {
-    return;
-  }
+	if (activeTextEditor == null) {
+		return;
+	}
 
-  const editorNotebook = getNotebookFromCellDocument(editor.document);
-  const activeEditorNotebook = getNotebookFromCellDocument(
-    activeTextEditor.document,
-  );
+	const editorNotebook = getNotebookFromCellDocument(editor.document);
+	const activeEditorNotebook = getNotebookFromCellDocument(
+		activeTextEditor.document,
+	);
 
-  if (
-    editorNotebook == null ||
-    activeEditorNotebook == null ||
-    editorNotebook !== activeEditorNotebook
-  ) {
-    return;
-  }
+	if (
+		editorNotebook == null ||
+		activeEditorNotebook == null ||
+		editorNotebook !== activeEditorNotebook
+	) {
+		return;
+	}
 
-  const editorIndex = getCellIndex(editorNotebook, editor.document);
-  const activeEditorIndex = getCellIndex(
-    editorNotebook,
-    activeTextEditor.document,
-  );
+	const editorIndex = getCellIndex(editorNotebook, editor.document);
+	const activeEditorIndex = getCellIndex(
+		editorNotebook,
+		activeTextEditor.document,
+	);
 
-  if (editorIndex === -1 || activeEditorIndex === -1) {
-    throw new Error(
-      "Couldn't find editor corresponding to given cell in the expected notebook",
-    );
-  }
+	if (editorIndex === -1 || activeEditorIndex === -1) {
+		throw new Error(
+			"Couldn't find editor corresponding to given cell in the expected notebook",
+		);
+	}
 
-  const cellOffset = editorIndex - activeEditorIndex;
+	const cellOffset = editorIndex - activeEditorIndex;
 
-  const command =
-    cellOffset < 0
-      ? "notebook.focusPreviousEditor"
-      : "notebook.focusNextEditor";
+	const command =
+		cellOffset < 0
+			? "notebook.focusPreviousEditor"
+			: "notebook.focusNextEditor";
 
-  // This is a hack. We just repeatedly issued the command to move upwards or
-  // downwards a cell to get to the right cell
-  for (const _ of range(Math.abs(cellOffset))) {
-    await commands.executeCommand(command);
-  }
+	// This is a hack. We just repeatedly issued the command to move upwards or
+	// downwards a cell to get to the right cell
+	for (const _ of range(Math.abs(cellOffset))) {
+		await commands.executeCommand(command);
+	}
 }
 
 export function getNotebookFromCellDocumentLegacy(document: TextDocument) {
-  return (document as any).notebook as NotebookDocument | undefined;
+	return (document as any).notebook as NotebookDocument | undefined;
 }

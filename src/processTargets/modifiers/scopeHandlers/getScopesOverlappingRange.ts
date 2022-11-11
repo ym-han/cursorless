@@ -10,13 +10,13 @@ import { ScopeHandler } from "./scopeHandler.types";
  * @returns
  */
 export default function getScopesOverlappingRange(
-  scopeHandler: ScopeHandler,
-  editor: TextEditor,
-  { start, end }: Range,
+	scopeHandler: ScopeHandler,
+	editor: TextEditor,
+	{ start, end }: Range,
 ): TargetScope[] {
-  return Array.from(
-    scopeHandler.generateScopes(editor, start, "forward", {
-      distalPosition: end,
-    }),
-  );
+	return Array.from(
+		scopeHandler.generateScopes(editor, start, "forward", {
+			distalPosition: end,
+		}),
+	);
 }

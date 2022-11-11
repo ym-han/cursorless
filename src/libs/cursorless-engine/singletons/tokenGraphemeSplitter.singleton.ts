@@ -6,11 +6,11 @@ import { TokenGraphemeSplitter } from "../tokenGraphemeSplitter/tokenGraphemeSpl
  */
 
 export default function tokenGraphemeSplitter(): TokenGraphemeSplitter {
-  if (tokenGraphemeSplitter_ == null) {
-    tokenGraphemeSplitter_ = new TokenGraphemeSplitter();
-  }
+	if (tokenGraphemeSplitter_ == null) {
+		tokenGraphemeSplitter_ = new TokenGraphemeSplitter();
+	}
 
-  return tokenGraphemeSplitter_;
+	return tokenGraphemeSplitter_;
 }
 /**
  * This is the token grapheme splitter singleton

@@ -5,11 +5,11 @@ import BaseTarget from "./BaseTarget";
  * just consists of the content itself. Its insertion delimiter is empty string.
  */
 export default class PlainTarget extends BaseTarget {
-  insertionDelimiter = "";
+	insertionDelimiter = "";
 
-  getLeadingDelimiterTarget = () => undefined;
-  getTrailingDelimiterTarget = () => undefined;
-  getRemovalRange = () => this.contentRange;
+	getLeadingDelimiterTarget = () => undefined;
+	getTrailingDelimiterTarget = () => undefined;
+	getRemovalRange = () => this.contentRange;
 
-  protected getCloneParameters = () => this.state;
+	protected getCloneParameters = () => this.state;
 }

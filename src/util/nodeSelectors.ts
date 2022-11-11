@@ -2,43 +2,43 @@ import { identity, maxBy } from "lodash";
 import { Position, Range, Selection, TextEditor } from "vscode";
 import { Point, SyntaxNode } from "web-tree-sitter";
 import {
-  NodeFinder,
-  SelectionExtractor,
-  SelectionWithContext,
+	NodeFinder,
+	SelectionExtractor,
+	SelectionWithContext,
 } from "../typings/Types";
 
 export function makeRangeFromPositions(
-  startPosition: Point,
-  endPosition: Point,
+	startPosition: Point,
+	endPosition: Point,
 ) {
-  return new Range(
-    startPosition.row,
-    startPosition.column,
-    endPosition.row,
-    endPosition.column,
-  );
+	return new Range(
+		startPosition.row,
+		startPosition.column,
+		endPosition.row,
+		endPosition.column,
+	);
 }
 
 export function positionFromPoint(point: Point): Position {
-  return new Position(point.row, point.column);
+	return new Position(point.row, point.column);
 }
 
 export function getNodeRange(node: SyntaxNode) {
-  return new Range(
-    node.startPosition.row,
-    node.startPosition.column,
-    node.endPosition.row,
-    node.endPosition.column,
-  );
+	return new Range(
+		node.startPosition.row,
+		node.startPosition.column,
+		node.endPosition.row,
+		node.endPosition.column,
+	);
 }
 
 export function makeNodePairSelection(anchor: SyntaxNode, active: SyntaxNode) {
-  return new Selection(
-    anchor.startPosition.row,
-    anchor.startPosition.column,
-    active.endPosition.row,
-    active.endPosition.column,
-  );
+	return new Selection(
+		anchor.startPosition.row,
+		anchor.startPosition.column,
+		active.endPosition.row,
+		active.endPosition.column,
+	);
 }
 
 /**
@@ -47,25 +47,25 @@ export function makeNodePairSelection(anchor: SyntaxNode, active: SyntaxNode) {
  * @returns The internal range of the given node
  */
 export function getNodeInternalRange(node: SyntaxNode) {
-  const children = node.children;
+	const children = node.children;
 
-  return makeRangeFromPositions(
-    children[0].endPosition,
-    children[children.length - 1].startPosition,
-  );
+	return makeRangeFromPositions(
+		children[0].endPosition,
+		children[children.length - 1].startPosition,
+	);
 }
 
 export function simpleSelectionExtractor(
-  editor: TextEditor,
-  node: SyntaxNode,
+	editor: TextEditor,
+	node: SyntaxNode,
 ): SelectionWithContext {
-  return {
-    selection: new Selection(
-      new Position(node.startPosition.row, node.startPosition.column),
-      new Position(node.endPosition.row, node.endPosition.column),
-    ),
-    context: {},
-  };
+	return {
+		selection: new Selection(
+			new Position(node.startPosition.row, node.startPosition.column),
+			new Position(node.endPosition.row, node.endPosition.column),
+		),
+		context: {},
+	};
 }
 
 /**
@@ -79,26 +79,26 @@ export function simpleSelectionExtractor(
  * sibling or the final sibling if non matches
  */
 export function extendUntilNextMatchingSiblingOrLast(
-  editor: TextEditor,
-  node: SyntaxNode,
-  nodeFinder: NodeFinder,
+	editor: TextEditor,
+	node: SyntaxNode,
+	nodeFinder: NodeFinder,
 ) {
-  const endNode = getNextMatchingSiblingNodeOrLast(node, nodeFinder);
-  return pairSelectionExtractor(editor, node, endNode);
+	const endNode = getNextMatchingSiblingNodeOrLast(node, nodeFinder);
+	return pairSelectionExtractor(editor, node, endNode);
 }
 
 function getNextMatchingSiblingNodeOrLast(
-  node: SyntaxNode,
-  nodeFinder: NodeFinder,
+	node: SyntaxNode,
+	nodeFinder: NodeFinder,
 ): SyntaxNode {
-  let currentNode: SyntaxNode = node;
-  let nextNode: SyntaxNode | null = node.nextSibling;
+	let currentNode: SyntaxNode = node;
+	let nextNode: SyntaxNode | null = node.nextSibling;
 
-  while (nextNode != null && nodeFinder(nextNode) == null) {
-    currentNode = nextNode;
-    nextNode = nextNode.nextSibling;
-  }
-  return currentNode;
+	while (nextNode != null && nodeFinder(nextNode) == null) {
+		currentNode = nextNode;
+		nextNode = nextNode.nextSibling;
+	}
+	return currentNode;
 }
 
 /**
@@ -108,15 +108,15 @@ function getNextMatchingSiblingNodeOrLast(
  * @returns An extractor
  */
 export function extendForwardPastOptional(...delimiters: string[]) {
-  return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
-    const nextNode: SyntaxNode | null = node.nextSibling;
+	return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
+		const nextNode: SyntaxNode | null = node.nextSibling;
 
-    if (nextNode != null && delimiters.includes(nextNode.type)) {
-      return pairSelectionExtractor(editor, node, nextNode);
-    }
+		if (nextNode != null && delimiters.includes(nextNode.type)) {
+			return pairSelectionExtractor(editor, node, nextNode);
+		}
 
-    return simpleSelectionExtractor(editor, node);
-  };
+		return simpleSelectionExtractor(editor, node);
+	};
 }
 
 /**
@@ -124,96 +124,96 @@ export function extendForwardPastOptional(...delimiters: string[]) {
  * Both nodes are included in the selected nodes
  */
 export function pairSelectionExtractor(
-  editor: TextEditor,
-  node1: SyntaxNode,
-  node2: SyntaxNode,
+	editor: TextEditor,
+	node1: SyntaxNode,
+	node2: SyntaxNode,
 ): SelectionWithContext {
-  const isForward = node1.startIndex < node2.startIndex;
-  const start = isForward ? node1 : node2;
-  const end = isForward ? node2 : node1;
-  return {
-    selection: new Selection(
-      new Position(start.startPosition.row, start.startPosition.column),
-      new Position(end.endPosition.row, end.endPosition.column),
-    ),
-    context: {},
-  };
+	const isForward = node1.startIndex < node2.startIndex;
+	const start = isForward ? node1 : node2;
+	const end = isForward ? node2 : node1;
+	return {
+		selection: new Selection(
+			new Position(start.startPosition.row, start.startPosition.column),
+			new Position(end.endPosition.row, end.endPosition.column),
+		),
+		context: {},
+	};
 }
 
 export function argumentSelectionExtractor(): SelectionExtractor {
-  return delimitedSelector(
-    (node) =>
-      node.type === "," ||
-      node.type === "(" ||
-      node.type === ")" ||
-      node.type === "[" ||
-      node.type === "]" ||
-      node.type === ">" ||
-      node.type === "<" ||
-      node.type === "}" ||
-      node.type === "{",
-    ", ",
-  );
+	return delimitedSelector(
+		(node) =>
+			node.type === "," ||
+			node.type === "(" ||
+			node.type === ")" ||
+			node.type === "[" ||
+			node.type === "]" ||
+			node.type === ">" ||
+			node.type === "<" ||
+			node.type === "}" ||
+			node.type === "{",
+		", ",
+	);
 }
 
 export function unwrapSelectionExtractor(
-  editor: TextEditor,
-  node: SyntaxNode,
+	editor: TextEditor,
+	node: SyntaxNode,
 ): SelectionWithContext {
-  let startIndex = node.startIndex;
-  let endIndex = node.endIndex;
-  if (node.text.startsWith("(") && node.text.endsWith(")")) {
-    startIndex += 1;
-    endIndex -= 1;
-  } else if (node.text.endsWith(";")) {
-    endIndex -= 1;
-  }
-  return {
-    selection: new Selection(
-      editor.document.positionAt(startIndex),
-      editor.document.positionAt(endIndex),
-    ),
-    context: {},
-  };
+	let startIndex = node.startIndex;
+	let endIndex = node.endIndex;
+	if (node.text.startsWith("(") && node.text.endsWith(")")) {
+		startIndex += 1;
+		endIndex -= 1;
+	} else if (node.text.endsWith(";")) {
+		endIndex -= 1;
+	}
+	return {
+		selection: new Selection(
+			editor.document.positionAt(startIndex),
+			editor.document.positionAt(endIndex),
+		),
+		context: {},
+	};
 }
 
 export function selectWithLeadingDelimiter(...delimiters: string[]) {
-  return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
-    const firstSibling = node.previousSibling;
-    const secondSibling = firstSibling?.previousSibling;
-    let leadingDelimiterRange;
-    if (firstSibling) {
-      if (delimiters.includes(firstSibling.type)) {
-        // Second sibling exists. Terminate before it.
-        if (secondSibling) {
-          leadingDelimiterRange = makeRangeFromPositions(
-            secondSibling.endPosition,
-            node.startPosition,
-          );
-        }
-        // First delimiter sibling exists. Terminate after it.
-        else {
-          leadingDelimiterRange = makeRangeFromPositions(
-            firstSibling.startPosition,
-            node.startPosition,
-          );
-        }
-      }
-      // First sibling exists but is not the delimiter we are looking for. Terminate before it.
-      else {
-        leadingDelimiterRange = makeRangeFromPositions(
-          firstSibling.endPosition,
-          node.startPosition,
-        );
-      }
-    }
-    return {
-      ...simpleSelectionExtractor(editor, node),
-      context: {
-        leadingDelimiterRange,
-      },
-    };
-  };
+	return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
+		const firstSibling = node.previousSibling;
+		const secondSibling = firstSibling?.previousSibling;
+		let leadingDelimiterRange;
+		if (firstSibling) {
+			if (delimiters.includes(firstSibling.type)) {
+				// Second sibling exists. Terminate before it.
+				if (secondSibling) {
+					leadingDelimiterRange = makeRangeFromPositions(
+						secondSibling.endPosition,
+						node.startPosition,
+					);
+				}
+				// First delimiter sibling exists. Terminate after it.
+				else {
+					leadingDelimiterRange = makeRangeFromPositions(
+						firstSibling.startPosition,
+						node.startPosition,
+					);
+				}
+			}
+			// First sibling exists but is not the delimiter we are looking for. Terminate before it.
+			else {
+				leadingDelimiterRange = makeRangeFromPositions(
+					firstSibling.endPosition,
+					node.startPosition,
+				);
+			}
+		}
+		return {
+			...simpleSelectionExtractor(editor, node),
+			context: {
+				leadingDelimiterRange,
+			},
+		};
+	};
 }
 
 /**
@@ -225,102 +225,102 @@ export function selectWithLeadingDelimiter(...delimiters: string[]) {
  * @returns A selection extractor
  */
 export function childRangeSelector(
-  typesToExclude: string[] = [],
-  typesToInclude: string[] = [],
+	typesToExclude: string[] = [],
+	typesToInclude: string[] = [],
 ) {
-  return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
-    if (typesToExclude.length > 0 && typesToInclude.length > 0) {
-      throw new Error("Cannot have both exclusions and inclusions.");
-    }
-    let nodes = node.namedChildren;
-    const exclusionSet = new Set(typesToExclude);
-    const inclusionSet = new Set(typesToInclude);
-    nodes = nodes.filter((child) => {
-      if (exclusionSet.size > 0) {
-        return !exclusionSet.has(child.type);
-      }
+	return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
+		if (typesToExclude.length > 0 && typesToInclude.length > 0) {
+			throw new Error("Cannot have both exclusions and inclusions.");
+		}
+		let nodes = node.namedChildren;
+		const exclusionSet = new Set(typesToExclude);
+		const inclusionSet = new Set(typesToInclude);
+		nodes = nodes.filter((child) => {
+			if (exclusionSet.size > 0) {
+				return !exclusionSet.has(child.type);
+			}
 
-      if (inclusionSet.size > 0) {
-        return inclusionSet.has(child.type);
-      }
+			if (inclusionSet.size > 0) {
+				return inclusionSet.has(child.type);
+			}
 
-      return true;
-    });
+			return true;
+		});
 
-    return pairSelectionExtractor(editor, nodes[0], nodes[nodes.length - 1]);
-  };
+		return pairSelectionExtractor(editor, nodes[0], nodes[nodes.length - 1]);
+	};
 }
 
 export function selectWithTrailingDelimiter(...delimiters: string[]) {
-  return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
-    const firstSibling = node.nextSibling;
-    const secondSibling = firstSibling?.nextSibling;
-    let trailingDelimiterRange;
-    if (firstSibling) {
-      if (delimiters.includes(firstSibling.type)) {
-        if (secondSibling) {
-          trailingDelimiterRange = makeRangeFromPositions(
-            node.endPosition,
-            secondSibling.startPosition,
-          );
-        } else {
-          trailingDelimiterRange = makeRangeFromPositions(
-            node.endPosition,
-            firstSibling.endPosition,
-          );
-        }
-      } else {
-        trailingDelimiterRange = makeRangeFromPositions(
-          node.endPosition,
-          firstSibling.startPosition,
-        );
-      }
-    }
-    return {
-      ...simpleSelectionExtractor(editor, node),
-      context: {
-        trailingDelimiterRange,
-      },
-    };
-  };
+	return function (editor: TextEditor, node: SyntaxNode): SelectionWithContext {
+		const firstSibling = node.nextSibling;
+		const secondSibling = firstSibling?.nextSibling;
+		let trailingDelimiterRange;
+		if (firstSibling) {
+			if (delimiters.includes(firstSibling.type)) {
+				if (secondSibling) {
+					trailingDelimiterRange = makeRangeFromPositions(
+						node.endPosition,
+						secondSibling.startPosition,
+					);
+				} else {
+					trailingDelimiterRange = makeRangeFromPositions(
+						node.endPosition,
+						firstSibling.endPosition,
+					);
+				}
+			} else {
+				trailingDelimiterRange = makeRangeFromPositions(
+					node.endPosition,
+					firstSibling.startPosition,
+				);
+			}
+		}
+		return {
+			...simpleSelectionExtractor(editor, node),
+			context: {
+				trailingDelimiterRange,
+			},
+		};
+	};
 }
 
 function getNextNonDelimiterNode(
-  startNode: SyntaxNode,
-  isDelimiterNode: (node: SyntaxNode) => boolean,
+	startNode: SyntaxNode,
+	isDelimiterNode: (node: SyntaxNode) => boolean,
 ): SyntaxNode | null {
-  let node = startNode.nextSibling;
+	let node = startNode.nextSibling;
 
-  while (node != null) {
-    if (!isDelimiterNode(node)) {
-      return node;
-    }
+	while (node != null) {
+		if (!isDelimiterNode(node)) {
+			return node;
+		}
 
-    node = node.nextSibling;
-  }
+		node = node.nextSibling;
+	}
 
-  return node;
+	return node;
 }
 
 function getPreviousNonDelimiterNode(
-  startNode: SyntaxNode,
-  isDelimiterNode: (node: SyntaxNode) => boolean,
+	startNode: SyntaxNode,
+	isDelimiterNode: (node: SyntaxNode) => boolean,
 ): SyntaxNode | null {
-  let node = startNode.previousSibling;
+	let node = startNode.previousSibling;
 
-  while (node != null) {
-    if (!isDelimiterNode(node)) {
-      return node;
-    }
+	while (node != null) {
+		if (!isDelimiterNode(node)) {
+			return node;
+		}
 
-    node = node.previousSibling;
-  }
+		node = node.previousSibling;
+	}
 
-  return node;
+	return node;
 }
 
 export function delimitersSelector(...delimiters: string[]) {
-  return delimitedSelector((node) => delimiters.includes(node.type), ", ");
+	return delimitedSelector((node) => delimiters.includes(node.type), ", ");
 }
 
 /**
@@ -337,102 +337,102 @@ export function delimitersSelector(...delimiters: string[]) {
  * @returns A selection extractor
  */
 export function delimitedSelector(
-  isDelimiterNode: (node: SyntaxNode) => boolean,
-  defaultDelimiter: string,
-  getStartNode: (node: SyntaxNode) => SyntaxNode = identity,
-  getEndNode: (node: SyntaxNode) => SyntaxNode = identity,
+	isDelimiterNode: (node: SyntaxNode) => boolean,
+	defaultDelimiter: string,
+	getStartNode: (node: SyntaxNode) => SyntaxNode = identity,
+	getEndNode: (node: SyntaxNode) => SyntaxNode = identity,
 ): SelectionExtractor {
-  return (editor: TextEditor, node: SyntaxNode) => {
-    let leadingDelimiterRange: Range | undefined;
-    let trailingDelimiterRange: Range | undefined;
-    const startNode = getStartNode(node);
-    const endNode = getEndNode(node);
+	return (editor: TextEditor, node: SyntaxNode) => {
+		let leadingDelimiterRange: Range | undefined;
+		let trailingDelimiterRange: Range | undefined;
+		const startNode = getStartNode(node);
+		const endNode = getEndNode(node);
 
-    const previousNonDelimiterNode = getPreviousNonDelimiterNode(
-      startNode,
-      isDelimiterNode,
-    );
-    const nextNonDelimiterNode = getNextNonDelimiterNode(
-      endNode,
-      isDelimiterNode,
-    );
+		const previousNonDelimiterNode = getPreviousNonDelimiterNode(
+			startNode,
+			isDelimiterNode,
+		);
+		const nextNonDelimiterNode = getNextNonDelimiterNode(
+			endNode,
+			isDelimiterNode,
+		);
 
-    if (previousNonDelimiterNode != null) {
-      leadingDelimiterRange = makeRangeFromPositions(
-        previousNonDelimiterNode.endPosition,
-        startNode.startPosition,
-      );
-    }
+		if (previousNonDelimiterNode != null) {
+			leadingDelimiterRange = makeRangeFromPositions(
+				previousNonDelimiterNode.endPosition,
+				startNode.startPosition,
+			);
+		}
 
-    if (nextNonDelimiterNode != null) {
-      trailingDelimiterRange = makeRangeFromPositions(
-        endNode.endPosition,
-        nextNonDelimiterNode.startPosition,
-      );
-    }
+		if (nextNonDelimiterNode != null) {
+			trailingDelimiterRange = makeRangeFromPositions(
+				endNode.endPosition,
+				nextNonDelimiterNode.startPosition,
+			);
+		}
 
-    const containingListDelimiter = getInsertionDelimiter(
-      editor,
-      leadingDelimiterRange,
-      trailingDelimiterRange,
-      defaultDelimiter,
-    );
+		const containingListDelimiter = getInsertionDelimiter(
+			editor,
+			leadingDelimiterRange,
+			trailingDelimiterRange,
+			defaultDelimiter,
+		);
 
-    return {
-      selection: new Selection(
-        new Position(
-          startNode.startPosition.row,
-          startNode.startPosition.column,
-        ),
-        new Position(endNode.endPosition.row, endNode.endPosition.column),
-      ),
-      context: {
-        containingListDelimiter,
-        leadingDelimiterRange,
-        trailingDelimiterRange,
-      },
-    };
-  };
+		return {
+			selection: new Selection(
+				new Position(
+					startNode.startPosition.row,
+					startNode.startPosition.column,
+				),
+				new Position(endNode.endPosition.row, endNode.endPosition.column),
+			),
+			context: {
+				containingListDelimiter,
+				leadingDelimiterRange,
+				trailingDelimiterRange,
+			},
+		};
+	};
 }
 
 export function xmlElementExtractor(
-  editor: TextEditor,
-  node: SyntaxNode,
+	editor: TextEditor,
+	node: SyntaxNode,
 ): SelectionWithContext {
-  const selection = simpleSelectionExtractor(editor, node);
+	const selection = simpleSelectionExtractor(editor, node);
 
-  // Interior range for an element is found by excluding the start and end nodes.
-  // Element nodes with too few children are self closing and therefore have no interior.
-  if (node.namedChildCount > 1) {
-    const { firstNamedChild, lastNamedChild } = node;
-    if (firstNamedChild != null && lastNamedChild != null) {
-      selection.context.interiorRange = new Range(
-        firstNamedChild.endPosition.row,
-        firstNamedChild.endPosition.column,
-        lastNamedChild.startPosition.row,
-        lastNamedChild.startPosition.column,
-      );
-    }
-  }
+	// Interior range for an element is found by excluding the start and end nodes.
+	// Element nodes with too few children are self closing and therefore have no interior.
+	if (node.namedChildCount > 1) {
+		const { firstNamedChild, lastNamedChild } = node;
+		if (firstNamedChild != null && lastNamedChild != null) {
+			selection.context.interiorRange = new Range(
+				firstNamedChild.endPosition.row,
+				firstNamedChild.endPosition.column,
+				lastNamedChild.startPosition.row,
+				lastNamedChild.startPosition.column,
+			);
+		}
+	}
 
-  return selection;
+	return selection;
 }
 
 export function getInsertionDelimiter(
-  editor: TextEditor,
-  leadingDelimiterRange: Range | undefined,
-  trailingDelimiterRange: Range | undefined,
-  defaultDelimiterInsertion: string,
+	editor: TextEditor,
+	leadingDelimiterRange: Range | undefined,
+	trailingDelimiterRange: Range | undefined,
+	defaultDelimiterInsertion: string,
 ) {
-  const { getText } = editor.document;
-  const delimiters = [
-    trailingDelimiterRange != null
-      ? getText(trailingDelimiterRange)
-      : defaultDelimiterInsertion,
-    leadingDelimiterRange != null
-      ? getText(leadingDelimiterRange)
-      : defaultDelimiterInsertion,
-  ];
+	const { getText } = editor.document;
+	const delimiters = [
+		trailingDelimiterRange != null
+			? getText(trailingDelimiterRange)
+			: defaultDelimiterInsertion,
+		leadingDelimiterRange != null
+			? getText(leadingDelimiterRange)
+			: defaultDelimiterInsertion,
+	];
 
-  return maxBy(delimiters, "length");
+	return maxBy(delimiters, "length");
 }

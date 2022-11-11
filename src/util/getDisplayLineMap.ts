@@ -10,19 +10,19 @@ import * as vscode from "vscode";
  * @param editor A visible editor
  */
 export function getDisplayLineMap(editor: vscode.TextEditor) {
-  return new Map(
-    flow(
-      flatten,
-      uniq,
-    )(
-      concat(
-        [[editor.selection.start.line]],
-        editor.visibleRanges.map((visibleRange) =>
-          range(visibleRange.start.line, visibleRange.end.line + 1),
-        ),
-      ),
-    )
-      .sort((a, b) => a - b)
-      .map((value, index) => [value, index]),
-  );
+	return new Map(
+		flow(
+			flatten,
+			uniq,
+		)(
+			concat(
+				[[editor.selection.start.line]],
+				editor.visibleRanges.map((visibleRange) =>
+					range(visibleRange.start.line, visibleRange.end.line + 1),
+				),
+			),
+		)
+			.sort((a, b) => a - b)
+			.map((value, index) => [value, index]),
+	);
 }

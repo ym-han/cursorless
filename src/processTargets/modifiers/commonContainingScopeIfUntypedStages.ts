@@ -13,13 +13,13 @@ import type { Target } from "../../typings/target.types";
  * is `false`.
  */
 export const containingSurroundingPairIfUntypedStage = new ModifyIfUntypedStage(
-  {
-    type: "modifyIfUntyped",
-    modifier: {
-      type: "containingScope",
-      scopeType: { type: "surroundingPair", delimiter: "any" },
-    },
-  },
+	{
+		type: "modifyIfUntyped",
+		modifier: {
+			type: "containingScope",
+			scopeType: { type: "surroundingPair", delimiter: "any" },
+		},
+	},
 );
 
 /**
@@ -27,11 +27,11 @@ export const containingSurroundingPairIfUntypedStage = new ModifyIfUntypedStage(
  * explicit scope type, ie if {@link Target.hasExplicitScopeType} is `false`.
  */
 export const containingLineIfUntypedStage = new ModifyIfUntypedStage({
-  type: "modifyIfUntyped",
-  modifier: {
-    type: "containingScope",
-    scopeType: { type: "line" },
-  },
+	type: "modifyIfUntyped",
+	modifier: {
+		type: "containingScope",
+		scopeType: { type: "line" },
+	},
 });
 
 /**
@@ -39,9 +39,9 @@ export const containingLineIfUntypedStage = new ModifyIfUntypedStage({
  * explicit scope type, ie if {@link Target.hasExplicitScopeType} is `false`.
  */
 export const containingTokenIfUntypedStage = new ModifyIfUntypedStage({
-  type: "modifyIfUntyped",
-  modifier: {
-    type: "containingScope",
-    scopeType: { type: "token" },
-  },
+	type: "modifyIfUntyped",
+	modifier: {
+		type: "containingScope",
+		scopeType: { type: "token" },
+	},
 });
