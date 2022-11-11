@@ -5,13 +5,9 @@ root = true
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
-indent_size = 2
-indent_style = space
+indent_style = tab
 max_line_length = 80
 trim_trailing_whitespace = true
-
-[*.json]
-indent_style = tab
 
 [*.py]
 indent_style = space
@@ -21,6 +17,8 @@ indent_size = 4
 insert_final_newline = false
 
 [*.{yml,yaml}]
+indent_style = space
+indent_size = 2
 # Trailing whitespace breaks yaml files if you use a multiline string
 # with a line that has trailing white space. Many of our recorded
 # tests use strings with trailing white space to represent the final
