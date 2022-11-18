@@ -89,7 +89,10 @@ const nodeMatchers: Partial<
       argumentSelectionExtractor(),
     ),
   ),
-  collectionKey: trailingMatcher(["pair[key]"], [":"]),
+  collectionKey: cascadingMatcher(
+    trailingMatcher(["pair[key]"], [":"]),
+    patternMatcher("case_clause[pattern]"),
+  ),
   ifStatement: "if_statement",
   anonymousFunction: "lambda?.lambda",
   functionCall: "call",
@@ -99,7 +102,10 @@ const nodeMatchers: Partial<
   className: "class_definition[name]",
   namedFunction: "decorated_definition?.function_definition",
   functionName: "function_definition[name]",
-  condition: conditionMatcher("*[condition]"),
+  condition: cascadingMatcher(
+    conditionMatcher("*[condition]"),
+    patternMatcher("case_clause[pattern]"),
+  ),
   type: leadingMatcher(
     ["function_definition[return_type]", "*[type]"],
     [":", "->"],
@@ -110,6 +116,7 @@ const nodeMatchers: Partial<
     "typed_parameter.identifier!",
     "parameters.identifier!",
     "*[name]",
+    "case_clause[pattern]",
   ],
   value: cascadingMatcher(
     leadingMatcher(
